@@ -1,7 +1,10 @@
 import type { ShortcutAction } from '../shortcuts/types'
-import { createFileActions, createNavigationActions, createEditActions } from './base-actions'
-import { createViewActions, createDevActions } from './view-actions'
-import { createGlobalActions } from './global-actions'
+import { createFileActions } from './file'
+import { createNavigationActions } from './navigation'
+import { createEditActions } from './edit'
+import { createViewActions } from './view'
+import { createDevActions } from './dev'
+import { createGlobalActions } from './global'
 
 export function getAllDefaultActions(): ShortcutAction[] {
   return [
