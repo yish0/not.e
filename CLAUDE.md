@@ -10,14 +10,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Status
 
-This repository (not.e) is currently empty and awaiting initial project setup. When code is added, this file should be updated with:
+This repository (not.e) contains an enterprise-level Electron + SvelteKit + shadcn/ui boilerplate setup.
 
-- Build, test, and development commands
-- Architecture overview and key patterns
-- Project-specific development guidelines
+### Build, Test, and Development Commands
+
+- `bun run dev` - Start development servers (SvelteKit + Electron)
+- `bun run build` - Build the application for production
+- `bun run package` - Package the Electron application
+- `bun run lint` - Check code formatting and linting
+- `bun run lint:fix` - Fix formatting and linting issues
+- `bun run typecheck` - Run TypeScript type checking
+
+### Architecture Overview
+
+```
+src/
+├── lib/
+│   ├── components/
+│   │   ├── ui/           # shadcn/ui components
+│   │   ├── layout/       # Layout components
+│   │   └── common/       # Common reusable components
+│   └── utils.ts          # Utility functions
+├── routes/               # SvelteKit pages
+├── styles/               # Global styles
+└── types/               # TypeScript definitions
+
+electron/
+├── main/                # Electron main process
+├── preload/             # Preload scripts
+└── config.ts           # Electron configuration
+```
+
+### Project-specific Development Guidelines
+
+- Uses bun as package manager with no semicolons in TypeScript
+- Prettier for code formatting
+- ESLint with TypeScript and Svelte plugins
+- shadcn/ui components with Tailwind CSS theming
+- Enterprise-level directory structure for scalability
 
 ## Current Setup
 
 - Repository: yish0/not.e
 - Remote: ssh://git@github.com/yish0/not.e.git
 - Claude permissions configured via .claude/settings.local.json
+
+## Lessons Learned
+
+### Electron + SvelteKit Integration
+- Static adapter is required for SvelteKit to work with Electron
+- Preload scripts need contextBridge for secure IPC communication
+- Build output directory needs to match Electron's expectations
+
+### shadcn/ui Setup
+- Manual component creation required for Svelte (no CLI like React)
+- Tailwind CSS variables approach works well for theming
+- Component composition pattern with proper TypeScript typing
+
+### Development Workflow
+- ESLint configuration requires `plugin:@typescript-eslint/recommended` not `@typescript-eslint/recommended`
+- Build/output directories should be excluded from linting and formatting
+- TypeScript compilation needs separate configs for main app and Electron processes

@@ -120,6 +120,16 @@ out
 .nuxt
 dist
 
+# SvelteKit
+.svelte-kit/
+build/
+
+# Electron
+release/
+
+# Bun
+bun.lockb
+
 # Gatsby files
 
 # Comment in the public line in if your project uses Gatsby and not Next.js
