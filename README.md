@@ -115,9 +115,19 @@ Should we go with RESTful API or GraphQL?
 - **Build Tool**: Bun
 - **Linting**: ESLint + Prettier
 
+## 🖥️ Platform Support
+
+Currently, not.e is designed and tested exclusively for **macOS**. While future versions may support Windows and Linux, the current focus is on delivering the best possible experience for macOS users.
+
+### System Requirements
+- macOS 10.14 (Mojave) or later
+- Node.js 18+ 
+- Bun (recommended)
+
 ## 🚀 Getting Started
 
 ### Prerequisites
+- macOS 10.14 (Mojave) or later
 - Node.js 18+
 - Bun (recommended) or npm/yarn
 

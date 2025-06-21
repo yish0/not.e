@@ -13,6 +13,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This repository (not.e) contains an enterprise-level Electron + SvelteKit + shadcn/ui boilerplate setup.
 
+### Platform Support
+- **Target Platform**: macOS only (macOS 10.14+ Mojave or later)
+- **Future Consideration**: Windows support may be added in later phases
+- **Development Environment**: Optimized for macOS development workflows
+
 ### Build, Test, and Development Commands
 
 - `bun run dev` - Start development servers (SvelteKit + Electron)
@@ -154,5 +159,13 @@ electron/
 ### Core System Interactions
 - **Vault System**: Repository pattern with VaultRepository for file operations, VaultManagerService for business logic, and factory pattern for initialization
 - **Shortcut System**: Strategy pattern with separate global/local managers, centralized config management, and action executor for command dispatch  
-- **IPC Architecture**: Modular handler registration through DefaultIPCManager, feature-based handler organization, and type-safe communication patterns
+- **IPC Architecture**: Modular handler registration through DefaultIPCManager, feature-based handler organization, and type-safe communication patterns with comprehensive permission management
 - **Service Integration**: Dependency injection through constructor parameters, interface-based contracts, and centralized service factories
+
+### IPC Permission Management System
+- **Three-Tier Security Model**: ROOT (main window only), PLUGIN (controlled plugin access), PUBLIC (unrestricted safe operations)
+- **Automatic Permission Validation**: All IPC calls are wrapped with permission checks, ensuring no unauthorized access
+- **Context-Aware Security**: Permission decisions based on sender origin and main window validation
+- **Plugin Integration Ready**: Dynamic plugin channel registration/revocation for Phase 3 external plugin support
+- **Fail-Safe Defaults**: Unregistered channels default to ROOT level for maximum security
+- **Comprehensive Testing**: 55+ unit tests covering all permission levels, edge cases, and integration scenarios
