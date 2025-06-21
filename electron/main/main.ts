@@ -1,11 +1,14 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { isDev, APP_ROOT } from '../config'
 import { getShortcutManager } from './shortcuts'
 import { getAllDefaultActions } from './actions'
+import { getVaultManager } from './vault'
+import { setupIPCHandlers } from './ipc'
 
 let mainWindow: BrowserWindow | null = null
 const shortcutManager = getShortcutManager()
+const vaultManager = getVaultManager()
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -42,9 +45,27 @@ function createWindow() {
 
   // 윈도우별 로컬 단축키 등록
   shortcutManager.setupWindow(mainWindow)
+
+  // IPC 핸들러 설정 (윈도우 생성 후)
+  setupIPCHandlers({ mainWindow })
 }
 
 app.whenReady().then(async () => {
+  // Vault 시스템 초기화
+  await vaultManager.initialize()
+  
+  // Vault 선택 확인
+  const shouldShowSelector = vaultManager.shouldShowVaultSelector()
+  if (shouldShowSelector) {
+    const result = await vaultManager.showVaultSelectionDialog()
+    if (!result.success) {
+      console.log('No vault selected, exiting app')
+      app.quit()
+      return
+    }
+    console.log(`Vault initialized: ${result.vault?.name} at ${result.vault?.path}`)
+  }
+
   // 단축키 시스템 초기화
   await shortcutManager.initialize()
   
@@ -78,11 +99,4 @@ app.on('window-all-closed', () => {
   }
 })
 
-// IPC handlers
-ipcMain.handle('get-app-version', () => {
-  return app.getVersion()
-})
-
-ipcMain.handle('get-platform', () => {
-  return process.platform
-})
+// IPC handlers are now managed by the IPC system in ./ipc/

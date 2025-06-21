@@ -83,3 +83,24 @@ electron/
 - Vault-based architecture (user-selectable storage location) offers flexibility like Obsidian
 - Plugin system should be considered from early architecture stages, not retrofitted
 - Real-time file watching and conflict detection are essential for multi-device workflows
+
+### Shortcut Management System
+- Modular architecture with separated concerns (global vs local shortcuts, config management, action execution)
+- Type-safe handler definitions improve code maintainability and prevent runtime errors
+- Config-based approach allows persistent user customization and easy defaults management
+- Action categorization (file, navigation, edit, view, dev, global) improves organization
+- WeakMap usage for window-specific shortcuts prevents memory leaks
+- Strategy pattern for different shortcut types (global/local) allows easy extension
+
+### Code Architecture and Maintainability Principles
+- **Single Responsibility Principle**: Each class/module should have only one reason to change
+- **Separation of Concerns**: Split complex functionality into focused, independent modules
+- **Dependency Injection**: Use interfaces and dependency injection for loose coupling
+- **Factory Pattern**: Use factory pattern for object creation to improve testability
+- **Repository Pattern**: Separate data access logic from business logic
+- **Command Pattern**: Encapsulate operations as objects for better organization
+- **Observer Pattern**: Use event-driven architecture for decoupled communication
+- **Configuration over Code**: Use external configuration files for settings
+- **Modular Design**: Break large files into smaller, focused modules (max ~200-300 lines per file)
+- **Interface Segregation**: Create specific interfaces rather than large monolithic ones
+- **Type Safety**: Use TypeScript interfaces and types extensively for compile-time safety
