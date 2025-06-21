@@ -15,24 +15,28 @@ graph TB
     C --> G[Electron before-input-event]
     D --> H[Action Handlers]
     E --> I[shortcuts.json]
+    E --> J[default-shortcuts.ts]
 
-    J[BrowserWindow] --> C
-    K[User Input] --> B
-    K --> C
+    K[BrowserWindow] --> C
+    L[User Input] --> B
+    L --> C
 
     subgraph "Action System"
-        H --> L[File Actions]
-        H --> M[Navigation Actions]
-        H --> N[Edit Actions]
-        H --> O[View Actions]
-        H --> P[Dev Actions]
-        H --> Q[Global Actions]
+        H --> M[File Actions]
+        H --> N[Navigation Actions]
+        H --> O[Edit Actions]
+        H --> P[View Actions]
+        H --> Q[Dev Actions]
+        H --> R[Global Actions]
     end
 
     subgraph "Config System"
-        I --> R[Default Config]
         I --> S[User Config]
         I --> T[Migration Logic]
+        J --> U[DEFAULT_GLOBAL_SHORTCUTS]
+        J --> V[DEFAULT_LOCAL_SHORTCUTS]
+        U --> E
+        V --> E
     end
 ```
 
@@ -122,6 +126,25 @@ configManager.addLocalShortcut({
 
 // 설정 저장
 await configManager.saveConfig()
+```
+
+### 6. Default Shortcuts Configuration (default-shortcuts.ts)
+
+기본 단축키 설정들을 중앙화하여 관리합니다. 이 파일에서 모든 기본 단축키 정의를 담당합니다.
+
+```typescript
+import { DEFAULT_GLOBAL_SHORTCUTS, DEFAULT_LOCAL_SHORTCUTS } from './default-shortcuts'
+
+// 기본 전역 단축키들
+console.log(DEFAULT_GLOBAL_SHORTCUTS)
+// [
+//   { key: 'CmdOrCtrl+Shift+N', action: 'quick-note', ... },
+//   { key: 'CmdOrCtrl+Shift+T', action: 'toggle-window', ... }
+// ]
+
+// 기본 로컬 단축키들 (카테고리별로 구성)
+console.log(DEFAULT_LOCAL_SHORTCUTS)
+// 파일, 네비게이션, 편집, 뷰, 개발자 도구 카테고리별 단축키들
 ```
 
 ## 데이터 흐름
@@ -293,37 +316,40 @@ await shortcutManager.resetToDefault()
 ### 새로운 단축키 카테고리 추가
 
 ```typescript
-// 새 카테고리의 액션들 정의
+// 1. types.ts에 새 카테고리 추가
+export type ShortcutCategory = 'global' | 'file' | 'navigation' | 'edit' | 'view' | 'dev' | 'plugin'
+
+// 2. default-shortcuts.ts에 새 단축키 추가
+export const DEFAULT_LOCAL_SHORTCUTS: ShortcutConfig[] = [
+  // ... 기존 단축키들
+  
+  // 플러그인 관련
+  {
+    key: 'CmdOrCtrl+Shift+P',
+    action: 'plugin-manager',
+    description: 'Open plugin manager',
+    category: 'plugin'
+  },
+  {
+    key: 'CmdOrCtrl+Alt+P',
+    action: 'plugin-execute',
+    description: 'Execute plugin',
+    category: 'plugin'
+  }
+]
+
+// 3. 새 카테고리의 액션들 정의
 export function createPluginActions(): ShortcutAction[] {
   return [
     {
-      name: 'plugin-action',
-      description: 'Execute plugin',
+      name: 'plugin-manager',
+      description: 'Open plugin manager',
       category: 'plugin',
       handler: (window: BrowserWindow | null): void => {
-        // 플러그인 실행 로직
+        window?.webContents.send('plugin:open-manager')
       }
     }
   ]
-}
-
-// ConfigManager에서 기본 설정에 추가
-private createDefaultConfig(): ShortcutConfigData {
-  return {
-    // ... 기존 설정
-    shortcuts: {
-      global: [...],
-      local: [
-        ...existingShortcuts,
-        {
-          key: 'CmdOrCtrl+P',
-          action: 'plugin-action',
-          description: 'Execute plugin',
-          category: 'plugin'
-        }
-      ]
-    }
-  }
 }
 ```
 
