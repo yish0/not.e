@@ -31,6 +31,8 @@ graph TB
     F --> S[toggle-devtools]
 
     G --> T[quick-note global]
+    G --> U1[toggle-window global]
+    G --> U2[Window Utils]
 
     subgraph "Communication"
         U[IPC Messages] --> V[Renderer Process]
@@ -49,7 +51,9 @@ graph TB
     Q --> U
     R --> W
     S --> W
-    T --> U
+    T --> V
+    U1 --> W1[Window Utils]
+    U2 --> W1
 ```
 
 ## 액션 카테고리
@@ -186,11 +190,13 @@ export function createDevActions(): ShortcutAction[] {
 
 - `toggle-devtools`: 개발자 도구 토글
 
-### 6. Global Actions (global-actions.ts)
+### 6. Global Actions (global/global-actions.ts)
 
-전역 단축키로 사용되는 액션들입니다.
+전역 단축키로 사용되는 액션들입니다. 복잡한 윈도우 관리 로직은 별도 유틸리티 모듈로 분리되어 있습니다.
 
 ```typescript
+import { findTargetWindow, toggleWindowVisibility } from './window-utils'
+
 export function createGlobalActions(): ShortcutAction[] {
   return [
     {
@@ -198,17 +204,24 @@ export function createGlobalActions(): ShortcutAction[] {
       description: 'Quick note (global)',
       category: 'global',
       handler: (window: BrowserWindow | null): void => {
-        let targetWindow = window
-
-        if (!targetWindow) {
-          const allWindows = BrowserWindow.getAllWindows()
-          targetWindow = allWindows.find((w) => !w.isDestroyed()) || null
-        }
-
+        const targetWindow = findTargetWindow(window)
+        
         if (targetWindow) {
           if (targetWindow.isMinimized()) targetWindow.restore()
           targetWindow.focus()
           targetWindow.webContents.send('shortcut:quick-note')
+        }
+      }
+    },
+    {
+      name: 'toggle-window',
+      description: 'Show/hide window on current desktop (global)',
+      category: 'global',
+      handler: (window: BrowserWindow | null): void => {
+        const targetWindow = findTargetWindow(window)
+        
+        if (targetWindow) {
+          toggleWindowVisibility(targetWindow)
         }
       }
     }
@@ -219,6 +232,42 @@ export function createGlobalActions(): ShortcutAction[] {
 **포함된 액션들:**
 
 - `quick-note`: 전역 빠른 노트 (앱을 활성화하고 새 노트 생성)
+- `toggle-window`: 윈도우 표시/숨김 토글 (현재 디스플레이로 이동)
+
+### 6.1. Window Utilities (global/window-utils.ts)
+
+전역 액션에서 사용하는 윈도우 관리 유틸리티 함수들입니다.
+
+```typescript
+// 유효한 타겟 윈도우 찾기
+export function findTargetWindow(window: BrowserWindow | null): BrowserWindow | null
+
+// 현재 커서가 있는 디스플레이 중앙에 윈도우 배치
+export function centerWindowOnCurrentDisplay(window: BrowserWindow): void
+
+// 윈도우 표시 및 포커스 (복원, 위치 조정 포함)
+export function showWindow(window: BrowserWindow): void
+
+// 윈도우 가시성 토글 (보이면 숨기고, 숨어있으면 표시)
+export function toggleWindowVisibility(window: BrowserWindow): void
+```
+
+**유틸리티 함수 설명:**
+
+- `findTargetWindow()`: 주어진 윈도우가 유효하지 않으면 대체 윈도우를 찾음
+- `centerWindowOnCurrentDisplay()`: 마우스 커서가 있는 디스플레이의 중앙에 윈도우 배치
+- `showWindow()`: 윈도우를 복원하고 적절한 위치에 표시한 후 포커스
+- `toggleWindowVisibility()`: 윈도우가 보이고 포커스되어 있으면 숨기고, 그렇지 않으면 표시
+
+**다중 디스플레이 지원:**
+
+```typescript
+// toggle-window 액션의 다중 디스플레이 동작
+// 1. 현재 마우스 커서 위치 감지
+// 2. 해당 디스플레이의 작업 영역 계산
+// 3. 윈도우를 해당 디스플레이 중앙으로 이동
+// 4. 윈도우 표시 및 포커스
+```
 
 ## 액션 실행 흐름
 
@@ -498,6 +547,41 @@ window.electronAPI?.onShortcut?.('my-action', () => {
 }
 ```
 
+### Window Utils 활용하기
+
+전역 액션이나 윈도우 관리가 필요한 액션에서는 window-utils의 헬퍼 함수들을 활용하세요:
+
+```typescript
+import { findTargetWindow, showWindow, centerWindowOnCurrentDisplay } from '../global/window-utils'
+
+{
+  name: 'custom-window-action',
+  description: 'Custom window management action',
+  category: 'custom',
+  handler: (window: BrowserWindow | null): void => {
+    const targetWindow = findTargetWindow(window)
+    
+    if (targetWindow) {
+      // 단순히 윈도우 표시
+      showWindow(targetWindow)
+      
+      // 또는 현재 디스플레이로만 이동
+      centerWindowOnCurrentDisplay(targetWindow)
+      
+      // 커스텀 로직 추가
+      targetWindow.webContents.send('custom-action')
+    }
+  }
+}
+```
+
+**Window Utils 사용 시나리오:**
+
+1. **전역 액션**: `findTargetWindow()`로 유효한 윈도우 찾기
+2. **다중 디스플레이**: `centerWindowOnCurrentDisplay()`로 현재 디스플레이에 배치
+3. **윈도우 복원**: `showWindow()`로 최소화된 윈도우도 적절히 표시
+4. **토글 기능**: `toggleWindowVisibility()`로 스마트한 표시/숨김
+
 ## 모범 사례
 
 1. **명명 규칙**: 액션 이름은 `kebab-case`로 작성
@@ -505,3 +589,5 @@ window.electronAPI?.onShortcut?.('my-action', () => {
 3. **에러 처리**: 모든 핸들러에서 적절한 에러 처리 구현
 4. **타입 안전성**: TypeScript 타입을 활용하여 컴파일 타임 검증
 5. **문서화**: 새로운 액션 추가 시 description을 명확하게 작성
+6. **윈도우 관리**: 윈도우 조작이 필요한 경우 window-utils의 헬퍼 함수 활용
+7. **코드 재사용**: 공통 로직은 별도 유틸리티 함수로 분리하여 재사용성 향상
