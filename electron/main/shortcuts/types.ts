@@ -6,7 +6,8 @@ export enum ShortcutCategory {
   NAVIGATION = 'navigation',
   EDIT = 'edit',
   VIEW = 'view',
-  DEV = 'dev'
+  DEV = 'dev',
+  CUSTOM = 'custom'
 }
 
 export interface ShortcutConfig {
