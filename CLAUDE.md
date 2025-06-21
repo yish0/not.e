@@ -21,6 +21,21 @@ This repository (not.e) contains an enterprise-level Electron + SvelteKit + shad
 
 ### Build, Test, and Development Commands
 
+#### Using Makefile (Recommended)
+
+For convenience, use the Makefile commands:
+
+- `make dev` - Start development servers (SvelteKit + Electron)
+- `make build` - Build the application for production
+- `make test` - Run all unit tests
+- `make lint` - Check code formatting and linting
+- `make format` - Format code with Prettier
+- `make package` - Package the Electron application
+- `make qa` - Run full quality assurance pipeline (lint + typecheck + test)
+- `make help` - Show all available commands
+
+#### Direct npm/bun Commands
+
 - `bun run dev` - Start development servers (SvelteKit + Electron)
 - `bun run dev:electron-only` - Run only Electron (after manual SvelteKit build)
 - `bun run build` - Build the application for production
