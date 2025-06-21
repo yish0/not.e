@@ -23,6 +23,29 @@ export function createGlobalActions(): ShortcutAction[] {
           targetWindow.webContents.send('shortcut:quick-note')
         }
       }
+    },
+    {
+      name: 'toggle-window',
+      description: 'Show/hide window on current desktop (global)',
+      category: 'global',
+      handler: (window: BrowserWindow | null): void => {
+        let targetWindow = window
+        
+        if (!targetWindow) {
+          const allWindows = BrowserWindow.getAllWindows()
+          targetWindow = allWindows.find(w => !w.isDestroyed()) || null
+        }
+        
+        if (targetWindow) {
+          if (targetWindow.isVisible() && targetWindow.isFocused()) {
+            targetWindow.hide()
+          } else {
+            if (targetWindow.isMinimized()) targetWindow.restore()
+            targetWindow.show()
+            targetWindow.focus()
+          }
+        }
+      }
     }
   ]
 }

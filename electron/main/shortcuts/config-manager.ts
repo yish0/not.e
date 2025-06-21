@@ -34,6 +34,12 @@ export class ShortcutConfigManager {
             action: 'quick-note',
             description: 'Quick note (global)',
             category: 'global'
+          },
+          {
+            key: 'CmdOrCtrl+Shift+H',
+            action: 'toggle-window',
+            description: 'Show/hide window on current desktop (global)',
+            category: 'global'
           }
         ],
         local: [
