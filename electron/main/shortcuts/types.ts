@@ -1,6 +1,13 @@
 import { BrowserWindow } from 'electron'
 
-export type ShortcutCategory = 'global' | 'file' | 'navigation' | 'edit' | 'view' | 'dev'
+export enum ShortcutCategory {
+  GLOBAL = 'global',
+  FILE = 'file',
+  NAVIGATION = 'navigation',
+  EDIT = 'edit',
+  VIEW = 'view',
+  DEV = 'dev'
+}
 
 export interface ShortcutConfig {
   key: string

@@ -4,7 +4,8 @@ import {
   GlobalShortcutManager,
   LocalShortcutManager,
   ActionExecutor,
-  ShortcutActionHandler
+  ShortcutActionHandler,
+  ShortcutCategory
 } from './types'
 import { ElectronGlobalShortcutManager } from './global-shortcut-manager'
 import { ElectronLocalShortcutManager } from './local-shortcut-manager'
@@ -186,7 +187,7 @@ export class ShortcutManager {
     name: string,
     handler: ShortcutActionHandler,
     description: string,
-    category: string
+    category: ShortcutCategory
   ): void {
     this.actionExecutor.registerAction({ name, handler, description, category })
   }
