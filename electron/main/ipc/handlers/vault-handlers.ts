@@ -1,6 +1,6 @@
 import { getVaultManager } from '../../vault'
-import { IPCHandler, IPCContext } from '../types'
-import { IPCPermissionLevel } from '../permission-manager'
+import type { IPCHandler, IPCContext } from '../types'
+import { IPCPermissionLevel } from '../permissions'
 
 export function createVaultHandlers(context: IPCContext): IPCHandler[] {
   const vaultManager = getVaultManager()

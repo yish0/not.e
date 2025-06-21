@@ -1,6 +1,6 @@
 import { BrowserWindow, screen } from 'electron'
-import type { ShortcutAction } from '../shortcuts/types'
-import { ShortcutCategory } from '../shortcuts/types'
+import type { ShortcutAction } from '../../shortcuts/types'
+import { ShortcutCategory } from '../../shortcuts/types'
 
 export function createGlobalActions(): ShortcutAction[] {
   return [

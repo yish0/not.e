@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron'
-import { DefaultIPCManager } from '../../../main/ipc/ipc-manager'
+import { DefaultIPCManager } from '../../../main/ipc/core'
 import type { IPCHandler } from '../../../main/ipc/types'
-import { IPCPermissionLevel } from '../../../main/ipc/permission-manager'
+import { IPCPermissionLevel } from '../../../main/ipc/permissions'
 
 jest.mock('electron', () => ({
   BrowserWindow: jest.fn().mockImplementation(() => ({
@@ -15,7 +15,7 @@ jest.mock('electron', () => ({
 }))
 
 // Mock permission manager
-jest.mock('../../../main/ipc/permission-manager', () => ({
+jest.mock('../../../main/ipc/permissions', () => ({
   getPermissionManager: () => ({
     setChannelPermission: jest.fn(),
     checkPermission: jest.fn().mockResolvedValue(true)

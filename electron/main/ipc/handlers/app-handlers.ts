@@ -1,6 +1,6 @@
 import { app } from 'electron'
-import { IPCHandler } from '../types'
-import { IPCPermissionLevel } from '../permission-manager'
+import type { IPCHandler } from '../types'
+import { IPCPermissionLevel } from '../permissions'
 
 export function createAppHandlers(): IPCHandler[] {
   return [

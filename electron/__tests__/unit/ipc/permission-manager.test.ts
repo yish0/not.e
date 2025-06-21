@@ -1,9 +1,9 @@
 import { BrowserWindow } from 'electron'
 import {
   DefaultIPCPermissionManager,
-  IPCPermissionLevel,
-  PermissionContext
-} from '../../../main/ipc/permission-manager'
+  IPCPermissionLevel
+} from '../../../main/ipc/permissions'
+import type { PermissionContext } from '../../../main/ipc/permissions'
 
 jest.mock('electron', () => ({
   BrowserWindow: jest.fn()

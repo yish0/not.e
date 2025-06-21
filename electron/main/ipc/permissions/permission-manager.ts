@@ -1,29 +1,10 @@
-import { BrowserWindow } from 'electron'
-
-export enum IPCPermissionLevel {
-  ROOT = 'root', // Full system access - core app functionality
-  PLUGIN = 'plugin', // Limited access - external plugin functionality
-  PUBLIC = 'public' // Public access - no sensitive operations
-}
-
-export interface IPCPermission {
-  level: IPCPermissionLevel
-  description?: string
-}
-
-export interface PermissionContext {
-  senderFrame: Electron.WebFrameMain
-  sender: Electron.WebContents
-  mainWindow: BrowserWindow | null
-}
-
-export interface IPCPermissionManager {
-  setChannelPermission(channel: string, permission: IPCPermission): void
-  checkPermission(channel: string, context: PermissionContext): Promise<boolean>
-  getChannelPermission(channel: string): IPCPermission | undefined
-  revokeChannelPermission(channel: string): void
-  getAllPermissions(): Map<string, IPCPermission>
-}
+import type {
+  IPCPermissionManager,
+  IPCPermission,
+  PermissionContext
+} from './permission-types'
+import { IPCPermissionLevel } from './permission-types'
+import { DEFAULT_PERMISSIONS } from './default-permissions'
 
 export class DefaultIPCPermissionManager implements IPCPermissionManager {
   private permissions = new Map<string, IPCPermission>()
@@ -33,51 +14,9 @@ export class DefaultIPCPermissionManager implements IPCPermissionManager {
   }
 
   private initializeDefaultPermissions(): void {
-    // Root level permissions - core app functionality
-    this.setChannelPermission('vault:get-current', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Get current vault configuration'
-    })
-
-    this.setChannelPermission('vault:get-recent', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Get recent vault list'
-    })
-
-    this.setChannelPermission('vault:select', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Show vault selection dialog'
-    })
-
-    this.setChannelPermission('vault:set-current', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Set current vault'
-    })
-
-    this.setChannelPermission('vault:remove-recent', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Remove vault from recent list'
-    })
-
-    this.setChannelPermission('vault:should-show-selector', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Check if vault selector should be shown'
-    })
-
-    this.setChannelPermission('vault:set-show-selector', {
-      level: IPCPermissionLevel.ROOT,
-      description: 'Set vault selector visibility'
-    })
-
-    // Public level permissions - safe for general access
-    this.setChannelPermission('get-app-version', {
-      level: IPCPermissionLevel.PUBLIC,
-      description: 'Get application version'
-    })
-
-    this.setChannelPermission('get-platform', {
-      level: IPCPermissionLevel.PUBLIC,
-      description: 'Get platform information'
+    // Load default permissions from configuration
+    Object.entries(DEFAULT_PERMISSIONS).forEach(([channel, permission]) => {
+      this.setChannelPermission(channel, permission)
     })
   }
 
@@ -111,7 +50,7 @@ export class DefaultIPCPermissionManager implements IPCPermissionManager {
     }
   }
 
-  private checkPluginPermission(context: PermissionContext): boolean {
+  private checkPluginPermission(_context: PermissionContext): boolean {
     // Plugin level: allow if not from main window (plugin context)
     // This can be extended with more sophisticated plugin validation
     return true

@@ -22,18 +22,19 @@ jest.mock('electron', () => ({
 }))
 
 // 의존성 모킹
-jest.mock('../../../main/shortcuts/global-shortcut-manager')
-jest.mock('../../../main/shortcuts/local-shortcut-manager')
-jest.mock('../../../main/shortcuts/action-executor')
-jest.mock('../../../main/shortcuts/config-manager')
+jest.mock('../../../main/shortcuts/managers/global-shortcut-manager')
+jest.mock('../../../main/shortcuts/managers/local-shortcut-manager')
+jest.mock('../../../main/shortcuts/actions/action-executor')
+jest.mock('../../../main/shortcuts/config/config-manager')
 
 import { BrowserWindow } from 'electron'
-import { ShortcutManager } from '../../../main/shortcuts/shortcut-manager'
-import { ElectronGlobalShortcutManager } from '../../../main/shortcuts/global-shortcut-manager'
-import { ElectronLocalShortcutManager } from '../../../main/shortcuts/local-shortcut-manager'
-import { DefaultActionExecutor } from '../../../main/shortcuts/action-executor'
-import { ShortcutConfigManager } from '../../../main/shortcuts/config-manager'
-import { ShortcutConfig } from '../../../main/shortcuts/types'
+import { ShortcutManager } from '../../../main/shortcuts/managers/shortcut-manager'
+import { ElectronGlobalShortcutManager } from '../../../main/shortcuts/managers/global-shortcut-manager'
+import { ElectronLocalShortcutManager } from '../../../main/shortcuts/managers/local-shortcut-manager'
+import { DefaultActionExecutor } from '../../../main/shortcuts/actions/action-executor'
+import { ShortcutConfigManager } from '../../../main/shortcuts/config/config-manager'
+import type { ShortcutConfig, ShortcutActionHandler } from '../../../main/shortcuts/types'
+import { ShortcutCategory } from '../../../main/shortcuts/types'
 
 // Mock 클래스들
 const MockElectronGlobalShortcutManager = ElectronGlobalShortcutManager as jest.MockedClass<
@@ -62,13 +63,13 @@ describe('ShortcutManager', () => {
       key: 'CommandOrControl+N',
       action: 'file:new',
       description: 'Create new file',
-      category: 'file'
+      category: ShortcutCategory.FILE
     },
     {
       key: 'CommandOrControl+S',
       action: 'file:save',
       description: 'Save current file',
-      category: 'file'
+      category: ShortcutCategory.FILE
     }
   ]
 
@@ -198,7 +199,7 @@ describe('ShortcutManager', () => {
         'CommandOrControl+T',
         'test:action',
         'Test action',
-        'test'
+        ShortcutCategory.CUSTOM
       )
 
       expect(result).toBe(true)
@@ -206,7 +207,7 @@ describe('ShortcutManager', () => {
         key: 'CommandOrControl+T',
         action: 'test:action',
         description: 'Test action',
-        category: 'test'
+        category: ShortcutCategory.CUSTOM
       })
       expect(mockGlobalManager.register).toHaveBeenCalledWith('CommandOrControl+T', 'test:action')
       expect(mockConfigManager.saveConfig).toHaveBeenCalled()
@@ -219,7 +220,7 @@ describe('ShortcutManager', () => {
         'CommandOrControl+T',
         'test:action',
         'Test action',
-        'test'
+        ShortcutCategory.CUSTOM
       )
 
       expect(result).toBe(false)
@@ -234,7 +235,7 @@ describe('ShortcutManager', () => {
         'CommandOrControl+T',
         'test:action',
         'Test action',
-        'test'
+        ShortcutCategory.CUSTOM
       )
 
       expect(result).toBe(false)
@@ -247,7 +248,7 @@ describe('ShortcutManager', () => {
         'CommandOrControl+T',
         'test:action',
         'Test action',
-        'test'
+        ShortcutCategory.CUSTOM
       )
 
       expect(result).toBe(true)
@@ -255,7 +256,7 @@ describe('ShortcutManager', () => {
         key: 'CommandOrControl+T',
         action: 'test:action',
         description: 'Test action',
-        category: 'test'
+        category: ShortcutCategory.CUSTOM
       })
       expect(mockLocalManager.register).toHaveBeenCalledWith(
         mockWindow,
@@ -300,15 +301,15 @@ describe('ShortcutManager', () => {
 
   describe('action management', () => {
     test('should register action', () => {
-      const handler = jest.fn()
+      const handler = jest.fn() as jest.MockedFunction<ShortcutActionHandler>
 
-      shortcutManager.registerAction('test:action', handler, 'Test action', 'test')
+      shortcutManager.registerAction('test:action', handler, 'Test action', ShortcutCategory.CUSTOM)
 
       expect(mockActionExecutor.registerAction).toHaveBeenCalledWith({
         name: 'test:action',
         handler,
         description: 'Test action',
-        category: 'test'
+        category: ShortcutCategory.CUSTOM
       })
     })
   })

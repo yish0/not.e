@@ -1,12 +1,13 @@
 import { BrowserWindow } from 'electron'
-import { ShortcutAction } from '../shortcuts/types'
+import type { ShortcutAction } from '../shortcuts/types'
+import { ShortcutCategory } from '../shortcuts/types'
 
 export function createFileActions(): ShortcutAction[] {
   return [
     {
       name: 'new-note',
       description: 'Create new note',
-      category: 'file',
+      category: ShortcutCategory.FILE,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:new-note')
       }
@@ -14,7 +15,7 @@ export function createFileActions(): ShortcutAction[] {
     {
       name: 'open-vault',
       description: 'Open vault',
-      category: 'file',
+      category: ShortcutCategory.FILE,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:open-vault')
       }
@@ -22,7 +23,7 @@ export function createFileActions(): ShortcutAction[] {
     {
       name: 'save-note',
       description: 'Save current note',
-      category: 'file',
+      category: ShortcutCategory.FILE,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:save-note')
       }
@@ -30,7 +31,7 @@ export function createFileActions(): ShortcutAction[] {
     {
       name: 'save-all',
       description: 'Save all notes',
-      category: 'file',
+      category: ShortcutCategory.FILE,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:save-all')
       }
@@ -43,7 +44,7 @@ export function createNavigationActions(): ShortcutAction[] {
     {
       name: 'quick-open',
       description: 'Quick open file',
-      category: 'navigation',
+      category: ShortcutCategory.NAVIGATION,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:quick-open')
       }
@@ -51,7 +52,7 @@ export function createNavigationActions(): ShortcutAction[] {
     {
       name: 'command-palette',
       description: 'Open command palette',
-      category: 'navigation',
+      category: ShortcutCategory.NAVIGATION,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:command-palette')
       }
@@ -64,7 +65,7 @@ export function createEditActions(): ShortcutAction[] {
     {
       name: 'find-in-note',
       description: 'Find in current note',
-      category: 'edit',
+      category: ShortcutCategory.EDIT,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:find-in-note')
       }
@@ -72,7 +73,7 @@ export function createEditActions(): ShortcutAction[] {
     {
       name: 'find-in-vault',
       description: 'Find in vault',
-      category: 'edit',
+      category: ShortcutCategory.EDIT,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:find-in-vault')
       }

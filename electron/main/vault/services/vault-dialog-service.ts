@@ -1,4 +1,4 @@
-import { dialog, BrowserWindow, OpenDialogOptions } from 'electron'
+import { dialog, BrowserWindow, type OpenDialogOptions } from 'electron'
 import type { VaultDialogService } from '../types/'
 
 export class ElectronVaultDialogService implements VaultDialogService {

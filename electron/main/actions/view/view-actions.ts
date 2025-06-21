@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
-import type { ShortcutAction } from '../shortcuts/types'
-import { ShortcutCategory } from '../shortcuts/types'
+import type { ShortcutAction } from '../../shortcuts/types'
+import { ShortcutCategory } from '../../shortcuts/types'
 
 export function createViewActions(): ShortcutAction[] {
   return [
@@ -50,19 +50,6 @@ export function createViewActions(): ShortcutAction[] {
       category: ShortcutCategory.VIEW,
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.setZoomFactor(1.0)
-      }
-    }
-  ]
-}
-
-export function createDevActions(): ShortcutAction[] {
-  return [
-    {
-      name: 'toggle-devtools',
-      description: 'Toggle developer tools',
-      category: ShortcutCategory.DEV,
-      handler: (window: BrowserWindow | null): void => {
-        window?.webContents.toggleDevTools()
       }
     }
   ]

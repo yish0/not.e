@@ -1,6 +1,7 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { IPCManager, IPCHandler } from './types'
-import { getPermissionManager, PermissionContext } from './permission-manager'
+import type { IPCManager, IPCHandler } from '../types'
+import { getPermissionManager } from '../permissions'
+import type { PermissionContext } from '../permissions'
 
 export class DefaultIPCManager implements IPCManager {
   private registeredChannels: Set<string> = new Set()

@@ -1,4 +1,4 @@
-import { ShortcutAction } from '../shortcuts/types'
+import type { ShortcutAction } from '../shortcuts/types'
 import { createFileActions, createNavigationActions, createEditActions } from './base-actions'
 import { createViewActions, createDevActions } from './view-actions'
 import { createGlobalActions } from './global-actions'

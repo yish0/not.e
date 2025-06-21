@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron'
 
+// Core Vault Types
 export interface VaultConfig {
   path: string
   name: string
@@ -71,4 +72,20 @@ export interface VaultManagerService {
   removeFromRecent(path: string): Promise<void>
   shouldShowSelector(): boolean
   setShowSelector(show: boolean): Promise<void>
+}
+
+// Additional types for testing and future features
+export interface ChannelConfig {
+  id: string
+  name: string
+  path: string
+  type: string
+}
+
+export interface WorkspaceConfig {
+  id: string
+  name: string
+  description?: string
+  channels: ChannelConfig[]
+  createdAt: string
 }

@@ -1,5 +1,5 @@
-import { DefaultIPCManager } from './ipc-manager'
-import { IPCManager, IPCContext } from './types'
+import { DefaultIPCManager } from './core'
+import type { IPCManager, IPCContext } from './types'
 import { getAllIPCHandlers } from './handlers'
 
 // Singleton instance
@@ -30,4 +30,4 @@ export function resetIPCManager(): void {
 export type { IPCHandler, IPCManager, IPCContext } from './types'
 
 // Re-exports
-export { DefaultIPCManager } from './ipc-manager'
+export { DefaultIPCManager } from './core'

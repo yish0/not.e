@@ -1,5 +1,4 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals'
-import { promises as fs } from 'fs'
 import { join } from 'path'
 
 // electron 모킹을 먼저 수행

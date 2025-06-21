@@ -1,4 +1,4 @@
-import { IPCHandler, IPCContext } from '../types'
+import type { IPCHandler, IPCContext } from '../types'
 import { createAppHandlers } from './app-handlers'
 import { createVaultHandlers } from './vault-handlers'
 

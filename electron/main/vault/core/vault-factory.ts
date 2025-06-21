@@ -1,9 +1,9 @@
-import { VaultManagerService, VaultDialogService } from './interfaces'
-import { FileAppConfigRepository } from './repositories/app-config-repository'
-import { FileVaultRepository } from './repositories/vault-repository'
-import { ElectronVaultDialogService } from './services/vault-dialog-service'
-import { DefaultVaultInitializerService } from './services/vault-initializer-service'
-import { DefaultVaultManagerService } from './services/vault-manager-service'
+import type { VaultManagerService, VaultDialogService } from '../types'
+import { FileAppConfigRepository } from '../repositories/app-config-repository'
+import { FileVaultRepository } from '../repositories/vault-repository'
+import { ElectronVaultDialogService } from '../services/vault-dialog-service'
+import { DefaultVaultInitializerService } from '../services/vault-initializer-service'
+import { DefaultVaultManagerService } from '../services/vault-manager-service'
 
 export class VaultFactory {
   private static vaultManagerInstance: VaultManagerService | null = null

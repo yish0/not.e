@@ -12,13 +12,13 @@ jest.mock('electron', () => ({
 }))
 
 import { DefaultVaultManagerService } from '../../../main/vault/services/vault-manager-service'
-import {
+import type {
   AppConfigRepository,
   VaultInitializerService,
   AppConfig,
   VaultConfig,
   VaultInitResult
-} from '../../../main/vault/interfaces'
+} from '../../../main/vault/types'
 
 describe('DefaultVaultManagerService', () => {
   let service: DefaultVaultManagerService

@@ -1,9 +1,9 @@
-import {
+import type {
   VaultConfig,
   VaultMetadata,
   WorkspaceConfig,
   ChannelConfig
-} from '../../main/vault/interfaces'
+} from '../../main/vault/types'
 
 export const mockVaultConfig: VaultConfig = {
   path: '/tmp/test-vault',
