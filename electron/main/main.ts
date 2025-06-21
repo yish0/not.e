@@ -1,8 +1,11 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { isDev, APP_ROOT } from '../config'
+import { getShortcutManager } from './shortcuts'
+import { getAllDefaultActions } from './actions'
 
 let mainWindow: BrowserWindow | null = null
+const shortcutManager = getShortcutManager()
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -36,9 +39,21 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+
+  // 윈도우별 로컬 단축키 등록
+  shortcutManager.setupWindow(mainWindow)
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // 단축키 시스템 초기화
+  await shortcutManager.initialize()
+  
+  // 기본 액션들 등록
+  registerDefaultActions()
+  
+  // 전역 단축키 등록
+  await shortcutManager.setupGlobalShortcuts()
+  
   createWindow()
 
   app.on('activate', () => {
@@ -47,6 +62,15 @@ app.whenReady().then(() => {
     }
   })
 })
+
+// 기본 액션들을 일괄 등록하는 함수
+function registerDefaultActions(): void {
+  const actions = getAllDefaultActions()
+  actions.forEach(action => {
+    shortcutManager.registerAction(action.name, action.handler, action.description, action.category)
+  })
+  console.log(`Registered ${actions.length} default actions`)
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

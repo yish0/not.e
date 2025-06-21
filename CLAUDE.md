@@ -75,3 +75,11 @@ electron/
 - Build/output directories should be excluded from linting and formatting
 - TypeScript compilation needs separate configs for main app and Electron processes
 - Always explicitly set NODE_ENV=development in Electron dev scripts to ensure proper mode detection
+
+### Project Architecture & Requirements Gathering
+- User interviews and iterative discussion are crucial for defining project scope
+- Breaking down complex features into phases helps maintain focus and extensibility
+- Git-friendly storage approach (markdown + frontmatter) provides version control benefits
+- Vault-based architecture (user-selectable storage location) offers flexibility like Obsidian
+- Plugin system should be considered from early architecture stages, not retrofitted
+- Real-time file watching and conflict detection are essential for multi-device workflows
