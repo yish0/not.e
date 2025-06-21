@@ -169,3 +169,9 @@ electron/
 - **Plugin Integration Ready**: Dynamic plugin channel registration/revocation for Phase 3 external plugin support
 - **Fail-Safe Defaults**: Unregistered channels default to ROOT level for maximum security
 - **Comprehensive Testing**: 55+ unit tests covering all permission levels, edge cases, and integration scenarios
+
+### Platform-Specific Development Considerations
+- **macOS-First Development**: All features and UI patterns optimized for macOS conventions and user expectations
+- **Native macOS Integration**: Leverage macOS-specific APIs and system features where beneficial
+- **Future Cross-Platform Planning**: Architecture designed to accommodate Windows support without major refactoring
+- **Development Environment**: All tooling and scripts optimized for macOS development workflows
