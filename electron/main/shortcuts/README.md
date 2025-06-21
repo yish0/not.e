@@ -322,7 +322,7 @@ export type ShortcutCategory = 'global' | 'file' | 'navigation' | 'edit' | 'view
 // 2. default-shortcuts.ts에 새 단축키 추가
 export const DEFAULT_LOCAL_SHORTCUTS: ShortcutConfig[] = [
   // ... 기존 단축키들
-  
+
   // 플러그인 관련
   {
     key: 'CmdOrCtrl+Shift+P',
