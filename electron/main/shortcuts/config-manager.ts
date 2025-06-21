@@ -36,7 +36,7 @@ export class ShortcutConfigManager {
             category: 'global'
           },
           {
-            key: 'CmdOrCtrl+Shift+H',
+            key: 'CmdOrCtrl+Shift+T',
             action: 'toggle-window',
             description: 'Show/hide window on current desktop (global)',
             category: 'global'
