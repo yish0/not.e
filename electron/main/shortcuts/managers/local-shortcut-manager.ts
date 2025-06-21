@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron'
-import { LocalShortcutManager, ActionExecutor } from './types'
+import type { LocalShortcutManager, ActionExecutor } from '../types'
 
 export class ElectronLocalShortcutManager implements LocalShortcutManager {
   private windowShortcuts: WeakMap<BrowserWindow, Map<string, string>> = new WeakMap()

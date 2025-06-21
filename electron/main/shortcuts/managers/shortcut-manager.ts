@@ -6,11 +6,11 @@ import {
   type ActionExecutor,
   type ShortcutActionHandler,
   ShortcutCategory
-} from './types'
+} from '../types'
 import { ElectronGlobalShortcutManager } from './global-shortcut-manager'
 import { ElectronLocalShortcutManager } from './local-shortcut-manager'
-import { DefaultActionExecutor } from './action-executor'
-import { ShortcutConfigManager } from './config-manager'
+import { DefaultActionExecutor } from '../actions'
+import { ShortcutConfigManager } from '../config'
 
 export class ShortcutManager {
   private globalManager: GlobalShortcutManager
@@ -88,7 +88,7 @@ export class ShortcutManager {
     key: string,
     action: string,
     description: string,
-    category: string = 'custom'
+    category: ShortcutCategory = ShortcutCategory.GLOBAL
   ): Promise<boolean> {
     await this.ensureInitialized()
 

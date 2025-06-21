@@ -40,9 +40,32 @@ graph TB
     end
 ```
 
+## 디렉토리 구조
+
+```
+shortcuts/
+├── README.md                    # 이 문서
+├── index.ts                     # 공개 API 및 팩토리 함수
+├── types/                       # 타입 정의
+│   ├── index.ts
+│   └── shortcut-types.ts        # ShortcutConfig, 인터페이스 등
+├── config/                      # 설정 관리
+│   ├── index.ts
+│   ├── config-manager.ts        # JSON 설정 파일 관리
+│   └── default-shortcuts.ts     # 기본 단축키 정의
+├── managers/                    # 단축키 관리자들
+│   ├── index.ts
+│   ├── shortcut-manager.ts      # 메인 관리자
+│   ├── global-shortcut-manager.ts
+│   └── local-shortcut-manager.ts
+└── actions/                     # 액션 실행 시스템
+    ├── index.ts
+    └── action-executor.ts       # 액션 실행기
+```
+
 ## 핵심 컴포넌트
 
-### 1. ShortcutManager (shortcut-manager.ts)
+### 1. ShortcutManager (managers/shortcut-manager.ts)
 
 메인 관리자 클래스로 모든 단축키 관련 작업을 조율합니다.
 
@@ -61,7 +84,7 @@ await shortcutManager.setupGlobalShortcuts()
 await shortcutManager.setupWindow(window)
 ```
 
-### 2. GlobalShortcutManager (global-shortcut-manager.ts)
+### 2. GlobalShortcutManager (managers/global-shortcut-manager.ts)
 
 Electron의 `globalShortcut` API를 래핑하여 전역 단축키를 관리합니다.
 
@@ -76,7 +99,7 @@ const shortcuts = globalManager.getRegisteredShortcuts()
 globalManager.unregister('CmdOrCtrl+Shift+N')
 ```
 
-### 3. LocalShortcutManager (local-shortcut-manager.ts)
+### 3. LocalShortcutManager (managers/local-shortcut-manager.ts)
 
 윈도우별 로컬 단축키를 `before-input-event`를 통해 관리합니다.
 
@@ -91,7 +114,7 @@ const shortcuts = localManager.getRegisteredShortcuts(window)
 localManager.unregister(window, 'CmdOrCtrl+S')
 ```
 
-### 4. ActionExecutor (action-executor.ts)
+### 4. ActionExecutor (actions/action-executor.ts)
 
 등록된 액션들을 실행하는 역할을 담당합니다.
 
@@ -108,7 +131,7 @@ actionExecutor.registerAction({
 await actionExecutor.executeAction('save-note', window)
 ```
 
-### 5. ConfigManager (config-manager.ts)
+### 5. ConfigManager (config/config-manager.ts)
 
 단축키 설정을 JSON 파일로 영구 저장하고 관리합니다.
 
@@ -128,12 +151,12 @@ configManager.addLocalShortcut({
 await configManager.saveConfig()
 ```
 
-### 6. Default Shortcuts Configuration (default-shortcuts.ts)
+### 6. Default Shortcuts Configuration (config/default-shortcuts.ts)
 
 기본 단축키 설정들을 중앙화하여 관리합니다. 이 파일에서 모든 기본 단축키 정의를 담당합니다.
 
 ```typescript
-import { DEFAULT_GLOBAL_SHORTCUTS, DEFAULT_LOCAL_SHORTCUTS } from './default-shortcuts'
+import { DEFAULT_GLOBAL_SHORTCUTS, DEFAULT_LOCAL_SHORTCUTS } from './config/default-shortcuts'
 
 // 기본 전역 단축키들
 console.log(DEFAULT_GLOBAL_SHORTCUTS)

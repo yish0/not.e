@@ -1,5 +1,5 @@
 import type { BrowserWindow } from 'electron'
-import type { ActionExecutor, ShortcutAction } from './types'
+import type { ActionExecutor, ShortcutAction } from '../types'
 
 export class DefaultActionExecutor implements ActionExecutor {
   private actions: Map<string, ShortcutAction> = new Map()
