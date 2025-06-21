@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs'
+import { promises as fs, constants } from 'fs'
 import { join, resolve } from 'path'
 import { VaultRepository, VaultValidationResult, VaultMetadata } from '../interfaces'
 import { createWelcomeNoteContent } from '../templates/welcome-note'
@@ -34,7 +34,7 @@ export class FileVaultRepository implements VaultRepository {
 
       // 쓰기 권한 확인
       try {
-        await fs.access(resolvedPath, fs.constants.W_OK)
+        await fs.access(resolvedPath, constants.W_OK)
       } catch {
         return {
           isValid: false,
