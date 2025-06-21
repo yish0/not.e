@@ -12,7 +12,13 @@ jest.mock('electron', () => ({
 }))
 
 import { DefaultVaultManagerService } from '../../../main/vault/services/vault-manager-service'
-import { AppConfigRepository, VaultInitializerService, AppConfig, VaultConfig, VaultInitResult } from '../../../main/vault/interfaces'
+import {
+  AppConfigRepository,
+  VaultInitializerService,
+  AppConfig,
+  VaultConfig,
+  VaultInitResult
+} from '../../../main/vault/interfaces'
 
 describe('DefaultVaultManagerService', () => {
   let service: DefaultVaultManagerService
@@ -65,7 +71,10 @@ describe('DefaultVaultManagerService', () => {
 
   describe('initialization', () => {
     test('should initialize with default config', () => {
-      const newService = new DefaultVaultManagerService(mockConfigRepository, mockInitializerService)
+      const newService = new DefaultVaultManagerService(
+        mockConfigRepository,
+        mockInitializerService
+      )
       expect(newService.shouldShowSelector()).toBe(true)
     })
 
@@ -197,7 +206,7 @@ describe('DefaultVaultManagerService', () => {
       expect(mockConfigRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({
           recentVaults: expect.arrayContaining([
-            expect.objectContaining({ 
+            expect.objectContaining({
               path: '/test/vault1',
               name: 'Updated Vault 1'
             })

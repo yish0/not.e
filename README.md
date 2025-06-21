@@ -11,23 +11,27 @@ not.e aims to be the ultimate note-taking solution that bridges the gap between 
 ## ✨ Key Features
 
 ### 🏢 Workspace & Channel System
+
 - **Multiple Workspaces**: Separate environments for different projects or contexts
 - **Slack-like Channels**: Organize notes by topics, projects, or themes
 - **Flexible Organization**: Each channel can contain different types of content
 
 ### 📝 Rich Content Types
+
 - **Thread-style Notes**: GitHub Issue-inspired discussion format
 - **Daily Notes**: Automatic daily note creation and management
 - **Code Snippets**: Syntax highlighting and developer-friendly formatting
 - **Custom Components**: Embed custom JavaScript and UI components
 
 ### 🔧 Developer-Centric Design
+
 - **Git-Friendly**: All data stored as markdown files with frontmatter
 - **Local-First**: Your data stays on your machine, with optional remote backup
 - **Plugin System**: Extend functionality with custom plugins
 - **Browser Integration**: Embed web content directly in your notes
 
 ### 🎨 Complete Customization
+
 - **Custom Themes**: Style your workspace exactly how you want
 - **Plugin Marketplace**: Share and discover community-created extensions
 - **Programmable Interface**: Extend with custom JavaScript and components
@@ -35,12 +39,14 @@ not.e aims to be the ultimate note-taking solution that bridges the gap between 
 ## 🏗️ Architecture
 
 ### Data Storage
+
 - **Vault-based**: Choose your own storage location (like Obsidian)
 - **Markdown Files**: All notes stored as standard markdown with YAML frontmatter
 - **Git Integration**: Version control through plugin system
 - **Real-time Sync**: Automatic detection of external file changes
 
 ### File Structure
+
 ```
 [Your Vault]/
 ├── .note/
@@ -56,9 +62,10 @@ not.e aims to be the ultimate note-taking solution that bridges the gap between 
 ```
 
 ### Thread Format Example
+
 ```markdown
 ---
-title: "API Design Discussion"
+title: 'API Design Discussion'
 type: thread
 created: 2024-01-15T10:00:00Z
 tags: [api, design, backend]
@@ -67,6 +74,7 @@ tags: [api, design, backend]
 # API Design Discussion
 
 ## Main Post
+
 Should we go with RESTful API or GraphQL?
 
 ---
@@ -74,15 +82,18 @@ Should we go with RESTful API or GraphQL?
 ## Comment Thread
 
 ### Comment 1 (2024-01-15T10:30:00Z)
+
 > RESTful API seems simpler...
 
 ### Comment 2 (2024-01-15T11:00:00Z)
+
 > GraphQL offers more flexibility...
 ```
 
 ## 🛣️ Development Roadmap
 
 ### Phase 1: MVP (Foundation)
+
 - [x] Basic Electron + SvelteKit setup
 - [ ] Vault selection and management
 - [ ] Basic text editing with markdown support
@@ -91,6 +102,7 @@ Should we go with RESTful API or GraphQL?
 - [ ] Local file storage with frontmatter
 
 ### Phase 2: Core Features
+
 - [ ] Thread-style note creation and management
 - [ ] Code snippet support with syntax highlighting
 - [ ] Tag system and basic search
@@ -99,6 +111,7 @@ Should we go with RESTful API or GraphQL?
 - [ ] Remote backup plugins (Git, cloud storage)
 
 ### Phase 3: Advanced Customization
+
 - [ ] Custom JavaScript execution environment
 - [ ] Plugin system architecture
 - [ ] Browser embedding capabilities
@@ -120,18 +133,21 @@ Should we go with RESTful API or GraphQL?
 Currently, not.e is designed and tested exclusively for **macOS**. While future versions may support Windows and Linux, the current focus is on delivering the best possible experience for macOS users.
 
 ### System Requirements
+
 - macOS 10.14 (Mojave) or later
-- Node.js 18+ 
+- Node.js 18+
 - Bun (recommended)
 
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - macOS 10.14 (Mojave) or later
 - Node.js 18+
 - Bun (recommended) or npm/yarn
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/yish0/not.e.git
@@ -145,6 +161,7 @@ bun run dev
 ```
 
 ### Build for Production
+
 ```bash
 # Build the application
 bun run build
@@ -156,6 +173,7 @@ bun run package
 ## 🧪 Development
 
 ### Available Scripts
+
 - `bun run dev` - Start development servers (SvelteKit + Electron)
 - `bun run build` - Build the application for production
 - `bun run package` - Package the Electron application
@@ -164,6 +182,7 @@ bun run package
 - `bun run typecheck` - Run TypeScript type checking
 
 ### Contributing
+
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ## 📄 License

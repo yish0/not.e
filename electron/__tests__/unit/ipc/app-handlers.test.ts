@@ -31,7 +31,7 @@ describe('App IPC Handlers', () => {
 
   describe('get-app-version handler', () => {
     test('should return app version', async () => {
-      const versionHandler = handlers.find(h => h.channel === 'get-app-version')
+      const versionHandler = handlers.find((h) => h.channel === 'get-app-version')
       expect(versionHandler).toBeDefined()
 
       const result = await versionHandler!.handler()
@@ -46,7 +46,7 @@ describe('App IPC Handlers', () => {
         throw error
       })
 
-      const versionHandler = handlers.find(h => h.channel === 'get-app-version')
+      const versionHandler = handlers.find((h) => h.channel === 'get-app-version')
 
       expect(() => versionHandler!.handler()).toThrow('Version not available')
     })
@@ -54,7 +54,7 @@ describe('App IPC Handlers', () => {
 
   describe('get-platform handler', () => {
     test('should return platform information', async () => {
-      const platformHandler = handlers.find(h => h.channel === 'get-platform')
+      const platformHandler = handlers.find((h) => h.channel === 'get-platform')
       expect(platformHandler).toBeDefined()
 
       const result = await platformHandler!.handler()
@@ -63,8 +63,8 @@ describe('App IPC Handlers', () => {
     })
 
     test('should return consistent platform data', async () => {
-      const platformHandler = handlers.find(h => h.channel === 'get-platform')
-      
+      const platformHandler = handlers.find((h) => h.channel === 'get-platform')
+
       const result1 = await platformHandler!.handler()
       const result2 = await platformHandler!.handler()
 
@@ -79,7 +79,7 @@ describe('App IPC Handlers', () => {
     })
 
     test('should have all required handler properties', () => {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         expect(handler).toHaveProperty('channel')
         expect(handler).toHaveProperty('handler')
         expect(typeof handler.channel).toBe('string')
@@ -88,7 +88,7 @@ describe('App IPC Handlers', () => {
     })
 
     test('should have unique channel names', () => {
-      const channels = handlers.map(h => h.channel)
+      const channels = handlers.map((h) => h.channel)
       const uniqueChannels = new Set(channels)
       expect(uniqueChannels.size).toBe(channels.length)
     })

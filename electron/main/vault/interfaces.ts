@@ -55,7 +55,7 @@ export interface VaultRepository {
 // Service Interfaces
 export interface VaultDialogService {
   showSelectionDialog(window?: BrowserWindow): Promise<string | null>
-  showCreateDialog(window?: BrowserWindow): Promise<{path: string, name: string} | null>
+  showCreateDialog(window?: BrowserWindow): Promise<{ path: string; name: string } | null>
 }
 
 export interface VaultInitializerService {

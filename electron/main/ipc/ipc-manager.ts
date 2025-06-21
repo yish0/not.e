@@ -21,7 +21,7 @@ export class DefaultIPCManager implements IPCManager {
     }
 
     const permissionManager = getPermissionManager()
-    
+
     // Register permission if provided in handler
     if (handler.permission) {
       permissionManager.setChannelPermission(handler.channel, handler.permission)
@@ -36,7 +36,7 @@ export class DefaultIPCManager implements IPCManager {
       }
 
       const hasPermission = await permissionManager.checkPermission(handler.channel, context)
-      
+
       if (!hasPermission) {
         console.error(`Permission denied for IPC channel: ${handler.channel}`)
         throw new Error(`Permission denied for channel: ${handler.channel}`)
@@ -51,7 +51,7 @@ export class DefaultIPCManager implements IPCManager {
   }
 
   registerHandlers(handlers: IPCHandler[]): void {
-    handlers.forEach(handler => this.registerHandler(handler))
+    handlers.forEach((handler) => this.registerHandler(handler))
   }
 
   unregisterHandler(channel: string): void {
@@ -63,7 +63,7 @@ export class DefaultIPCManager implements IPCManager {
   }
 
   unregisterAll(): void {
-    this.registeredChannels.forEach(channel => {
+    this.registeredChannels.forEach((channel) => {
       ipcMain.removeHandler(channel)
     })
     this.registeredChannels.clear()

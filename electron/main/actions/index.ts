@@ -16,7 +16,7 @@ export function getAllDefaultActions(): ShortcutAction[] {
 
 export function getActionsByCategory(category: string): ShortcutAction[] {
   const allActions = getAllDefaultActions()
-  return allActions.filter(action => action.category === category)
+  return allActions.filter((action) => action.category === category)
 }
 
 export {

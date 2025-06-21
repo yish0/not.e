@@ -11,13 +11,13 @@ const mockFs = {
 // Mock BrowserWindow
 export class BrowserWindow {
   static getAllWindows = jest.fn(() => [])
-  
+
   webContents = {
     send: jest.fn(),
     openDevTools: jest.fn(),
     executeJavaScript: jest.fn()
   }
-  
+
   loadURL = jest.fn()
   loadFile = jest.fn()
   show = jest.fn()
@@ -25,7 +25,7 @@ export class BrowserWindow {
   close = jest.fn()
   on = jest.fn()
   once = jest.fn()
-  
+
   constructor(options?: any) {
     // Mock constructor
   }

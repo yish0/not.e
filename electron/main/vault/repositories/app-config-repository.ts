@@ -33,7 +33,9 @@ export class FileAppConfigRepository implements AppConfigRepository {
       await fs.writeFile(this.configPath, data, 'utf-8')
     } catch (error) {
       console.error('Failed to save app config:', error)
-      throw new Error(`Failed to save app config: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Failed to save app config: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 

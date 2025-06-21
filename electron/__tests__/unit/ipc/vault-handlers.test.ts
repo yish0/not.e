@@ -54,7 +54,7 @@ describe('Vault IPC Handlers', () => {
 
   beforeEach(() => {
     mockWindow = new BrowserWindow()
-    
+
     mockContext = {
       mainWindow: mockWindow
     }
@@ -81,7 +81,7 @@ describe('Vault IPC Handlers', () => {
 
   describe('vault:get-current handler', () => {
     test('should return current vault', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:get-current')
+      const handler = handlers.find((h) => h.channel === 'vault:get-current')
       expect(handler).toBeDefined()
 
       const result = await handler!.handler()
@@ -92,7 +92,7 @@ describe('Vault IPC Handlers', () => {
 
     test('should return null when no current vault', async () => {
       mockVaultManager.getCurrentVault.mockResolvedValue(null)
-      const handler = handlers.find(h => h.channel === 'vault:get-current')
+      const handler = handlers.find((h) => h.channel === 'vault:get-current')
 
       const result = await handler!.handler(mockContext)
 
@@ -102,7 +102,7 @@ describe('Vault IPC Handlers', () => {
     test('should handle getCurrentVault error', async () => {
       const error = new Error('Failed to get current vault')
       mockVaultManager.getCurrentVault.mockRejectedValue(error)
-      const handler = handlers.find(h => h.channel === 'vault:get-current')
+      const handler = handlers.find((h) => h.channel === 'vault:get-current')
 
       await expect(handler!.handler()).rejects.toThrow('Failed to get current vault')
     })
@@ -110,7 +110,7 @@ describe('Vault IPC Handlers', () => {
 
   describe('vault:get-recent handler', () => {
     test('should return recent vaults', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:get-recent')
+      const handler = handlers.find((h) => h.channel === 'vault:get-recent')
       expect(handler).toBeDefined()
 
       const result = await handler!.handler(mockContext)
@@ -121,7 +121,7 @@ describe('Vault IPC Handlers', () => {
 
     test('should return empty array when no recent vaults', async () => {
       mockVaultManager.getRecentVaults.mockResolvedValue([])
-      const handler = handlers.find(h => h.channel === 'vault:get-recent')
+      const handler = handlers.find((h) => h.channel === 'vault:get-recent')
 
       const result = await handler!.handler(mockContext)
 
@@ -131,7 +131,7 @@ describe('Vault IPC Handlers', () => {
 
   describe('vault:select handler', () => {
     test('should show selection dialog and return selected path', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:select')
+      const handler = handlers.find((h) => h.channel === 'vault:select')
       expect(handler).toBeDefined()
 
       const result = await handler!.handler(mockContext)
@@ -142,7 +142,7 @@ describe('Vault IPC Handlers', () => {
 
     test('should handle dialog cancellation', async () => {
       mockVaultManager.showVaultSelectionDialog.mockResolvedValue(null)
-      const handler = handlers.find(h => h.channel === 'vault:select')
+      const handler = handlers.find((h) => h.channel === 'vault:select')
 
       const result = await handler!.handler(mockContext)
 
@@ -152,7 +152,7 @@ describe('Vault IPC Handlers', () => {
     test('should handle dialog error', async () => {
       const error = new Error('Dialog failed')
       mockVaultManager.showVaultSelectionDialog.mockRejectedValue(error)
-      const handler = handlers.find(h => h.channel === 'vault:select')
+      const handler = handlers.find((h) => h.channel === 'vault:select')
 
       await expect(handler!.handler(mockContext)).rejects.toThrow('Dialog failed')
     })
@@ -160,7 +160,7 @@ describe('Vault IPC Handlers', () => {
 
   describe('vault:set-current handler', () => {
     test('should set current vault successfully', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:set-current')
+      const handler = handlers.find((h) => h.channel === 'vault:set-current')
       expect(handler).toBeDefined()
 
       const mockEvent = { sender: { id: 1 } }
@@ -178,7 +178,7 @@ describe('Vault IPC Handlers', () => {
         error: 'Invalid vault path'
       }
       mockVaultManager.setCurrentVault.mockResolvedValue(failureResult)
-      const handler = handlers.find(h => h.channel === 'vault:set-current')
+      const handler = handlers.find((h) => h.channel === 'vault:set-current')
 
       const mockEvent = { sender: { id: 1 } }
       const result = await handler!.handler(mockEvent, '/invalid/path')
@@ -187,7 +187,7 @@ describe('Vault IPC Handlers', () => {
     })
 
     test('should validate vault path parameter', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:set-current')
+      const handler = handlers.find((h) => h.channel === 'vault:set-current')
       const mockEvent = { sender: { id: 1 } }
 
       // undefined path should be handled gracefully
@@ -198,7 +198,7 @@ describe('Vault IPC Handlers', () => {
 
   describe('vault:remove-recent handler', () => {
     test('should remove vault from recent list', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:remove-recent')
+      const handler = handlers.find((h) => h.channel === 'vault:remove-recent')
       expect(handler).toBeDefined()
 
       const mockEvent = { sender: { id: 1 } }
@@ -212,16 +212,18 @@ describe('Vault IPC Handlers', () => {
     test('should handle removal error', async () => {
       const error = new Error('Failed to remove vault')
       mockVaultManager.removeVaultFromRecent.mockRejectedValue(error)
-      const handler = handlers.find(h => h.channel === 'vault:remove-recent')
+      const handler = handlers.find((h) => h.channel === 'vault:remove-recent')
 
       const mockEvent = { sender: { id: 1 } }
-      await expect(handler!.handler(mockEvent, '/test/vault')).rejects.toThrow('Failed to remove vault')
+      await expect(handler!.handler(mockEvent, '/test/vault')).rejects.toThrow(
+        'Failed to remove vault'
+      )
     })
   })
 
   describe('vault:should-show-selector handler', () => {
     test('should return selector visibility state', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:should-show-selector')
+      const handler = handlers.find((h) => h.channel === 'vault:should-show-selector')
       expect(handler).toBeDefined()
 
       const result = await handler!.handler(mockContext)
@@ -232,7 +234,7 @@ describe('Vault IPC Handlers', () => {
 
     test('should return false when selector should be hidden', async () => {
       mockVaultManager.shouldShowVaultSelector.mockReturnValue(false)
-      const handler = handlers.find(h => h.channel === 'vault:should-show-selector')
+      const handler = handlers.find((h) => h.channel === 'vault:should-show-selector')
 
       const result = await handler!.handler(mockContext)
 
@@ -242,7 +244,7 @@ describe('Vault IPC Handlers', () => {
 
   describe('vault:set-show-selector handler', () => {
     test('should set selector visibility', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:set-show-selector')
+      const handler = handlers.find((h) => h.channel === 'vault:set-show-selector')
       expect(handler).toBeDefined()
 
       const mockEvent = { sender: { id: 1 } }
@@ -252,7 +254,7 @@ describe('Vault IPC Handlers', () => {
     })
 
     test('should handle boolean parameter correctly', async () => {
-      const handler = handlers.find(h => h.channel === 'vault:set-show-selector')
+      const handler = handlers.find((h) => h.channel === 'vault:set-show-selector')
       const mockEvent = { sender: { id: 1 } }
 
       await handler!.handler(mockEvent, true)
@@ -269,7 +271,7 @@ describe('Vault IPC Handlers', () => {
     })
 
     test('should have all required handler properties', () => {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         expect(handler).toHaveProperty('channel')
         expect(handler).toHaveProperty('handler')
         expect(typeof handler.channel).toBe('string')
@@ -278,13 +280,13 @@ describe('Vault IPC Handlers', () => {
     })
 
     test('should have unique channel names', () => {
-      const channels = handlers.map(h => h.channel)
+      const channels = handlers.map((h) => h.channel)
       const uniqueChannels = new Set(channels)
       expect(uniqueChannels.size).toBe(channels.length)
     })
 
     test('should have proper vault channel prefixes', () => {
-      handlers.forEach(handler => {
+      handlers.forEach((handler) => {
         expect(handler.channel).toMatch(/^vault:/)
       })
     })
@@ -294,22 +296,22 @@ describe('Vault IPC Handlers', () => {
     test('should handle complete vault selection workflow', async () => {
       // 1. Get current vault (none)
       mockVaultManager.getCurrentVault.mockResolvedValueOnce(null)
-      const getCurrentHandler = handlers.find(h => h.channel === 'vault:get-current')
+      const getCurrentHandler = handlers.find((h) => h.channel === 'vault:get-current')
       let result = await getCurrentHandler!.handler(mockContext)
       expect(result).toBeNull()
 
       // 2. Show selector
-      const shouldShowHandler = handlers.find(h => h.channel === 'vault:should-show-selector')
+      const shouldShowHandler = handlers.find((h) => h.channel === 'vault:should-show-selector')
       result = await shouldShowHandler!.handler(mockContext)
       expect(result).toBe(true)
 
       // 3. Select vault
-      const selectHandler = handlers.find(h => h.channel === 'vault:select')
+      const selectHandler = handlers.find((h) => h.channel === 'vault:select')
       result = await selectHandler!.handler(mockContext)
       expect(result).toBe('/selected/vault/path')
 
       // 4. Set current vault
-      const setCurrentHandler = handlers.find(h => h.channel === 'vault:set-current')
+      const setCurrentHandler = handlers.find((h) => h.channel === 'vault:set-current')
       const mockEvent = { sender: { id: 1 } }
       result = await setCurrentHandler!.handler(mockEvent, '/selected/vault/path')
       expect(result).toEqual({ success: true, vault: mockVaultConfig })
@@ -317,12 +319,12 @@ describe('Vault IPC Handlers', () => {
 
     test('should handle recent vaults management workflow', async () => {
       // 1. Get recent vaults
-      const getRecentHandler = handlers.find(h => h.channel === 'vault:get-recent')
+      const getRecentHandler = handlers.find((h) => h.channel === 'vault:get-recent')
       let result = await getRecentHandler!.handler(mockContext)
       expect(result).toEqual(mockRecentVaults)
 
       // 2. Remove from recent
-      const removeHandler = handlers.find(h => h.channel === 'vault:remove-recent')
+      const removeHandler = handlers.find((h) => h.channel === 'vault:remove-recent')
       const mockEvent = { sender: { id: 1 } }
       await removeHandler!.handler(mockEvent, '/test/vault2')
       expect(mockVaultManager.removeVaultFromRecent).toHaveBeenCalledWith('/test/vault2')

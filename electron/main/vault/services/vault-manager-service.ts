@@ -1,4 +1,11 @@
-import { VaultManagerService, AppConfigRepository, VaultInitializerService, VaultConfig, VaultInitResult, AppConfig } from '../interfaces'
+import {
+  VaultManagerService,
+  AppConfigRepository,
+  VaultInitializerService,
+  VaultConfig,
+  VaultInitResult,
+  AppConfig
+} from '../interfaces'
 
 export class DefaultVaultManagerService implements VaultManagerService {
   private appConfig: AppConfig
@@ -19,17 +26,17 @@ export class DefaultVaultManagerService implements VaultManagerService {
       return null
     }
 
-    const vault = this.appConfig.recentVaults.find(v => v.path === this.appConfig.currentVault)
+    const vault = this.appConfig.recentVaults.find((v) => v.path === this.appConfig.currentVault)
     return vault || null
   }
 
   async setCurrentVault(vaultPath: string): Promise<VaultInitResult> {
     const result = await this.initializerService.initialize(vaultPath)
-    
+
     if (result.success && result.vault) {
       await this.updateAppConfigWithVault(result.vault)
     }
-    
+
     return result
   }
 
@@ -38,8 +45,8 @@ export class DefaultVaultManagerService implements VaultManagerService {
   }
 
   async removeFromRecent(vaultPath: string): Promise<void> {
-    this.appConfig.recentVaults = this.appConfig.recentVaults.filter(v => v.path !== vaultPath)
-    
+    this.appConfig.recentVaults = this.appConfig.recentVaults.filter((v) => v.path !== vaultPath)
+
     if (this.appConfig.currentVault === vaultPath) {
       this.appConfig.currentVault = undefined
     }
@@ -58,8 +65,8 @@ export class DefaultVaultManagerService implements VaultManagerService {
 
   private async updateAppConfigWithVault(vault: VaultConfig): Promise<void> {
     // 최근 Vault 목록 업데이트
-    const existingIndex = this.appConfig.recentVaults.findIndex(v => v.path === vault.path)
-    
+    const existingIndex = this.appConfig.recentVaults.findIndex((v) => v.path === vault.path)
+
     if (existingIndex >= 0) {
       // 기존 Vault 업데이트
       this.appConfig.recentVaults[existingIndex] = vault

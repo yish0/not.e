@@ -17,7 +17,7 @@ export class VaultManager {
 
   async showVaultSelectionDialog(window?: BrowserWindow): Promise<VaultInitResult> {
     const selectedPath = await this.dialogService.showSelectionDialog(window)
-    
+
     if (!selectedPath) {
       return { success: false, error: 'User cancelled vault selection' }
     }

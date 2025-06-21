@@ -36,10 +36,18 @@ import { ShortcutConfigManager } from '../../../main/shortcuts/config-manager'
 import { ShortcutConfig } from '../../../main/shortcuts/types'
 
 // Mock 클래스들
-const MockElectronGlobalShortcutManager = ElectronGlobalShortcutManager as jest.MockedClass<typeof ElectronGlobalShortcutManager>
-const MockElectronLocalShortcutManager = ElectronLocalShortcutManager as jest.MockedClass<typeof ElectronLocalShortcutManager>
-const MockDefaultActionExecutor = DefaultActionExecutor as jest.MockedClass<typeof DefaultActionExecutor>
-const MockShortcutConfigManager = ShortcutConfigManager as jest.MockedClass<typeof ShortcutConfigManager>
+const MockElectronGlobalShortcutManager = ElectronGlobalShortcutManager as jest.MockedClass<
+  typeof ElectronGlobalShortcutManager
+>
+const MockElectronLocalShortcutManager = ElectronLocalShortcutManager as jest.MockedClass<
+  typeof ElectronLocalShortcutManager
+>
+const MockDefaultActionExecutor = DefaultActionExecutor as jest.MockedClass<
+  typeof DefaultActionExecutor
+>
+const MockShortcutConfigManager = ShortcutConfigManager as jest.MockedClass<
+  typeof ShortcutConfigManager
+>
 
 describe('ShortcutManager', () => {
   let shortcutManager: ShortcutManager
@@ -171,8 +179,16 @@ describe('ShortcutManager', () => {
       expect(mockConfigManager.loadConfig).toHaveBeenCalled()
       expect(mockConfigManager.getLocalShortcuts).toHaveBeenCalled()
       expect(mockLocalManager.register).toHaveBeenCalledTimes(2)
-      expect(mockLocalManager.register).toHaveBeenCalledWith(mockWindow, 'CommandOrControl+N', 'file:new')
-      expect(mockLocalManager.register).toHaveBeenCalledWith(mockWindow, 'CommandOrControl+S', 'file:save')
+      expect(mockLocalManager.register).toHaveBeenCalledWith(
+        mockWindow,
+        'CommandOrControl+N',
+        'file:new'
+      )
+      expect(mockLocalManager.register).toHaveBeenCalledWith(
+        mockWindow,
+        'CommandOrControl+S',
+        'file:save'
+      )
     })
   })
 
@@ -241,7 +257,11 @@ describe('ShortcutManager', () => {
         description: 'Test action',
         category: 'test'
       })
-      expect(mockLocalManager.register).toHaveBeenCalledWith(mockWindow, 'CommandOrControl+T', 'test:action')
+      expect(mockLocalManager.register).toHaveBeenCalledWith(
+        mockWindow,
+        'CommandOrControl+T',
+        'test:action'
+      )
       expect(mockConfigManager.saveConfig).toHaveBeenCalled()
     })
   })
@@ -281,7 +301,7 @@ describe('ShortcutManager', () => {
   describe('action management', () => {
     test('should register action', () => {
       const handler = jest.fn()
-      
+
       shortcutManager.registerAction('test:action', handler, 'Test action', 'test')
 
       expect(mockActionExecutor.registerAction).toHaveBeenCalledWith({
@@ -330,7 +350,10 @@ describe('ShortcutManager', () => {
       const result = await shortcutManager.updateGlobalShortcut('CommandOrControl+N', newConfig)
 
       expect(result).toBe(true)
-      expect(mockConfigManager.updateGlobalShortcut).toHaveBeenCalledWith('CommandOrControl+N', newConfig)
+      expect(mockConfigManager.updateGlobalShortcut).toHaveBeenCalledWith(
+        'CommandOrControl+N',
+        newConfig
+      )
       expect(mockConfigManager.saveConfig).toHaveBeenCalled()
     })
 
@@ -349,7 +372,10 @@ describe('ShortcutManager', () => {
       const result = await shortcutManager.updateLocalShortcut('CommandOrControl+N', newConfig)
 
       expect(result).toBe(true)
-      expect(mockConfigManager.updateLocalShortcut).toHaveBeenCalledWith('CommandOrControl+N', newConfig)
+      expect(mockConfigManager.updateLocalShortcut).toHaveBeenCalledWith(
+        'CommandOrControl+N',
+        newConfig
+      )
       expect(mockConfigManager.saveConfig).toHaveBeenCalled()
     })
   })

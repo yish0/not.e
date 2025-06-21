@@ -3,9 +3,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/electron'],
-  testMatch: [
-    '**/__tests__/**/*.test.ts'
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts'],
   transform: {
     '^.+\\.ts$': 'ts-jest'
   },
@@ -23,8 +21,6 @@ module.exports = {
   moduleNameMapper: {
     '^electron$': '<rootDir>/electron/__tests__/mocks/electron.ts'
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(electron)/)'
-  ],
+  transformIgnorePatterns: ['node_modules/(?!(electron)/)'],
   testTimeout: 10000
 }

@@ -1,5 +1,11 @@
 import { resolve, basename } from 'path'
-import { VaultInitializerService, VaultRepository, VaultInitResult, VaultValidationResult, VaultConfig } from '../interfaces'
+import {
+  VaultInitializerService,
+  VaultRepository,
+  VaultInitResult,
+  VaultValidationResult,
+  VaultConfig
+} from '../interfaces'
 
 export class DefaultVaultInitializerService implements VaultInitializerService {
   constructor(private vaultRepository: VaultRepository) {}
@@ -11,14 +17,14 @@ export class DefaultVaultInitializerService implements VaultInitializerService {
   async initialize(vaultPath: string, vaultName?: string): Promise<VaultInitResult> {
     try {
       const validation = await this.validate(vaultPath)
-      
+
       if (!validation.isValid) {
         return { success: false, error: validation.error }
       }
 
       const resolvedPath = resolve(vaultPath)
       const defaultName = vaultName || basename(resolvedPath)
-      
+
       let vault: VaultConfig
       let isNewVault = false
 

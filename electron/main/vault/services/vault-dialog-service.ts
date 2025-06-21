@@ -2,7 +2,6 @@ import { dialog, BrowserWindow, OpenDialogOptions } from 'electron'
 import { VaultDialogService } from '../interfaces'
 
 export class ElectronVaultDialogService implements VaultDialogService {
-  
   async showSelectionDialog(window?: BrowserWindow): Promise<string | null> {
     const options: OpenDialogOptions = {
       title: 'Select Vault Location',
@@ -11,7 +10,7 @@ export class ElectronVaultDialogService implements VaultDialogService {
       buttonLabel: 'Select Vault'
     }
 
-    const result = window 
+    const result = window
       ? await dialog.showOpenDialog(window, options)
       : await dialog.showOpenDialog(options)
 
@@ -22,7 +21,7 @@ export class ElectronVaultDialogService implements VaultDialogService {
     return result.filePaths[0]
   }
 
-  async showCreateDialog(window?: BrowserWindow): Promise<{path: string, name: string} | null> {
+  async showCreateDialog(window?: BrowserWindow): Promise<{ path: string; name: string } | null> {
     // 먼저 디렉토리 선택
     const options: OpenDialogOptions = {
       title: 'Choose Location for New Vault',
@@ -31,7 +30,7 @@ export class ElectronVaultDialogService implements VaultDialogService {
       buttonLabel: 'Choose Location'
     }
 
-    const pathResult = window 
+    const pathResult = window
       ? await dialog.showOpenDialog(window, options)
       : await dialog.showOpenDialog(options)
 
@@ -43,7 +42,7 @@ export class ElectronVaultDialogService implements VaultDialogService {
     // 현재는 폴더명을 vault 이름으로 사용
     const selectedPath = pathResult.filePaths[0]
     const folderName = selectedPath.split('/').pop() || selectedPath.split('\\').pop() || 'My Vault'
-    
+
     return {
       path: selectedPath,
       name: folderName

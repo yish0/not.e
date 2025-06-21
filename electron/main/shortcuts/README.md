@@ -10,16 +10,16 @@ graph TB
     A --> C[LocalShortcutManager]
     A --> D[ActionExecutor]
     A --> E[ConfigManager]
-    
+
     B --> F[Electron GlobalShortcut API]
     C --> G[Electron before-input-event]
     D --> H[Action Handlers]
     E --> I[shortcuts.json]
-    
+
     J[BrowserWindow] --> C
     K[User Input] --> B
     K --> C
-    
+
     subgraph "Action System"
         H --> L[File Actions]
         H --> M[Navigation Actions]
@@ -28,7 +28,7 @@ graph TB
         H --> P[Dev Actions]
         H --> Q[Global Actions]
     end
-    
+
     subgraph "Config System"
         I --> R[Default Config]
         I --> S[User Config]
@@ -39,6 +39,7 @@ graph TB
 ## 핵심 컴포넌트
 
 ### 1. ShortcutManager (shortcut-manager.ts)
+
 메인 관리자 클래스로 모든 단축키 관련 작업을 조율합니다.
 
 ```typescript
@@ -57,6 +58,7 @@ await shortcutManager.setupWindow(window)
 ```
 
 ### 2. GlobalShortcutManager (global-shortcut-manager.ts)
+
 Electron의 `globalShortcut` API를 래핑하여 전역 단축키를 관리합니다.
 
 ```typescript
@@ -71,6 +73,7 @@ globalManager.unregister('CmdOrCtrl+Shift+N')
 ```
 
 ### 3. LocalShortcutManager (local-shortcut-manager.ts)
+
 윈도우별 로컬 단축키를 `before-input-event`를 통해 관리합니다.
 
 ```typescript
@@ -85,6 +88,7 @@ localManager.unregister(window, 'CmdOrCtrl+S')
 ```
 
 ### 4. ActionExecutor (action-executor.ts)
+
 등록된 액션들을 실행하는 역할을 담당합니다.
 
 ```typescript
@@ -101,6 +105,7 @@ await actionExecutor.executeAction('save-note', window)
 ```
 
 ### 5. ConfigManager (config-manager.ts)
+
 단축키 설정을 JSON 파일로 영구 저장하고 관리합니다.
 
 ```typescript
@@ -181,9 +186,9 @@ await shortcutManager.initialize()
 const actions = getAllDefaultActions()
 actions.forEach(action => {
   shortcutManager.registerAction(
-    action.name, 
-    action.handler, 
-    action.description, 
+    action.name,
+    action.handler,
+    action.description,
     action.category
   )
 })
@@ -341,8 +346,8 @@ const key = platformShortcuts[process.platform] || 'Ctrl+N'
 // 런타임에 단축키 변경
 await shortcutManager.unregisterLocalShortcut(window, 'CmdOrCtrl+S')
 await shortcutManager.registerLocalShortcut(
-  window, 
-  'CmdOrCtrl+Shift+S', 
+  window,
+  'CmdOrCtrl+Shift+S',
   'save-note',
   'Save note (new shortcut)',
   'file'

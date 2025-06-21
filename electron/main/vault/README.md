@@ -8,30 +8,30 @@
 graph TB
     A[VaultManager] --> B[VaultManagerService]
     A --> C[VaultDialogService]
-    
+
     B --> D[AppConfigRepository]
     B --> E[VaultInitializerService]
-    
+
     E --> F[VaultRepository]
-    
+
     D --> G[FileSystem - app-config.json]
     F --> H[FileSystem - Vault Structure]
-    
+
     C --> I[Electron Dialog API]
-    
+
     J[VaultFactory] --> B
     J --> C
     J --> D
     J --> E
     J --> F
-    
+
     subgraph "Repository Layer"
         D
         F
         K[FileAppConfigRepository]
         L[FileVaultRepository]
     end
-    
+
     subgraph "Service Layer"
         B
         C
@@ -40,12 +40,12 @@ graph TB
         N[ElectronVaultDialogService]
         O[DefaultVaultInitializerService]
     end
-    
+
     subgraph "Templates"
         P[Welcome Note Template]
         Q[Workspace Templates]
     end
-    
+
     F --> P
     F --> Q
 ```
@@ -55,6 +55,7 @@ graph TB
 ### 1. Repository Layer (데이터 접근층)
 
 #### FileAppConfigRepository
+
 앱 설정 데이터의 영구 저장을 담당합니다.
 
 ```typescript
@@ -76,6 +77,7 @@ await configRepo.save({
 **저장 위치**: `~/.config/not.e/app-config.json`
 
 #### FileVaultRepository
+
 Vault 파일 시스템 관리를 담당합니다.
 
 ```typescript
@@ -96,6 +98,7 @@ const metadata = await vaultRepo.loadMetadata('/path/to/vault')
 ### 2. Service Layer (비즈니스 로직층)
 
 #### VaultDialogService
+
 사용자 인터페이스 다이얼로그를 처리합니다.
 
 ```typescript
@@ -111,6 +114,7 @@ const result = await dialogService.showCreateDialog(window)
 ```
 
 #### VaultInitializerService
+
 Vault 초기화 로직을 담당합니다.
 
 ```typescript
@@ -126,6 +130,7 @@ const validation = await initService.validate('/path/to/vault')
 ```
 
 #### VaultManagerService
+
 Vault 관리의 핵심 비즈니스 로직을 담당합니다.
 
 ```typescript
@@ -148,6 +153,7 @@ await managerService.removeFromRecent('/old/path')
 ### 3. Factory Pattern
 
 #### VaultFactory
+
 의존성 주입과 객체 생성을 관리합니다.
 
 ```typescript
@@ -162,6 +168,7 @@ VaultFactory.reset()
 ```
 
 ### 4. 메인 VaultManager
+
 모든 기능을 통합하는 퍼사드 클래스입니다.
 
 ```typescript
@@ -213,14 +220,14 @@ sequenceDiagram
         VDS->>FS: Open folder dialog
         FS-->>VDS: Selected path
         VDS-->>VM: Vault path
-        
+
         VM->>VMS: setCurrentVault(path)
         VMS->>VIS: initialize(path)
         VIS->>VR: validatePath(path)
         VR->>FS: Check permissions & existence
         FS-->>VR: Validation result
         VR-->>VIS: ValidationResult
-        
+
         alt New vault
             VIS->>VR: createStructure(path, name)
             VR->>FS: Create directories & files
@@ -233,7 +240,7 @@ sequenceDiagram
             FS-->>VR: Metadata
             VR-->>VIS: Existing metadata
         end
-        
+
         VIS-->>VMS: VaultInitResult
         VMS->>ACR: save(updatedConfig)
         ACR->>FS: Write app-config.json
@@ -251,15 +258,15 @@ graph TB
     A[Create Vault Structure] --> B[Create .note Directory]
     B --> C[Create vault.json]
     B --> D[Create workspaces.json]
-    
+
     A --> E[Create Default Workspace]
     E --> F[Create workspace-personal/]
     F --> G[Create .workspace.json]
     F --> H[Create channel-daily/]
     F --> I[Create channel-ideas/]
-    
+
     I --> J[Create welcome.md]
-    
+
     subgraph "File Structure"
         K["vault-root/
         ├── .note/
@@ -271,13 +278,13 @@ graph TB
             └── channel-ideas/
                 └── welcome.md"]
     end
-    
+
     subgraph "Template System"
         L[Welcome Note Template]
         M[Workspace Config Template]
         N[Channel Config Template]
     end
-    
+
     J --> L
     G --> M
     G --> N
@@ -299,7 +306,7 @@ await vaultManager.initialize()
 // 3. Vault 선택 여부 확인
 if (vaultManager.shouldShowVaultSelector()) {
   const result = await vaultManager.showVaultSelectionDialog()
-  
+
   if (result.success) {
     console.log(`Vault initialized: ${result.vault?.name}`)
     console.log(`Path: ${result.vault?.path}`)
@@ -321,7 +328,7 @@ if (currentVault) {
 
 // 최근 Vault 목록 조회
 const recentVaults = await vaultManager.getRecentVaults()
-recentVaults.forEach(vault => {
+recentVaults.forEach((vault) => {
   console.log(`${vault.name}: ${vault.path} (${vault.lastAccessed})`)
 })
 
@@ -341,9 +348,7 @@ await vaultManager.removeVaultFromRecent('/path/to/old/vault')
 import { VaultFactory } from './vault-factory'
 
 // 직접적인 서비스 사용
-const initializerService = new DefaultVaultInitializerService(
-  new FileVaultRepository()
-)
+const initializerService = new DefaultVaultInitializerService(new FileVaultRepository())
 
 // 새 Vault 생성
 const result = await initializerService.initialize('/path/to/new/vault', 'My New Vault')
@@ -526,7 +531,7 @@ export class PluginAwareVaultInitializerService extends DefaultVaultInitializerS
 
   async initialize(vaultPath: string, vaultName?: string): Promise<VaultInitResult> {
     const result = await super.initialize(vaultPath, vaultName)
-    
+
     if (result.success && result.vault) {
       // 플러그인 알림
       for (const plugin of this.plugins) {
@@ -537,7 +542,7 @@ export class PluginAwareVaultInitializerService extends DefaultVaultInitializerS
         }
       }
     }
-    
+
     return result
   }
 }
@@ -560,7 +565,7 @@ try {
         // 경로 문제 알림
         break
       default:
-        // 일반적인 오류 처리
+      // 일반적인 오류 처리
     }
   }
 } catch (error) {
@@ -605,10 +610,10 @@ describe('FileVaultRepository', () => {
 
   test('should create vault structure', async () => {
     await repository.createStructure(tempDir, 'Test Vault')
-    
+
     const metadataPath = join(tempDir, '.note', 'vault.json')
     expect(await fs.access(metadataPath)).not.toThrow()
-    
+
     const welcomePath = join(tempDir, 'workspace-personal', 'channel-ideas', 'welcome.md')
     expect(await fs.access(welcomePath)).not.toThrow()
   })

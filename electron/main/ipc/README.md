@@ -10,37 +10,37 @@ graph TB
         A[Frontend Components]
         B[Plugin Components]
     end
-    
+
     subgraph "Main Process"
         C[IPC Manager]
         D[Permission Manager]
         E[Handler Registry]
         F[Business Logic]
     end
-    
+
     A --> C
     B --> C
     C --> D
     D --> E
     E --> F
-    
+
     subgraph "Permission Levels"
         G[ROOT - 메인 윈도우만]
         H[PLUGIN - 플러그인 접근]
         I[PUBLIC - 제한 없음]
     end
-    
+
     D --> G
     D --> H
     D --> I
-    
+
     subgraph "Handler Organization"
         J[handlers/app-handlers.ts - PUBLIC]
         K[handlers/vault-handlers.ts - ROOT]
         L[handlers/plugin-handlers.ts - PLUGIN]
         M[handlers/index.ts]
     end
-    
+
     subgraph "Core IPC System"
         N[ipc-manager.ts]
         O[permission-manager.ts]
@@ -52,12 +52,15 @@ graph TB
 ## 핵심 컴포넌트
 
 ### 1. IPC Manager (ipc-manager.ts)
+
 IPC 핸들러의 등록, 해제, 관리를 담당하는 중앙 관리자로, 모든 IPC 호출에 대해 권한 검증을 수행합니다.
 
 ### 2. Permission Manager (permission-manager.ts)
+
 IPC 채널별 권한을 관리하고 접근 제어를 수행하는 핵심 보안 컴포넌트입니다.
 
 **권한 레벨:**
+
 - `ROOT`: 전체 시스템 접근 - 핵심 앱 기능 (메인 윈도우에서만 접근 가능)
 - `PLUGIN`: 제한된 접근 - 외부 플러그인 기능
 - `PUBLIC`: 공개 접근 - 민감하지 않은 작업 (제한 없음)
@@ -83,18 +86,18 @@ ipcManager.registerHandler({
 
 // 다중 핸들러 등록 (권한 포함)
 ipcManager.registerHandlers([
-  { 
-    channel: 'public-channel', 
+  {
+    channel: 'public-channel',
     handler: handler1,
-    permission: { 
+    permission: {
       level: IPCPermissionLevel.PUBLIC,
       description: 'Public access channel'
     }
   },
-  { 
-    channel: 'plugin-channel', 
+  {
+    channel: 'plugin-channel',
     handler: handler2,
-    permission: { 
+    permission: {
       level: IPCPermissionLevel.PLUGIN,
       description: 'Plugin access channel'
     }
@@ -109,6 +112,7 @@ ipcManager.unregisterAll()
 ```
 
 **주요 기능:**
+
 - 중복 등록 방지
 - 등록된 채널 추적
 - 일괄 등록/해제
@@ -117,6 +121,7 @@ ipcManager.unregisterAll()
 - **컨텍스트 기반 접근 제어**: 호출 소스에 따른 접근 제어
 
 ### 3. Handler Organization (handlers/)
+
 기능별로 분리된 IPC 핸들러들로, 각각 적절한 권한 레벨이 설정되어 있습니다.
 
 ## 권한 관리 시스템
@@ -165,10 +170,7 @@ import { getPermissionManager } from './permission-manager'
 const permissionManager = getPermissionManager()
 
 // 플러그인 채널 추가
-permissionManager.addPluginChannel(
-  'plugin:my-feature',
-  'My plugin feature description'
-)
+permissionManager.addPluginChannel('plugin:my-feature', 'My plugin feature description')
 
 // 플러그인 채널 제거
 permissionManager.removePluginChannel('plugin:my-feature')
@@ -190,7 +192,7 @@ sequenceDiagram
 
     R->>IPC: invoke('channel-name', args)
     IPC->>PM: checkPermission(channel, context)
-    
+
     alt ROOT Level
         PM->>PM: Check if sender is main window
         alt Main Window
@@ -204,7 +206,7 @@ sequenceDiagram
     else PUBLIC Level
         PM->>IPC: Permission granted
     end
-    
+
     alt Permission Granted
         IPC->>H: Execute handler
         H->>IPC: Return result
@@ -215,6 +217,7 @@ sequenceDiagram
 ```
 
 #### App Handlers (handlers/app-handlers.ts)
+
 애플리케이션 기본 정보 관련 핸들러들입니다.
 
 ```typescript
@@ -237,6 +240,7 @@ export function createAppHandlers(): IPCHandler[] {
 ```
 
 #### Vault Handlers (handlers/vault-handlers.ts)
+
 Vault 관리 관련 IPC 핸들러들입니다.
 
 ```typescript
@@ -262,6 +266,7 @@ export function createVaultHandlers(context: IPCContext): IPCHandler[] {
 ```
 
 ### 3. Type System (types.ts)
+
 IPC 시스템의 타입 정의입니다.
 
 ```typescript
@@ -329,31 +334,31 @@ graph TB
     A[Main Process Startup] --> B[setupIPCHandlers]
     B --> C[Create IPCContext]
     C --> D[getAllIPCHandlers]
-    
+
     D --> E[createAppHandlers]
     D --> F[createVaultHandlers]
     D --> G[createFutureHandlers...]
-    
+
     E --> H[App Handler Array]
     F --> I[Vault Handler Array]
     G --> J[Other Handler Arrays]
-    
+
     H --> K[Merge All Handlers]
     I --> K
     J --> K
-    
+
     K --> L[IPCManager.registerHandlers]
     L --> M[Individual Registration]
     M --> N[ipcMain.handle]
-    
+
     N --> O[Handler Ready]
-    
+
     subgraph "Handler Creation Context"
         P[IPCContext]
         P --> Q[mainWindow: BrowserWindow]
         P --> R[Future Context Data...]
     end
-    
+
     C --> P
     F --> P
 ```
@@ -368,7 +373,7 @@ import { setupIPCHandlers } from './ipc'
 
 function createWindow() {
   const mainWindow = new BrowserWindow({...})
-  
+
   // 윈도우 생성 후 IPC 핸들러 설정
   setupIPCHandlers({ mainWindow })
 }
@@ -429,14 +434,14 @@ export function getAllIPCHandlers(context: IPCContext): IPCHandler[] {
   return [
     ...createAppHandlers(),
     ...createVaultHandlers(context),
-    ...createWorkspaceHandlers(context)  // 새 핸들러 추가
+    ...createWorkspaceHandlers(context) // 새 핸들러 추가
   ]
 }
 
-export { 
-  createAppHandlers, 
+export {
+  createAppHandlers,
   createVaultHandlers,
-  createWorkspaceHandlers  // 내보내기 추가
+  createWorkspaceHandlers // 내보내기 추가
 }
 ```
 
@@ -446,7 +451,7 @@ export {
 // preload/preload.ts
 export interface ElectronAPI {
   // 기존 API들...
-  
+
   // Workspace API 추가
   workspace: {
     list: () => Promise<Workspace[]>
@@ -458,15 +463,13 @@ export interface ElectronAPI {
 
 const electronAPI: ElectronAPI = {
   // 기존 구현들...
-  
+
   workspace: {
     list: () => ipcRenderer.invoke('workspace:list'),
-    create: (name: string, description?: string) => 
+    create: (name: string, description?: string) =>
       ipcRenderer.invoke('workspace:create', name, description),
-    delete: (workspaceId: string) => 
-      ipcRenderer.invoke('workspace:delete', workspaceId),
-    setActive: (workspaceId: string) => 
-      ipcRenderer.invoke('workspace:set-active', workspaceId)
+    delete: (workspaceId: string) => ipcRenderer.invoke('workspace:delete', workspaceId),
+    setActive: (workspaceId: string) => ipcRenderer.invoke('workspace:set-active', workspaceId)
   }
 }
 ```
@@ -484,7 +487,7 @@ const electronAPI: ElectronAPI = {
   onMount(async () => {
     // Vault 정보 가져오기
     currentVault = await window.electronAPI.vault.getCurrent()
-    
+
     // Workspace 목록 가져오기
     workspaces = await window.electronAPI.workspace.list()
   })
@@ -494,7 +497,7 @@ const electronAPI: ElectronAPI = {
       'New Workspace',
       'A workspace for new ideas'
     )
-    
+
     if (result.success) {
       // 목록 새로고침
       workspaces = await window.electronAPI.workspace.list()
@@ -517,7 +520,7 @@ const electronAPI: ElectronAPI = {
   {#each workspaces as workspace}
     <div>{workspace.name}</div>
   {/each}
-  
+
   <button on:click={createNewWorkspace}>Create Workspace</button>
 </div>
 ```
@@ -544,7 +547,7 @@ export function createAdvancedHandlers(context: IPCContext): IPCHandler[] {
         if (!context.currentVault) {
           throw new Error('No vault selected')
         }
-        
+
         // 현재 vault 컨텍스트를 활용한 빠른 액션
         return await performQuickAction(action, context.currentVault)
       }
@@ -564,17 +567,17 @@ export function createRobustHandlers(): IPCHandler[] {
       handler: async (event, ...args) => {
         try {
           const result = await riskyOperation(...args)
-          
+
           // 성공 로깅
           console.log(`Operation completed: ${event.sender.id}`)
-          
+
           return { success: true, data: result }
         } catch (error) {
           // 에러 로깅
           console.error(`Operation failed: ${error.message}`)
-          
-          return { 
-            success: false, 
+
+          return {
+            success: false,
             error: error instanceof Error ? error.message : 'Unknown error'
           }
         }
@@ -598,12 +601,12 @@ export function createSecureHandlers(context: IPCContext): IPCHandler[] {
         if (!hasPermission) {
           throw new Error('Insufficient permissions')
         }
-        
+
         // 안전 검사
         if (vaultPath === context.currentVault?.path) {
           throw new Error('Cannot delete currently active vault')
         }
-        
+
         return await deleteVault(vaultPath)
       }
     }
@@ -626,12 +629,12 @@ describe('DefaultIPCManager', () => {
       handle: jest.fn(),
       removeHandler: jest.fn()
     }
-    
+
     // Electron ipcMain 모킹
     jest.mock('electron', () => ({
       ipcMain: mockIpcMain
     }))
-    
+
     ipcManager = new DefaultIPCManager()
   })
 
@@ -674,11 +677,11 @@ describe('Vault Handlers', () => {
       setCurrentVault: jest.fn(),
       getRecentVaults: jest.fn()
     }
-    
+
     mockContext = {
       mainWindow: null
     }
-    
+
     // VaultManager 모킹
     jest.mock('../../vault', () => ({
       getVaultManager: () => mockVaultManager
@@ -690,7 +693,7 @@ describe('Vault Handlers', () => {
     mockVaultManager.getCurrentVault.mockResolvedValue(mockVault)
 
     const handlers = createVaultHandlers(mockContext)
-    const getCurrentHandler = handlers.find(h => h.channel === 'vault:get-current')
+    const getCurrentHandler = handlers.find((h) => h.channel === 'vault:get-current')
 
     const result = await getCurrentHandler?.handler({} as any)
 
@@ -724,7 +727,7 @@ export function createLazyHandlers(): IPCHandler[] {
 
 ```typescript
 // 캐시가 포함된 핸들러
-const cache = new Map<string, { data: any, timestamp: number }>()
+const cache = new Map<string, { data: any; timestamp: number }>()
 
 export function createCachedHandlers(): IPCHandler[] {
   return [
@@ -733,15 +736,15 @@ export function createCachedHandlers(): IPCHandler[] {
       handler: async (event, key: string) => {
         const cached = cache.get(key)
         const now = Date.now()
-        
+
         // 5분 캐시
-        if (cached && (now - cached.timestamp) < 5 * 60 * 1000) {
+        if (cached && now - cached.timestamp < 5 * 60 * 1000) {
           return cached.data
         }
-        
+
         const data = await fetchExpensiveData(key)
         cache.set(key, { data, timestamp: now })
-        
+
         return data
       }
     }
@@ -764,17 +767,18 @@ export function createValidatedHandlers(): IPCHandler[] {
         if (!filename || typeof filename !== 'string') {
           throw new Error('Invalid filename')
         }
-        
+
         // 경로 탐색 공격 방지
         if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
           throw new Error('Invalid filename: path traversal detected')
         }
-        
+
         // 콘텐츠 크기 제한
-        if (content.length > 1024 * 1024) { // 1MB 제한
+        if (content.length > 1024 * 1024) {
+          // 1MB 제한
           throw new Error('Content too large')
         }
-        
+
         return await createFile(filename, content)
       }
     }
@@ -802,11 +806,11 @@ export function createProtectedHandlers(): IPCHandler[] {
       channel: 'protected-action',
       handler: async (event, action: string, resource: string) => {
         const hasPermission = await checkPermission(event.sender.id, { action, resource })
-        
+
         if (!hasPermission) {
           throw new Error(`Access denied: ${action} on ${resource}`)
         }
-        
+
         return await performProtectedAction(action, resource)
       }
     }

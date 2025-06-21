@@ -32,9 +32,7 @@ export class DefaultActionExecutor implements ActionExecutor {
   }
 
   getActionsByCategory(category: string): ShortcutAction[] {
-    return Array.from(this.actions.values()).filter(
-      action => action.category === category
-    )
+    return Array.from(this.actions.values()).filter((action) => action.category === category)
   }
 
   unregisterAction(actionName: string): boolean {

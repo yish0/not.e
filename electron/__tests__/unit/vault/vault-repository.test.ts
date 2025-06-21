@@ -42,11 +42,11 @@ describe('FileVaultRepository', () => {
 
   beforeEach(() => {
     testVaultPath = createTempPath('vault')
-    
+
     // 모든 mock 완전 초기화
     jest.clearAllMocks()
     jest.resetAllMocks()
-    
+
     // 새로운 인스턴스 생성
     repository = new FileVaultRepository()
   })
@@ -106,13 +106,13 @@ describe('FileVaultRepository', () => {
 
     test('should handle permission denied', async () => {
       // 첫 번째 access는 성공, 두 번째(쓰기 권한)는 실패
-      mockFs.access.mockResolvedValueOnce(undefined)  // 첫 번째 호출
+      mockFs.access.mockResolvedValueOnce(undefined) // 첫 번째 호출
       mockFs.stat.mockResolvedValue({
         isDirectory: () => true
       } as any)
       const error = new Error('EACCES: permission denied') as NodeJS.ErrnoException
       error.code = 'EACCES'
-      mockFs.access.mockRejectedValueOnce(error)  // 두 번째 호출 (쓰기 권한 체크)
+      mockFs.access.mockRejectedValueOnce(error) // 두 번째 호출 (쓰기 권한 체크)
 
       const result = await repository.validatePath(testVaultPath)
 
@@ -145,14 +145,10 @@ describe('FileVaultRepository', () => {
       await repository.createStructure(testVaultPath, 'Test Vault')
 
       // 모든 디렉토리 생성 확인
-      expect(mockFs.mkdir).toHaveBeenCalledWith(
-        join(testVaultPath, '.note'),
-        { recursive: true }
-      )
-      expect(mockFs.mkdir).toHaveBeenCalledWith(
-        join(testVaultPath, 'workspace-personal'),
-        { recursive: true }
-      )
+      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, '.note'), { recursive: true })
+      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, 'workspace-personal'), {
+        recursive: true
+      })
       expect(mockFs.mkdir).toHaveBeenCalledWith(
         join(testVaultPath, 'workspace-personal', 'channel-daily'),
         { recursive: true }
@@ -164,7 +160,7 @@ describe('FileVaultRepository', () => {
 
       // 총 4번의 writeFile 호출 확인 (vault.json, workspaces.json, .workspace.json, welcome.md)
       expect(mockFs.writeFile).toHaveBeenCalledTimes(4)
-      
+
       // vault.json 생성 확인
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         join(testVaultPath, '.note', 'vault.json'),
@@ -172,7 +168,7 @@ describe('FileVaultRepository', () => {
         'utf-8'
       )
 
-      // welcome.md 생성 확인 
+      // welcome.md 생성 확인
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         join(testVaultPath, 'workspace-personal', 'channel-ideas', 'welcome.md'),
         expect.stringContaining('# Welcome to not.e!'),
@@ -184,8 +180,9 @@ describe('FileVaultRepository', () => {
       const error = new Error('Permission denied')
       mockFs.mkdir.mockRejectedValue(error)
 
-      await expect(repository.createStructure(testVaultPath, 'Test Vault'))
-        .rejects.toThrow('Permission denied')
+      await expect(repository.createStructure(testVaultPath, 'Test Vault')).rejects.toThrow(
+        'Permission denied'
+      )
     })
   })
 
@@ -217,7 +214,7 @@ describe('FileVaultRepository', () => {
       mockFs.readFile.mockResolvedValue('invalid json content')
 
       const result = await repository.loadMetadata(testVaultPath)
-      
+
       // 실제 구현에서는 JSON 파싱 에러 시 null을 반환
       expect(result).toBeNull()
     })
@@ -230,10 +227,7 @@ describe('FileVaultRepository', () => {
 
       await repository.saveMetadata(testVaultPath, mockVaultMetadata)
 
-      expect(mockFs.mkdir).toHaveBeenCalledWith(
-        join(testVaultPath, '.note'),
-        { recursive: true }
-      )
+      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, '.note'), { recursive: true })
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         join(testVaultPath, '.note', 'vault.json'),
         JSON.stringify(mockVaultMetadata, null, 2),
@@ -246,9 +240,9 @@ describe('FileVaultRepository', () => {
       const error = new Error('Disk full')
       mockFs.writeFile.mockRejectedValue(error)
 
-      await expect(repository.saveMetadata(testVaultPath, mockVaultMetadata))
-        .rejects.toThrow('Failed to save vault metadata: Disk full')
+      await expect(repository.saveMetadata(testVaultPath, mockVaultMetadata)).rejects.toThrow(
+        'Failed to save vault metadata: Disk full'
+      )
     })
   })
-
 })

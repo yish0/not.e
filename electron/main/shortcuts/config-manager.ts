@@ -68,7 +68,7 @@ export class ShortcutConfigManager {
             description: 'Save all notes',
             category: 'file'
           },
-          
+
           // 네비게이션 관련
           {
             key: 'CmdOrCtrl+P',
@@ -82,7 +82,7 @@ export class ShortcutConfigManager {
             description: 'Open command palette',
             category: 'navigation'
           },
-          
+
           // 편집 관련
           {
             key: 'CmdOrCtrl+F',
@@ -96,7 +96,7 @@ export class ShortcutConfigManager {
             description: 'Find in vault',
             category: 'edit'
           },
-          
+
           // 뷰 관련
           {
             key: 'CmdOrCtrl+B',
@@ -128,7 +128,7 @@ export class ShortcutConfigManager {
             description: 'Reset zoom',
             category: 'view'
           },
-          
+
           // 개발자 도구
           {
             key: 'F12',
@@ -151,7 +151,7 @@ export class ShortcutConfigManager {
     try {
       const data = await fs.readFile(this.configPath, 'utf-8')
       const config = JSON.parse(data) as ShortcutConfigData
-      
+
       // 버전 호환성 검사
       if (config.version !== this.defaultConfig.version) {
         console.log('Config version mismatch, migrating...')
@@ -159,7 +159,7 @@ export class ShortcutConfigManager {
       } else {
         this.config = config
       }
-      
+
       return this.config
     } catch (error) {
       console.log('No existing config found, creating default config')
@@ -190,18 +190,15 @@ export class ShortcutConfigManager {
   }
 
   getAllShortcuts(): ShortcutConfig[] {
-    return [
-      ...this.config.shortcuts.global,
-      ...this.config.shortcuts.local
-    ]
+    return [...this.config.shortcuts.global, ...this.config.shortcuts.local]
   }
 
   getShortcutsByCategory(category: string): ShortcutConfig[] {
-    return this.getAllShortcuts().filter(shortcut => shortcut.category === category)
+    return this.getAllShortcuts().filter((shortcut) => shortcut.category === category)
   }
 
   updateGlobalShortcut(key: string, newConfig: Partial<ShortcutConfig>): boolean {
-    const index = this.config.shortcuts.global.findIndex(s => s.key === key)
+    const index = this.config.shortcuts.global.findIndex((s) => s.key === key)
     if (index === -1) return false
 
     this.config.shortcuts.global[index] = {
@@ -212,7 +209,7 @@ export class ShortcutConfigManager {
   }
 
   updateLocalShortcut(key: string, newConfig: Partial<ShortcutConfig>): boolean {
-    const index = this.config.shortcuts.local.findIndex(s => s.key === key)
+    const index = this.config.shortcuts.local.findIndex((s) => s.key === key)
     if (index === -1) return false
 
     this.config.shortcuts.local[index] = {
@@ -224,26 +221,26 @@ export class ShortcutConfigManager {
 
   addGlobalShortcut(config: ShortcutConfig): boolean {
     // 중복 검사
-    if (this.config.shortcuts.global.some(s => s.key === config.key)) {
+    if (this.config.shortcuts.global.some((s) => s.key === config.key)) {
       return false
     }
-    
+
     this.config.shortcuts.global.push(config)
     return true
   }
 
   addLocalShortcut(config: ShortcutConfig): boolean {
     // 중복 검사
-    if (this.config.shortcuts.local.some(s => s.key === config.key)) {
+    if (this.config.shortcuts.local.some((s) => s.key === config.key)) {
       return false
     }
-    
+
     this.config.shortcuts.local.push(config)
     return true
   }
 
   removeGlobalShortcut(key: string): boolean {
-    const index = this.config.shortcuts.global.findIndex(s => s.key === key)
+    const index = this.config.shortcuts.global.findIndex((s) => s.key === key)
     if (index === -1) return false
 
     this.config.shortcuts.global.splice(index, 1)
@@ -251,7 +248,7 @@ export class ShortcutConfigManager {
   }
 
   removeLocalShortcut(key: string): boolean {
-    const index = this.config.shortcuts.local.findIndex(s => s.key === key)
+    const index = this.config.shortcuts.local.findIndex((s) => s.key === key)
     if (index === -1) return false
 
     this.config.shortcuts.local.splice(index, 1)
@@ -263,17 +260,15 @@ export class ShortcutConfigManager {
   }
 
   hasConflict(key: string, type: 'global' | 'local'): boolean {
-    const shortcuts = type === 'global' 
-      ? this.config.shortcuts.global 
-      : this.config.shortcuts.local
-    
-    return shortcuts.some(s => s.key === key)
+    const shortcuts = type === 'global' ? this.config.shortcuts.global : this.config.shortcuts.local
+
+    return shortcuts.some((s) => s.key === key)
   }
 
   private async migrateConfig(oldConfig: ShortcutConfigData): Promise<ShortcutConfigData> {
     // 버전별 마이그레이션 로직
     const newConfig = { ...this.defaultConfig }
-    
+
     // 기존 사용자 설정이 있다면 병합
     if (oldConfig.shortcuts) {
       // 기존 설정 유지하면서 새로운 기본값 추가
@@ -293,14 +288,14 @@ export class ShortcutConfigManager {
 
   private mergeShortcuts(existing: ShortcutConfig[], defaults: ShortcutConfig[]): ShortcutConfig[] {
     const merged = [...existing]
-    
+
     // 기존에 없는 기본 설정만 추가
-    defaults.forEach(defaultShortcut => {
-      if (!existing.some(s => s.key === defaultShortcut.key)) {
+    defaults.forEach((defaultShortcut) => {
+      if (!existing.some((s) => s.key === defaultShortcut.key)) {
         merged.push(defaultShortcut)
       }
     })
-    
+
     return merged
   }
 }

@@ -53,7 +53,7 @@ function createWindow() {
 app.whenReady().then(async () => {
   // Vault 시스템 초기화
   await vaultManager.initialize()
-  
+
   // Vault 선택 확인
   const shouldShowSelector = vaultManager.shouldShowVaultSelector()
   if (shouldShowSelector) {
@@ -68,13 +68,13 @@ app.whenReady().then(async () => {
 
   // 단축키 시스템 초기화
   await shortcutManager.initialize()
-  
+
   // 기본 액션들 등록
   registerDefaultActions()
-  
+
   // 전역 단축키 등록
   await shortcutManager.setupGlobalShortcuts()
-  
+
   createWindow()
 
   app.on('activate', () => {
@@ -87,7 +87,7 @@ app.whenReady().then(async () => {
 // 기본 액션들을 일괄 등록하는 함수
 function registerDefaultActions(): void {
   const actions = getAllDefaultActions()
-  actions.forEach(action => {
+  actions.forEach((action) => {
     shortcutManager.registerAction(action.name, action.handler, action.description, action.category)
   })
   console.log(`Registered ${actions.length} default actions`)

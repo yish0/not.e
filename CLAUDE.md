@@ -14,6 +14,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This repository (not.e) contains an enterprise-level Electron + SvelteKit + shadcn/ui boilerplate setup.
 
 ### Platform Support
+
 - **Target Platform**: macOS only (macOS 10.14+ Mojave or later)
 - **Future Consideration**: Windows support may be added in later phases
 - **Development Environment**: Optimized for macOS development workflows
@@ -30,6 +31,7 @@ This repository (not.e) contains an enterprise-level Electron + SvelteKit + shad
 - `bun run typecheck` - Run TypeScript type checking
 
 #### Testing Commands
+
 - `bun run test` - Run all unit tests
 - `bun run test:watch` - Run tests in watch mode
 - `bun run test:coverage` - Run tests with coverage report
@@ -81,6 +83,7 @@ electron/
 ## Lessons Learned
 
 ### Electron + SvelteKit Integration
+
 - Static adapter is required for SvelteKit to work with Electron
 - Preload scripts need contextBridge for secure IPC communication
 - Build output directory needs to match Electron's expectations
@@ -88,17 +91,20 @@ electron/
 - Electron's isDev logic should account for cases where NODE_ENV is not set during development
 
 ### shadcn/ui Setup
+
 - Manual component creation required for Svelte (no CLI like React)
 - Tailwind CSS variables approach works well for theming
 - Component composition pattern with proper TypeScript typing
 
 ### Development Workflow
+
 - ESLint configuration requires `plugin:@typescript-eslint/recommended` not `@typescript-eslint/recommended`
 - Build/output directories should be excluded from linting and formatting
 - TypeScript compilation needs separate configs for main app and Electron processes
 - Always explicitly set NODE_ENV=development in Electron dev scripts to ensure proper mode detection
 
 ### Project Architecture & Requirements Gathering
+
 - User interviews and iterative discussion are crucial for defining project scope
 - Breaking down complex features into phases helps maintain focus and extensibility
 - Git-friendly storage approach (markdown + frontmatter) provides version control benefits
@@ -107,6 +113,7 @@ electron/
 - Real-time file watching and conflict detection are essential for multi-device workflows
 
 ### Shortcut Management System
+
 - Modular architecture with separated concerns (global vs local shortcuts, config management, action execution)
 - Type-safe handler definitions improve code maintainability and prevent runtime errors
 - Config-based approach allows persistent user customization and easy defaults management
@@ -115,6 +122,7 @@ electron/
 - Strategy pattern for different shortcut types (global/local) allows easy extension
 
 ### Code Architecture and Maintainability Principles
+
 - **Single Responsibility Principle**: Each class/module should have only one reason to change
 - **Separation of Concerns**: Split complex functionality into focused, independent modules
 - **Dependency Injection**: Use interfaces and dependency injection for loose coupling
@@ -128,6 +136,7 @@ electron/
 - **Type Safety**: Use TypeScript interfaces and types extensively for compile-time safety
 
 ### Documentation and Context Management
+
 - **README-driven Development**: Every module/directory must have comprehensive README.md documentation
 - **Context Awareness**: Before modifying any code, always check if a README.md exists in the target directory
 - **Documentation Synchronization**: When modifying existing code or adding new features:
@@ -144,6 +153,7 @@ electron/
 - **Change Impact**: Any modification to interfaces, patterns, or core functionality must be reflected in documentation
 
 ### Unit Testing System Architecture
+
 - **Comprehensive Test Coverage**: 87+ unit tests covering all core modules (VaultRepository, VaultManagerService, ShortcutManager, IPC handlers)
 - **Jest with Bun Integration**: Use `bun x jest` to run Jest tests through bun for proper dependency resolution
 - **Mock-Driven Testing**: Extensive mocking of Electron APIs, file system operations, and service dependencies
@@ -157,12 +167,14 @@ electron/
 - **Critical Bug Detection**: Unit tests have caught production bugs (e.g., missing fs.constants import in VaultRepository)
 
 ### Core System Interactions
+
 - **Vault System**: Repository pattern with VaultRepository for file operations, VaultManagerService for business logic, and factory pattern for initialization
-- **Shortcut System**: Strategy pattern with separate global/local managers, centralized config management, and action executor for command dispatch  
+- **Shortcut System**: Strategy pattern with separate global/local managers, centralized config management, and action executor for command dispatch
 - **IPC Architecture**: Modular handler registration through DefaultIPCManager, feature-based handler organization, and type-safe communication patterns with comprehensive permission management
 - **Service Integration**: Dependency injection through constructor parameters, interface-based contracts, and centralized service factories
 
 ### IPC Permission Management System
+
 - **Three-Tier Security Model**: ROOT (main window only), PLUGIN (controlled plugin access), PUBLIC (unrestricted safe operations)
 - **Automatic Permission Validation**: All IPC calls are wrapped with permission checks, ensuring no unauthorized access
 - **Context-Aware Security**: Permission decisions based on sender origin and main window validation
@@ -171,6 +183,7 @@ electron/
 - **Comprehensive Testing**: 55+ unit tests covering all permission levels, edge cases, and integration scenarios
 
 ### Platform-Specific Development Considerations
+
 - **macOS-First Development**: All features and UI patterns optimized for macOS conventions and user expectations
 - **Native macOS Integration**: Leverage macOS-specific APIs and system features where beneficial
 - **Future Cross-Platform Planning**: Architecture designed to accommodate Windows support without major refactoring

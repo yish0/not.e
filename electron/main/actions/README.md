@@ -12,31 +12,31 @@ graph TB
     A --> E[View Actions]
     A --> F[Dev Actions]
     A --> G[Global Actions]
-    
+
     B --> H[new-note]
     B --> I[open-vault]
     B --> J[save-note]
     B --> K[save-all]
-    
+
     C --> L[quick-open]
     C --> M[command-palette]
-    
+
     D --> N[find-in-note]
     D --> O[find-in-vault]
-    
+
     E --> P[toggle-sidebar]
     E --> Q[toggle-preview]
     E --> R[zoom controls]
-    
+
     F --> S[toggle-devtools]
-    
+
     G --> T[quick-note global]
-    
+
     subgraph "Communication"
         U[IPC Messages] --> V[Renderer Process]
         W[Direct Electron API] --> X[Main Process]
     end
-    
+
     H --> U
     I --> U
     J --> U
@@ -55,6 +55,7 @@ graph TB
 ## 액션 카테고리
 
 ### 1. File Actions (base-actions.ts)
+
 파일 관련 작업을 처리하는 액션들입니다.
 
 ```typescript
@@ -67,19 +68,21 @@ export function createFileActions(): ShortcutAction[] {
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:new-note')
       }
-    },
+    }
     // ... 기타 파일 액션들
   ]
 }
 ```
 
 **포함된 액션들:**
+
 - `new-note`: 새 노트 생성
 - `open-vault`: Vault 열기
 - `save-note`: 현재 노트 저장
 - `save-all`: 모든 노트 저장
 
 ### 2. Navigation Actions (base-actions.ts)
+
 앱 내 네비게이션 관련 액션들입니다.
 
 ```typescript
@@ -92,17 +95,19 @@ export function createNavigationActions(): ShortcutAction[] {
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:quick-open')
       }
-    },
+    }
     // ... 기타 네비게이션 액션들
   ]
 }
 ```
 
 **포함된 액션들:**
+
 - `quick-open`: 빠른 파일 열기
 - `command-palette`: 명령 팔레트 열기
 
 ### 3. Edit Actions (base-actions.ts)
+
 편집 관련 액션들입니다.
 
 ```typescript
@@ -115,17 +120,19 @@ export function createEditActions(): ShortcutAction[] {
       handler: (window: BrowserWindow | null): void => {
         window?.webContents.send('shortcut:find-in-note')
       }
-    },
+    }
     // ... 기타 편집 액션들
   ]
 }
 ```
 
 **포함된 액션들:**
+
 - `find-in-note`: 현재 노트에서 찾기
 - `find-in-vault`: Vault 전체에서 찾기
 
 ### 4. View Actions (view-actions.ts)
+
 뷰 및 UI 제어 관련 액션들입니다.
 
 ```typescript
@@ -142,13 +149,14 @@ export function createViewActions(): ShortcutAction[] {
           webContents.setZoomFactor(Math.min(currentZoom + 0.1, 3.0))
         }
       }
-    },
+    }
     // ... 기타 뷰 액션들
   ]
 }
 ```
 
 **포함된 액션들:**
+
 - `toggle-sidebar`: 사이드바 토글
 - `toggle-preview`: 미리보기 토글
 - `zoom-in`: 확대 (최대 3.0x)
@@ -156,6 +164,7 @@ export function createViewActions(): ShortcutAction[] {
 - `zoom-reset`: 줌 리셋 (1.0x)
 
 ### 5. Dev Actions (view-actions.ts)
+
 개발자 도구 관련 액션들입니다.
 
 ```typescript
@@ -174,9 +183,11 @@ export function createDevActions(): ShortcutAction[] {
 ```
 
 **포함된 액션들:**
+
 - `toggle-devtools`: 개발자 도구 토글
 
 ### 6. Global Actions (global-actions.ts)
+
 전역 단축키로 사용되는 액션들입니다.
 
 ```typescript
@@ -188,12 +199,12 @@ export function createGlobalActions(): ShortcutAction[] {
       category: 'global',
       handler: (window: BrowserWindow | null): void => {
         let targetWindow = window
-        
+
         if (!targetWindow) {
           const allWindows = BrowserWindow.getAllWindows()
-          targetWindow = allWindows.find(w => !w.isDestroyed()) || null
+          targetWindow = allWindows.find((w) => !w.isDestroyed()) || null
         }
-        
+
         if (targetWindow) {
           if (targetWindow.isMinimized()) targetWindow.restore()
           targetWindow.focus()
@@ -206,6 +217,7 @@ export function createGlobalActions(): ShortcutAction[] {
 ```
 
 **포함된 액션들:**
+
 - `quick-note`: 전역 빠른 노트 (앱을 활성화하고 새 노트 생성)
 
 ## 액션 실행 흐름
@@ -222,7 +234,7 @@ sequenceDiagram
     User->>SM: Press shortcut (e.g., Ctrl+S)
     SM->>AE: executeAction('save-note', window)
     AE->>Handler: handler(window)
-    
+
     alt IPC-based action
         Handler->>Window: webContents.send('shortcut:save-note')
         Window->>Renderer: IPC message
@@ -231,7 +243,7 @@ sequenceDiagram
         Handler->>Window: webContents.setZoomFactor(1.2)
         Window->>Window: Apply zoom directly
     end
-    
+
     Handler-->>AE: Action completed
     AE-->>SM: Execution result
 ```
@@ -263,13 +275,8 @@ const shortcutManager = getShortcutManager()
 
 // 액션들을 일괄 등록
 const actions = getAllDefaultActions()
-actions.forEach(action => {
-  shortcutManager.registerAction(
-    action.name,
-    action.handler,
-    action.description,
-    action.category
-  )
+actions.forEach((action) => {
+  shortcutManager.registerAction(action.name, action.handler, action.description, action.category)
 })
 
 // 특정 액션 수동 실행
@@ -312,7 +319,7 @@ export function getAllDefaultActions(): ShortcutAction[] {
     ...createViewActions(),
     ...createDevActions(),
     ...createGlobalActions(),
-    ...createCustomActions()  // 새 액션 추가
+    ...createCustomActions() // 새 액션 추가
   ]
 }
 ```
@@ -331,12 +338,12 @@ onMount(() => {
     // 새 노트 생성 로직
     createNewNote()
   })
-  
+
   window.electronAPI?.onShortcut?.('save-note', () => {
     // 노트 저장 로직
     saveCurrentNote()
   })
-  
+
   window.electronAPI?.onShortcut?.('toggle-sidebar', () => {
     // 사이드바 토글 로직
     sidebarVisible = !sidebarVisible
@@ -373,21 +380,14 @@ export type ShortcutActionHandler = (window: BrowserWindow | null) => void | Pro
 
 // 액션 인터페이스
 export interface ShortcutAction {
-  name: string                    // 고유 액션 이름
-  handler: ShortcutActionHandler  // 실행할 핸들러 함수
-  description: string             // 사용자에게 표시될 설명
-  category: string               // 액션 카테고리
+  name: string // 고유 액션 이름
+  handler: ShortcutActionHandler // 실행할 핸들러 함수
+  description: string // 사용자에게 표시될 설명
+  category: string // 액션 카테고리
 }
 
 // 액션 카테고리 타입
-export type ActionCategory = 
-  | 'file' 
-  | 'navigation' 
-  | 'edit' 
-  | 'view' 
-  | 'dev' 
-  | 'global'
-  | string  // 커스텀 카테고리 허용
+export type ActionCategory = 'file' | 'navigation' | 'edit' | 'view' | 'dev' | 'global' | string // 커스텀 카테고리 허용
 ```
 
 ## 확장 가이드
@@ -395,6 +395,7 @@ export type ActionCategory =
 ### 새로운 액션 추가 단계
 
 1. **액션 함수 정의**
+
 ```typescript
 // actions/my-actions.ts
 export function createMyActions(): ShortcutAction[] {
@@ -412,6 +413,7 @@ export function createMyActions(): ShortcutAction[] {
 ```
 
 2. **index.ts에 통합**
+
 ```typescript
 // actions/index.ts
 export function getAllDefaultActions(): ShortcutAction[] {
@@ -423,6 +425,7 @@ export function getAllDefaultActions(): ShortcutAction[] {
 ```
 
 3. **설정에 단축키 추가**
+
 ```typescript
 // shortcuts/config-manager.ts의 createDefaultConfig()에 추가
 {
@@ -434,6 +437,7 @@ export function getAllDefaultActions(): ShortcutAction[] {
 ```
 
 4. **Renderer에서 처리**
+
 ```typescript
 // Renderer 프로세스
 window.electronAPI?.onShortcut?.('my-action', () => {
@@ -473,12 +477,12 @@ window.electronAPI?.onShortcut?.('my-action', () => {
       console.log('No active window')
       return
     }
-    
+
     // 윈도우 상태 확인
     if (window.isMinimized()) {
       window.restore()
     }
-    
+
     // 조건에 따른 다른 동작
     if (window.isFocused()) {
       window.webContents.send('shortcut:focused-action')

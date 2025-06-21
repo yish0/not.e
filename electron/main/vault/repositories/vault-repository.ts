@@ -4,11 +4,10 @@ import { VaultRepository, VaultValidationResult, VaultMetadata } from '../interf
 import { createWelcomeNoteContent } from '../templates/welcome-note'
 
 export class FileVaultRepository implements VaultRepository {
-  
   async validatePath(vaultPath: string): Promise<VaultValidationResult> {
     try {
       const resolvedPath = resolve(vaultPath)
-      
+
       // 경로 접근 가능성 확인
       try {
         await fs.access(resolvedPath)
@@ -78,11 +77,13 @@ export class FileVaultRepository implements VaultRepository {
     try {
       const configDir = join(vaultPath, '.note')
       await fs.mkdir(configDir, { recursive: true })
-      
+
       const metadataPath = join(configDir, 'vault.json')
       await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8')
     } catch (error) {
-      throw new Error(`Failed to save vault metadata: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Failed to save vault metadata: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
@@ -92,7 +93,9 @@ export class FileVaultRepository implements VaultRepository {
       await this.createWorkspaceStructure(vaultPath)
       await this.createWelcomeNote(vaultPath, vaultName)
     } catch (error) {
-      throw new Error(`Failed to create vault structure: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      throw new Error(
+        `Failed to create vault structure: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 

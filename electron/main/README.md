@@ -10,35 +10,35 @@ graph TB
     A --> C[Actions System]
     A --> D[Vault System]
     A --> E[IPC System]
-    
+
     B --> F[shortcuts/]
     C --> G[actions/]
     D --> H[vault/]
     E --> I[ipc/]
-    
+
     subgraph "Core Systems"
         F --> J[Global & Local Shortcut Management]
         G --> K[Action Handlers by Category]
         H --> L[Repository & Service Patterns]
         I --> M[Feature-based IPC Handlers]
     end
-    
+
     subgraph "Configuration"
         N[../config.ts]
         O[User Data Directory]
         P[Vault Configuration]
     end
-    
+
     A --> N
     H --> O
     H --> P
-    
+
     subgraph "External APIs"
         Q[Electron APIs]
         R[File System]
         S[Dialog System]
     end
-    
+
     B --> Q
     D --> R
     D --> S
@@ -138,13 +138,14 @@ import { setupIPCHandlers } from './ipc'
 
 // 시스템 초기화 순서:
 // 1. Vault 시스템 초기화
-// 2. 단축키 시스템 초기화 
+// 2. 단축키 시스템 초기화
 // 3. 액션 등록
 // 4. IPC 핸들러 설정
 // 5. 메인 윈도우 생성
 ```
 
 **핵심 책임:**
+
 - 애플리케이션 생명주기 관리
 - 시스템 간 초기화 순서 조율
 - 메인 윈도우 생성 및 관리
@@ -155,12 +156,14 @@ import { setupIPCHandlers } from './ipc'
 전역 및 로컬 단축키를 관리하는 시스템입니다.
 
 **주요 특징:**
+
 - 설정 기반 단축키 관리
 - 전역/로컬 단축키 분리
 - 액션과의 느슨한 결합
 - 런타임 단축키 변경 지원
 
 **사용 예시:**
+
 ```typescript
 const shortcutManager = getShortcutManager()
 await shortcutManager.initialize()
@@ -173,11 +176,13 @@ await shortcutManager.setupWindow(window)
 단축키와 연결되는 액션 핸들러들을 관리합니다.
 
 **카테고리별 분리:**
+
 - `base-actions.ts`: 파일, 네비게이션, 편집
 - `view-actions.ts`: 뷰, 개발자 도구
 - `global-actions.ts`: 전역 액션
 
 **확장 방법:**
+
 ```typescript
 // 새 액션 카테고리 추가
 export function createMyActions(): ShortcutAction[] {
@@ -185,7 +190,9 @@ export function createMyActions(): ShortcutAction[] {
     {
       name: 'my-action',
       category: 'custom',
-      handler: (window) => { /* 액션 로직 */ }
+      handler: (window) => {
+        /* 액션 로직 */
+      }
     }
   ]
 }
@@ -196,11 +203,13 @@ export function createMyActions(): ShortcutAction[] {
 노트 저장소(Vault)를 관리하는 시스템입니다.
 
 **아키텍처 패턴:**
+
 - Repository Pattern: 데이터 접근 추상화
 - Service Pattern: 비즈니스 로직 분리
 - Factory Pattern: 의존성 주입
 
 **핵심 기능:**
+
 - Vault 선택 및 초기화
 - 파일 시스템 관리
 - 설정 영구 저장
@@ -211,6 +220,7 @@ export function createMyActions(): ShortcutAction[] {
 메인-렌더러 프로세스 간 통신을 관리합니다.
 
 **모듈화 구조:**
+
 - 기능별 핸들러 분리
 - 중앙화된 등록/해제 관리
 - 컨텍스트 기반 핸들러 지원
@@ -221,12 +231,14 @@ export function createMyActions(): ShortcutAction[] {
 ### 새로운 시스템 추가
 
 1. **디렉토리 생성**
+
 ```bash
 mkdir electron/main/my-system
 cd electron/main/my-system
 ```
 
 2. **기본 구조 생성**
+
 ```typescript
 // types.ts - 타입 정의
 export interface MySystemConfig { ... }
@@ -242,6 +254,7 @@ export function getMySystemManager() { ... }
 ```
 
 3. **main.ts에 통합**
+
 ```typescript
 import { getMySystemManager } from './my-system'
 
@@ -264,12 +277,14 @@ app.whenReady().then(async () => {
 ### 코딩 표준
 
 **파일 명명 규칙:**
+
 - 클래스 파일: `kebab-case.ts` (예: `vault-manager.ts`)
 - 타입 파일: `types.ts` 또는 `interfaces.ts`
 - 인덱스 파일: `index.ts`
 - 테스트 파일: `*.test.ts`
 
 **코드 구조:**
+
 - 단일 책임 원칙 준수
 - 인터페이스 기반 설계
 - 의존성 주입 활용
@@ -432,11 +447,13 @@ window.on('closed', () => {
 ### 일반적인 문제들
 
 1. **Vault 선택 다이얼로그가 나타나지 않음**
+
    - `isDev` 설정 확인
    - 권한 문제 확인
    - 콘솔 에러 로그 확인
 
 2. **단축키가 작동하지 않음**
+
    - 단축키 등록 순서 확인
    - 액션 핸들러 등록 확인
    - 전역/로컬 단축키 구분 확인
@@ -459,18 +476,21 @@ tail -f ~/.config/not.e/debug.log
 ## 향후 계획
 
 ### Phase 1 구현 예정
+
 - [ ] 기본 텍스트 편집기
 - [ ] 마크다운 지원
 - [ ] 워크스페이스 네비게이션
 - [ ] 파일 트리 사이드바
 
 ### Phase 2 구현 예정
+
 - [ ] 실시간 파일 감시
 - [ ] 검색 시스템
 - [ ] 태그 관리
 - [ ] 내보내기 기능
 
 ### Phase 3 구현 예정
+
 - [ ] 플러그인 시스템
 - [ ] 브라우저 임베드
 - [ ] 고급 테마 시스템
@@ -486,6 +506,7 @@ tail -f ~/.config/not.e/debug.log
 6. **커밋 메시지 규칙 준수**
 
 더 자세한 정보는 각 시스템별 README를 참조하세요:
+
 - [Shortcuts System](./shortcuts/README.md)
 - [Actions System](./actions/README.md)
 - [Vault System](./vault/README.md)

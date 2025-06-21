@@ -14,7 +14,7 @@ export class VaultFactory {
       const configRepository = new FileAppConfigRepository()
       const vaultRepository = new FileVaultRepository()
       const initializerService = new DefaultVaultInitializerService(vaultRepository)
-      
+
       this.vaultManagerInstance = new DefaultVaultManagerService(
         configRepository,
         initializerService

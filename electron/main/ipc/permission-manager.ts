@@ -1,9 +1,9 @@
 import { BrowserWindow } from 'electron'
 
 export enum IPCPermissionLevel {
-  ROOT = 'root',           // Full system access - core app functionality
-  PLUGIN = 'plugin',       // Limited access - external plugin functionality
-  PUBLIC = 'public'        // Public access - no sensitive operations
+  ROOT = 'root', // Full system access - core app functionality
+  PLUGIN = 'plugin', // Limited access - external plugin functionality
+  PUBLIC = 'public' // Public access - no sensitive operations
 }
 
 export interface IPCPermission {
@@ -38,32 +38,32 @@ export class DefaultIPCPermissionManager implements IPCPermissionManager {
       level: IPCPermissionLevel.ROOT,
       description: 'Get current vault configuration'
     })
-    
+
     this.setChannelPermission('vault:get-recent', {
       level: IPCPermissionLevel.ROOT,
       description: 'Get recent vault list'
     })
-    
+
     this.setChannelPermission('vault:select', {
       level: IPCPermissionLevel.ROOT,
       description: 'Show vault selection dialog'
     })
-    
+
     this.setChannelPermission('vault:set-current', {
       level: IPCPermissionLevel.ROOT,
       description: 'Set current vault'
     })
-    
+
     this.setChannelPermission('vault:remove-recent', {
       level: IPCPermissionLevel.ROOT,
       description: 'Remove vault from recent list'
     })
-    
+
     this.setChannelPermission('vault:should-show-selector', {
       level: IPCPermissionLevel.ROOT,
       description: 'Check if vault selector should be shown'
     })
-    
+
     this.setChannelPermission('vault:set-show-selector', {
       level: IPCPermissionLevel.ROOT,
       description: 'Set vault selector visibility'
@@ -74,7 +74,7 @@ export class DefaultIPCPermissionManager implements IPCPermissionManager {
       level: IPCPermissionLevel.PUBLIC,
       description: 'Get application version'
     })
-    
+
     this.setChannelPermission('get-platform', {
       level: IPCPermissionLevel.PUBLIC,
       description: 'Get platform information'
@@ -87,7 +87,7 @@ export class DefaultIPCPermissionManager implements IPCPermissionManager {
 
   async checkPermission(channel: string, context: PermissionContext): Promise<boolean> {
     const permission = this.permissions.get(channel)
-    
+
     // If no permission is set, default to ROOT level (restrictive)
     if (!permission) {
       console.warn(`No permission configured for channel: ${channel}. Defaulting to ROOT level.`)
@@ -126,7 +126,7 @@ export class DefaultIPCPermissionManager implements IPCPermissionManager {
     if (!context.mainWindow) {
       return false
     }
-    
+
     return context.sender === context.mainWindow.webContents
   }
 

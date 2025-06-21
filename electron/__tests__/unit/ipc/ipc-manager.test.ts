@@ -22,7 +22,7 @@ jest.mock('../../../main/ipc/permission-manager', () => ({
   }),
   IPCPermissionLevel: {
     ROOT: 'root',
-    PLUGIN: 'plugin', 
+    PLUGIN: 'plugin',
     PUBLIC: 'public'
   }
 }))
@@ -63,7 +63,7 @@ describe('DefaultIPCManager', () => {
           permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test 1' }
         },
         {
-          channel: 'test-channel-2', 
+          channel: 'test-channel-2',
           handler: jest.fn().mockReturnValue('result 2'),
           permission: { level: IPCPermissionLevel.ROOT, description: 'Test 2' }
         }
@@ -155,9 +155,9 @@ describe('DefaultIPCManager', () => {
   describe('Main Window Management', () => {
     it('should set and update main window reference', () => {
       const newWindow = new BrowserWindow() as jest.Mocked<BrowserWindow>
-      
+
       ipcManager.setMainWindow(newWindow)
-      
+
       // Verify window is set (testing through registration behavior)
       const handler: IPCHandler = {
         channel: 'test-window',
@@ -171,7 +171,7 @@ describe('DefaultIPCManager', () => {
 
     it('should handle null main window', () => {
       ipcManager.setMainWindow(null)
-      
+
       const handler: IPCHandler = {
         channel: 'test-null-window',
         handler: jest.fn(),

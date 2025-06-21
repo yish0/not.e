@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron'
-import { 
-  DefaultIPCPermissionManager, 
-  IPCPermissionLevel, 
-  PermissionContext 
+import {
+  DefaultIPCPermissionManager,
+  IPCPermissionLevel,
+  PermissionContext
 } from '../../../main/ipc/permission-manager'
 
 jest.mock('electron', () => ({
@@ -58,8 +58,14 @@ describe('DefaultIPCPermissionManager', () => {
         description: 'Test root channel'
       })
 
-      const hasPermissionFromMain = await permissionManager.checkPermission('test-root', contextFromMain)
-      const hasPermissionFromOther = await permissionManager.checkPermission('test-root', contextFromOther)
+      const hasPermissionFromMain = await permissionManager.checkPermission(
+        'test-root',
+        contextFromMain
+      )
+      const hasPermissionFromOther = await permissionManager.checkPermission(
+        'test-root',
+        contextFromOther
+      )
 
       expect(hasPermissionFromMain).toBe(true)
       expect(hasPermissionFromOther).toBe(false)
@@ -94,8 +100,14 @@ describe('DefaultIPCPermissionManager', () => {
         mainWindow: mockMainWindow
       }
 
-      const hasPermissionFromMain = await permissionManager.checkPermission('unregistered-channel', contextFromMain)
-      const hasPermissionFromOther = await permissionManager.checkPermission('unregistered-channel', contextFromOther)
+      const hasPermissionFromMain = await permissionManager.checkPermission(
+        'unregistered-channel',
+        contextFromMain
+      )
+      const hasPermissionFromOther = await permissionManager.checkPermission(
+        'unregistered-channel',
+        contextFromOther
+      )
 
       expect(hasPermissionFromMain).toBe(true)
       expect(hasPermissionFromOther).toBe(false)
@@ -114,7 +126,7 @@ describe('DefaultIPCPermissionManager', () => {
         'vault:set-show-selector'
       ]
 
-      vaultChannels.forEach(channel => {
+      vaultChannels.forEach((channel) => {
         const permission = permissionManager.getChannelPermission(channel)
         expect(permission).toBeDefined()
         expect(permission?.level).toBe(IPCPermissionLevel.ROOT)
@@ -124,7 +136,7 @@ describe('DefaultIPCPermissionManager', () => {
     it('should have PUBLIC permissions for app info channels', () => {
       const appChannels = ['get-app-version', 'get-platform']
 
-      appChannels.forEach(channel => {
+      appChannels.forEach((channel) => {
         const permission = permissionManager.getChannelPermission(channel)
         expect(permission).toBeDefined()
         expect(permission?.level).toBe(IPCPermissionLevel.PUBLIC)
@@ -144,11 +156,11 @@ describe('DefaultIPCPermissionManager', () => {
 
     it('should remove plugin channels', () => {
       permissionManager.addPluginChannel('plugin:to-remove', 'To be removed')
-      
+
       expect(permissionManager.getChannelPermission('plugin:to-remove')).toBeDefined()
-      
+
       permissionManager.removePluginChannel('plugin:to-remove')
-      
+
       expect(permissionManager.getChannelPermission('plugin:to-remove')).toBeUndefined()
     })
 
@@ -157,9 +169,9 @@ describe('DefaultIPCPermissionManager', () => {
         level: IPCPermissionLevel.ROOT,
         description: 'Root test'
       })
-      
+
       permissionManager.removePluginChannel('root:test')
-      
+
       expect(permissionManager.getChannelPermission('root:test')).toBeDefined()
     })
   })
@@ -186,15 +198,15 @@ describe('DefaultIPCPermissionManager', () => {
       })
 
       expect(permissionManager.getChannelPermission('test:revoke')).toBeDefined()
-      
+
       permissionManager.revokeChannelPermission('test:revoke')
-      
+
       expect(permissionManager.getChannelPermission('test:revoke')).toBeUndefined()
     })
 
     it('should get all permissions', () => {
       const allPermissions = permissionManager.getAllPermissions()
-      
+
       expect(allPermissions.size).toBeGreaterThan(0)
       expect(allPermissions.has('vault:get-current')).toBe(true)
       expect(allPermissions.has('get-app-version')).toBe(true)
