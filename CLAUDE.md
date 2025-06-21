@@ -203,3 +203,15 @@ electron/
 - **Native macOS Integration**: Leverage macOS-specific APIs and system features where beneficial
 - **Future Cross-Platform Planning**: Architecture designed to accommodate Windows support without major refactoring
 - **Development Environment**: All tooling and scripts optimized for macOS development workflows
+
+### Module Structure Best Practices
+
+- **Categorical Organization**: Group related functionality into categorized subdirectories (e.g., actions/file/, actions/view/, core/window/)
+- **Eliminate Duplication**: Identify and remove duplicate files when restructuring modules
+- **Index File Pattern**: Use index.ts files for clean public API exports from each module directory
+- **Core System Separation**: Separate core system concerns (window management, lifecycle, integration) from feature modules
+- **Singleton with Reset**: Implement singleton patterns with reset functions for better testability
+- **Main Process Simplification**: Keep main.ts minimal by delegating responsibilities to specialized managers
+- **Test Structure Mirroring**: Organize test directories to mirror main code structure for easy navigation
+- **Comprehensive Test Coverage**: Create tests for all new modules and architectural components
+- **Mock Utilities**: Develop reusable test helpers and mock utilities for consistent testing patterns
