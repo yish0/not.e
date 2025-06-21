@@ -119,7 +119,7 @@ export class ShortcutManager {
     key: string,
     action: string,
     description: string,
-    category: string = 'custom'
+    category: ShortcutCategory = ShortcutCategory.CUSTOM
   ): Promise<boolean> {
     await this.ensureInitialized()
 
