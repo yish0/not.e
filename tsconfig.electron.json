@@ -13,6 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "types": ["node", "electron"]
   },
-  "include": ["electron/**/*"],
-  "exclude": ["node_modules", "dist", "build"]
+  "include": ["electron/main/**/*", "electron/preload/**/*"],
+  "exclude": ["node_modules", "dist", "build", "electron/__tests__/**/*"]
 }
