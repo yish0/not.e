@@ -1,10 +1,12 @@
 import { BrowserWindow } from 'electron'
 
+export type ShortcutCategory = 'global' | 'file' | 'navigation' | 'edit' | 'view' | 'dev'
+
 export interface ShortcutConfig {
   key: string
   action: string
   description: string
-  category?: string
+  category: ShortcutCategory
 }
 
 export type ShortcutActionHandler = (window: BrowserWindow | null) => void | Promise<void>
@@ -13,7 +15,7 @@ export interface ShortcutAction {
   name: string
   handler: ShortcutActionHandler
   description: string
-  category: string
+  category: ShortcutCategory
 }
 
 export interface GlobalShortcutManager {
