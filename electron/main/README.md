@@ -6,21 +6,29 @@
 
 ```mermaid
 graph TB
-    A[main.ts] --> B[Shortcuts System]
-    A --> C[Actions System]
-    A --> D[Vault System]
-    A --> E[IPC System]
+    A[main.ts] --> B[Core System]
+    A --> C[Shortcuts System]
+    A --> D[Actions System]
+    A --> E[Vault System]
+    A --> F[IPC System]
 
-    B --> F[shortcuts/]
-    C --> G[actions/]
-    D --> H[vault/]
-    E --> I[ipc/]
+    B --> G[core/]
+    C --> H[shortcuts/]
+    D --> I[actions/]
+    E --> J[vault/]
+    F --> K[ipc/]
 
-    subgraph "Core Systems"
-        F --> J[Global & Local Shortcut Management]
-        G --> K[Action Handlers by Category]
-        H --> L[Repository & Service Patterns]
-        I --> M[Feature-based IPC Handlers]
+    subgraph "Core Architecture"
+        G --> L[App Lifecycle Management]
+        G --> M[Window Management]
+        G --> N[System Integration]
+    end
+
+    subgraph "Feature Systems"
+        H --> O[Global & Local Shortcut Management]
+        I --> P[Action Handlers by Category]
+        J --> Q[Repository & Service Patterns]
+        K --> R[Feature-based IPC Handlers]
     end
 
     subgraph "Configuration"
@@ -48,26 +56,39 @@ graph TB
 
 ```
 electron/main/
-├── main.ts                 # 메인 프로세스 진입점
+├── main.ts                 # 메인 프로세스 진입점 (12 lines)
+├── core/                   # 코어 시스템 아키텍처
+│   ├── window/            # 윈도우 관리
+│   │   ├── window-manager.ts
+│   │   └── index.ts
+│   ├── integration/       # 시스템 통합
+│   │   ├── system-integrator.ts
+│   │   └── index.ts
+│   ├── lifecycle/         # 앱 생명주기
+│   │   ├── app-lifecycle.ts
+│   │   └── index.ts
+│   ├── index.ts
+│   └── README.md          # 코어 시스템 문서
 ├── actions/                # 액션 핸들러 시스템
-│   ├── base-actions.ts     # 파일, 네비게이션, 편집 액션
-│   ├── view-actions.ts     # 뷰, 개발자 도구 액션
-│   ├── global-actions.ts   # 전역 액션
+│   ├── file/              # 파일 관련 액션
+│   ├── navigation/        # 네비게이션 액션
+│   ├── edit/              # 편집 액션
+│   ├── view/              # 뷰 제어 액션
+│   ├── dev/               # 개발자 도구 액션
+│   ├── global/            # 전역 액션
 │   ├── index.ts           # 액션 통합 관리
 │   └── README.md          # 액션 시스템 문서
 ├── shortcuts/              # 단축키 관리 시스템
-│   ├── types.ts           # 타입 정의
-│   ├── shortcut-manager.ts # 메인 관리자
-│   ├── global-shortcut-manager.ts # 전역 단축키
-│   ├── local-shortcut-manager.ts  # 로컬 단축키
-│   ├── action-executor.ts  # 액션 실행기
-│   ├── config-manager.ts   # 설정 관리
+│   ├── types/             # 타입 정의
+│   ├── managers/          # 단축키 관리자들
+│   ├── actions/           # 액션 실행 관련
+│   ├── config/            # 설정 관리
 │   ├── index.ts           # 공개 API
 │   └── README.md          # 단축키 시스템 문서
 ├── vault/                  # Vault 관리 시스템
-│   ├── interfaces.ts      # 인터페이스 정의
-│   ├── vault-manager.ts   # 메인 Vault 관리자
-│   ├── vault-factory.ts   # Factory 패턴
+│   ├── types/             # 타입 정의
+│   ├── core/              # 팩토리 및 핵심 로직
+│   ├── managers/          # Vault 관리자
 │   ├── repositories/      # 데이터 접근층
 │   ├── services/          # 비즈니스 로직층
 │   ├── templates/         # 콘텐츠 템플릿
@@ -75,7 +96,8 @@ electron/main/
 │   └── README.md         # Vault 시스템 문서
 ├── ipc/                   # IPC 통신 관리
 │   ├── types.ts          # IPC 타입 정의
-│   ├── ipc-manager.ts    # IPC 관리자
+│   ├── core/             # IPC 관리자
+│   ├── permissions/      # 권한 관리
 │   ├── handlers/         # 기능별 IPC 핸들러
 │   ├── index.ts         # IPC 설정 유틸리티
 │   └── README.md        # IPC 시스템 문서
@@ -125,33 +147,51 @@ sequenceDiagram
 
 ## 주요 구성 요소
 
-### 1. main.ts - 애플리케이션 진입점
+### 1. main.ts - 애플리케이션 진입점 (12 lines)
 
-메인 프로세스의 진입점으로, 모든 시스템을 초기화하고 조율합니다.
+메인 프로세스의 진입점으로, Core 시스템을 통해 모든 초기화를 위임합니다.
 
 ```typescript
-import { app, BrowserWindow } from 'electron'
-import { getShortcutManager } from './shortcuts'
-import { getAllDefaultActions } from './actions'
-import { getVaultManager } from './vault'
-import { setupIPCHandlers } from './ipc'
+import { getAppLifecycleManager } from './core'
 
-// 시스템 초기화 순서:
-// 1. Vault 시스템 초기화
-// 2. 단축키 시스템 초기화
-// 3. 액션 등록
-// 4. IPC 핸들러 설정
-// 5. 메인 윈도우 생성
+async function main(): Promise<void> {
+  const appLifecycle = getAppLifecycleManager()
+  await appLifecycle.initialize()
+}
+
+main().catch((error) => {
+  console.error('Failed to start application:', error)
+  process.exit(1)
+})
 ```
 
 **핵심 책임:**
 
-- 애플리케이션 생명주기 관리
-- 시스템 간 초기화 순서 조율
-- 메인 윈도우 생성 및 관리
-- 앱 종료 시 정리 작업
+- 최소한의 진입점 역할
+- Core 시스템에 모든 책임 위임
+- 전역 에러 핸들링
 
-### 2. Shortcuts System (`shortcuts/`)
+### 2. Core System (`core/`)
+
+애플리케이션의 핵심 아키텍처를 담당하는 새로운 시스템입니다.
+
+**주요 구성요소:**
+
+- `window/`: 윈도우 생성 및 관리
+- `integration/`: 시스템 간 통합 조율
+- `lifecycle/`: 애플리케이션 생명주기 관리
+
+**사용 예시:**
+
+```typescript
+const appLifecycle = getAppLifecycleManager()
+const windowManager = getWindowManager()
+const systemIntegrator = getSystemIntegrator()
+
+// 모든 시스템이 분리되어 테스트 가능
+```
+
+### 3. Shortcuts System (`shortcuts/`)
 
 전역 및 로컬 단축키를 관리하는 시스템입니다.
 
@@ -171,15 +211,18 @@ await shortcutManager.setupGlobalShortcuts()
 await shortcutManager.setupWindow(window)
 ```
 
-### 3. Actions System (`actions/`)
+### 4. Actions System (`actions/`)
 
 단축키와 연결되는 액션 핸들러들을 관리합니다.
 
 **카테고리별 분리:**
 
-- `base-actions.ts`: 파일, 네비게이션, 편집
-- `view-actions.ts`: 뷰, 개발자 도구
-- `global-actions.ts`: 전역 액션
+- `file/`: 파일 관련 액션
+- `navigation/`: 네비게이션 액션
+- `edit/`: 편집 관련 액션
+- `view/`: 뷰 제어 액션
+- `dev/`: 개발자 도구 액션
+- `global/`: 전역 액션
 
 **확장 방법:**
 
@@ -198,7 +241,7 @@ export function createMyActions(): ShortcutAction[] {
 }
 ```
 
-### 4. Vault System (`vault/`)
+### 5. Vault System (`vault/`)
 
 노트 저장소(Vault)를 관리하는 시스템입니다.
 
@@ -215,7 +258,7 @@ export function createMyActions(): ShortcutAction[] {
 - 설정 영구 저장
 - 템플릿 기반 구조 생성
 
-### 5. IPC System (`ipc/`)
+### 6. IPC System (`ipc/`)
 
 메인-렌더러 프로세스 간 통신을 관리합니다.
 
@@ -507,6 +550,7 @@ tail -f ~/.config/not.e/debug.log
 
 더 자세한 정보는 각 시스템별 README를 참조하세요:
 
+- [Core System](./core/README.md)
 - [Shortcuts System](./shortcuts/README.md)
 - [Actions System](./actions/README.md)
 - [Vault System](./vault/README.md)

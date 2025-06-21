@@ -48,6 +48,19 @@ shortcuts/
 ├── index.ts                     # 공개 API 및 팩토리 함수
 ├── types/                       # 타입 정의
 │   ├── index.ts
+│   └── shortcut-types.ts
+├── managers/                    # 단축키 관리자들
+│   ├── index.ts
+│   ├── shortcut-manager.ts
+│   ├── global-shortcut-manager.ts
+│   └── local-shortcut-manager.ts
+├── actions/                     # 액션 실행 관련
+│   ├── index.ts
+│   └── action-executor.ts
+└── config/                      # 설정 관리
+    ├── index.ts
+    ├── config-manager.ts
+    └── default-shortcuts.ts
 │   └── shortcut-types.ts        # ShortcutConfig, 인터페이스 등
 ├── config/                      # 설정 관리
 │   ├── index.ts

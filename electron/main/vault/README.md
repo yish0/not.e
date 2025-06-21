@@ -19,7 +19,7 @@ graph TB
 
     C --> I[Electron Dialog API]
 
-    J[VaultFactory] --> B
+    J[core/VaultFactory] --> B
     J --> C
     J --> D
     J --> E

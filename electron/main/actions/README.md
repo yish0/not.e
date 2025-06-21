@@ -54,7 +54,7 @@ graph TB
 
 ## 액션 카테고리
 
-### 1. File Actions (base-actions.ts)
+### 1. File Actions (file/file-actions.ts)
 
 파일 관련 작업을 처리하는 액션들입니다.
 
@@ -81,7 +81,7 @@ export function createFileActions(): ShortcutAction[] {
 - `save-note`: 현재 노트 저장
 - `save-all`: 모든 노트 저장
 
-### 2. Navigation Actions (base-actions.ts)
+### 2. Navigation Actions (navigation/navigation-actions.ts)
 
 앱 내 네비게이션 관련 액션들입니다.
 
@@ -106,7 +106,7 @@ export function createNavigationActions(): ShortcutAction[] {
 - `quick-open`: 빠른 파일 열기
 - `command-palette`: 명령 팔레트 열기
 
-### 3. Edit Actions (base-actions.ts)
+### 3. Edit Actions (edit/edit-actions.ts)
 
 편집 관련 액션들입니다.
 
@@ -131,7 +131,7 @@ export function createEditActions(): ShortcutAction[] {
 - `find-in-note`: 현재 노트에서 찾기
 - `find-in-vault`: Vault 전체에서 찾기
 
-### 4. View Actions (view-actions.ts)
+### 4. View Actions (view/view-actions.ts)
 
 뷰 및 UI 제어 관련 액션들입니다.
 
@@ -163,7 +163,7 @@ export function createViewActions(): ShortcutAction[] {
 - `zoom-out`: 축소 (최소 0.3x)
 - `zoom-reset`: 줌 리셋 (1.0x)
 
-### 5. Dev Actions (view-actions.ts)
+### 5. Dev Actions (dev/dev-actions.ts)
 
 개발자 도구 관련 액션들입니다.
 
@@ -397,8 +397,8 @@ export type ActionCategory = 'file' | 'navigation' | 'edit' | 'view' | 'dev' | '
 1. **액션 함수 정의**
 
 ```typescript
-// actions/my-actions.ts
-export function createMyActions(): ShortcutAction[] {
+// actions/custom/custom-actions.ts
+export function createCustomActions(): ShortcutAction[] {
   return [
     {
       name: 'my-action',
@@ -410,16 +410,21 @@ export function createMyActions(): ShortcutAction[] {
     }
   ]
 }
+
+// actions/custom/index.ts
+export { createCustomActions } from './custom-actions'
 ```
 
 2. **index.ts에 통합**
 
 ```typescript
 // actions/index.ts
+import { createCustomActions } from './custom'
+
 export function getAllDefaultActions(): ShortcutAction[] {
   return [
     // ... 기존 액션들
-    ...createMyActions()
+    ...createCustomActions()
   ]
 }
 ```

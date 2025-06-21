@@ -42,8 +42,8 @@ graph TB
     end
 
     subgraph "Core IPC System"
-        N[ipc-manager.ts]
-        O[permission-manager.ts]
+        N[core/ipc-manager.ts]
+        O[permissions/permission-manager.ts]
         P[types.ts]
         Q[index.ts]
     end
