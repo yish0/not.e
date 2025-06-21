@@ -1,10 +1,10 @@
 import { BrowserWindow, app } from 'electron'
 import {
-  ShortcutConfig,
-  GlobalShortcutManager,
-  LocalShortcutManager,
-  ActionExecutor,
-  ShortcutActionHandler,
+  type ShortcutConfig,
+  type GlobalShortcutManager,
+  type LocalShortcutManager,
+  type ActionExecutor,
+  type ShortcutActionHandler,
   ShortcutCategory
 } from './types'
 import { ElectronGlobalShortcutManager } from './global-shortcut-manager'
