@@ -24,7 +24,7 @@ jest.mock('../../../main/vault', () => ({
 import { BrowserWindow } from 'electron'
 import { createVaultHandlers } from '../../../main/ipc/handlers/vault-handlers'
 import { IPCContext } from '../../../main/ipc/types'
-import { VaultConfig, VaultInitResult } from '../../../main/vault/interfaces'
+import type { VaultConfig, VaultInitResult } from '../../../main/vault/types'
 import { getVaultManager } from '../../../main/vault'
 
 const mockGetVaultManager = getVaultManager as jest.MockedFunction<typeof getVaultManager>
