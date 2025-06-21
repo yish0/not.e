@@ -62,6 +62,8 @@ electron/
 - Static adapter is required for SvelteKit to work with Electron
 - Preload scripts need contextBridge for secure IPC communication
 - Build output directory needs to match Electron's expectations
+- Development mode detection is critical - NODE_ENV must be properly set or handled when undefined
+- Electron's isDev logic should account for cases where NODE_ENV is not set during development
 
 ### shadcn/ui Setup
 - Manual component creation required for Svelte (no CLI like React)
@@ -72,3 +74,4 @@ electron/
 - ESLint configuration requires `plugin:@typescript-eslint/recommended` not `@typescript-eslint/recommended`
 - Build/output directories should be excluded from linting and formatting
 - TypeScript compilation needs separate configs for main app and Electron processes
+- Always explicitly set NODE_ENV=development in Electron dev scripts to ensure proper mode detection

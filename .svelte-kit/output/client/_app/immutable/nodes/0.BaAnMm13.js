@@ -1,1 +1,0 @@
-import{f as m,a as n}from"../chunks/B9ZnqaTz.js";import"../chunks/CfGdhx9c.js";import{k as s,l as i}from"../chunks/BsYuGYGz.js";import{s as p}from"../chunks/BpqZAE9Q.js";var e=m('<main class="container mx-auto px-4 py-8"><!></main>');function u(o,r){var a=e(),t=s(a);p(t,r,"default",{}),i(a),n(o,a)}export{u as component};
