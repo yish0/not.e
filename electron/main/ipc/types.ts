@@ -1,8 +1,10 @@
 import { BrowserWindow } from 'electron'
+import { IPCPermission } from './permission-manager'
 
 export interface IPCHandler {
   channel: string
   handler: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => any
+  permission?: IPCPermission
 }
 
 export interface IPCManager {

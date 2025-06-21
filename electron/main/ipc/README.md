@@ -1,70 +1,104 @@
-# IPC Management System
+# IPC Management System with Permission Control
 
-이 모듈은 not.e 애플리케이션의 IPC(Inter-Process Communication) 관리 시스템을 구현합니다. 메인 프로세스와 렌더러 프로세스 간의 통신을 체계적으로 관리하고, 기능별로 핸들러를 분리하여 유지보수성을 높였습니다.
+이 모듈은 not.e 애플리케이션의 IPC(Inter-Process Communication) 관리 시스템을 구현합니다. 메인 프로세스와 렌더러 프로세스 간의 통신을 체계적으로 관리하고, 기능별로 핸들러를 분리하여 유지보수성을 높였습니다. Phase 3에서 외부 플러그인을 지원하기 위해 포괄적인 권한 관리 시스템이 포함되어 있습니다.
 
 ## 아키텍처 개요
 
 ```mermaid
 graph TB
-    A[IPC Manager] --> B[Handler Registry]
-    A --> C[Channel Management]
+    subgraph "Renderer Process"
+        A[Frontend Components]
+        B[Plugin Components]
+    end
     
-    B --> D[App Handlers]
-    B --> E[Vault Handlers]
-    B --> F[Future Handlers...]
+    subgraph "Main Process"
+        C[IPC Manager]
+        D[Permission Manager]
+        E[Handler Registry]
+        F[Business Logic]
+    end
     
-    D --> G[get-app-version]
-    D --> H[get-platform]
+    A --> C
+    B --> C
+    C --> D
+    D --> E
+    E --> F
     
-    E --> I[vault:get-current]
-    E --> J[vault:select]
-    E --> K[vault:set-current]
-    E --> L[vault:get-recent]
-    E --> M[vault:remove-recent]
-    E --> N[vault:should-show-selector]
-    E --> O[vault:set-show-selector]
+    subgraph "Permission Levels"
+        G[ROOT - 메인 윈도우만]
+        H[PLUGIN - 플러그인 접근]
+        I[PUBLIC - 제한 없음]
+    end
     
-    P[Main Process] --> A
-    Q[Renderer Process] --> R[Preload Script]
-    R --> S[IPC Invoke]
-    S --> A
+    D --> G
+    D --> H
+    D --> I
     
     subgraph "Handler Organization"
-        T[handlers/app-handlers.ts]
-        U[handlers/vault-handlers.ts]
-        V[handlers/index.ts]
+        J[handlers/app-handlers.ts - PUBLIC]
+        K[handlers/vault-handlers.ts - ROOT]
+        L[handlers/plugin-handlers.ts - PLUGIN]
+        M[handlers/index.ts]
     end
     
     subgraph "Core IPC System"
-        W[ipc-manager.ts]
-        X[types.ts]
-        Y[index.ts]
+        N[ipc-manager.ts]
+        O[permission-manager.ts]
+        P[types.ts]
+        Q[index.ts]
     end
 ```
 
 ## 핵심 컴포넌트
 
 ### 1. IPC Manager (ipc-manager.ts)
-IPC 핸들러의 등록, 해제, 관리를 담당하는 중앙 관리자입니다.
+IPC 핸들러의 등록, 해제, 관리를 담당하는 중앙 관리자로, 모든 IPC 호출에 대해 권한 검증을 수행합니다.
+
+### 2. Permission Manager (permission-manager.ts)
+IPC 채널별 권한을 관리하고 접근 제어를 수행하는 핵심 보안 컴포넌트입니다.
+
+**권한 레벨:**
+- `ROOT`: 전체 시스템 접근 - 핵심 앱 기능 (메인 윈도우에서만 접근 가능)
+- `PLUGIN`: 제한된 접근 - 외부 플러그인 기능
+- `PUBLIC`: 공개 접근 - 민감하지 않은 작업 (제한 없음)
 
 ```typescript
 import { DefaultIPCManager } from './ipc-manager'
+import { IPCPermissionLevel } from './permission-manager'
 
-const ipcManager = new DefaultIPCManager()
+const ipcManager = new DefaultIPCManager(mainWindow)
 
-// 개별 핸들러 등록
+// 권한이 포함된 핸들러 등록
 ipcManager.registerHandler({
   channel: 'my-channel',
   handler: (event, ...args) => {
     // 핸들러 로직
     return 'response'
+  },
+  permission: {
+    level: IPCPermissionLevel.ROOT,
+    description: 'My secure channel'
   }
 })
 
-// 다중 핸들러 등록
+// 다중 핸들러 등록 (권한 포함)
 ipcManager.registerHandlers([
-  { channel: 'channel1', handler: handler1 },
-  { channel: 'channel2', handler: handler2 }
+  { 
+    channel: 'public-channel', 
+    handler: handler1,
+    permission: { 
+      level: IPCPermissionLevel.PUBLIC,
+      description: 'Public access channel'
+    }
+  },
+  { 
+    channel: 'plugin-channel', 
+    handler: handler2,
+    permission: { 
+      level: IPCPermissionLevel.PLUGIN,
+      description: 'Plugin access channel'
+    }
+  }
 ])
 
 // 핸들러 해제
@@ -79,9 +113,106 @@ ipcManager.unregisterAll()
 - 등록된 채널 추적
 - 일괄 등록/해제
 - 디버깅을 위한 로깅
+- **자동 권한 검증**: 모든 IPC 호출에 대해 권한 자동 검사
+- **컨텍스트 기반 접근 제어**: 호출 소스에 따른 접근 제어
 
-### 2. Handler Organization (handlers/)
-기능별로 분리된 IPC 핸들러들입니다.
+### 3. Handler Organization (handlers/)
+기능별로 분리된 IPC 핸들러들로, 각각 적절한 권한 레벨이 설정되어 있습니다.
+
+## 권한 관리 시스템
+
+### 권한 레벨 할당
+
+```typescript
+// handlers/vault-handlers.ts - ROOT 레벨 예시
+export function createVaultHandlers(context: IPCContext): IPCHandler[] {
+  return [
+    {
+      channel: 'vault:get-current',
+      handler: async () => {
+        return await vaultManager.getCurrentVault()
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Get current vault configuration'
+      }
+    }
+  ]
+}
+
+// handlers/app-handlers.ts - PUBLIC 레벨 예시
+export function createAppHandlers(): IPCHandler[] {
+  return [
+    {
+      channel: 'get-app-version',
+      handler: (): string => {
+        return app.getVersion()
+      },
+      permission: {
+        level: IPCPermissionLevel.PUBLIC,
+        description: 'Get application version'
+      }
+    }
+  ]
+}
+```
+
+### 플러그인 채널 관리
+
+```typescript
+import { getPermissionManager } from './permission-manager'
+
+const permissionManager = getPermissionManager()
+
+// 플러그인 채널 추가
+permissionManager.addPluginChannel(
+  'plugin:my-feature',
+  'My plugin feature description'
+)
+
+// 플러그인 채널 제거
+permissionManager.removePluginChannel('plugin:my-feature')
+
+// 권한 레벨별 채널 조회
+const rootChannels = permissionManager.getChannelsByLevel(IPCPermissionLevel.ROOT)
+const pluginChannels = permissionManager.getChannelsByLevel(IPCPermissionLevel.PLUGIN)
+const publicChannels = permissionManager.getChannelsByLevel(IPCPermissionLevel.PUBLIC)
+```
+
+### 권한 검증 플로우
+
+```mermaid
+sequenceDiagram
+    participant R as Renderer
+    participant IPC as IPC Manager
+    participant PM as Permission Manager
+    participant H as Handler
+
+    R->>IPC: invoke('channel-name', args)
+    IPC->>PM: checkPermission(channel, context)
+    
+    alt ROOT Level
+        PM->>PM: Check if sender is main window
+        alt Main Window
+            PM->>IPC: Permission granted
+        else Other Context
+            PM->>IPC: Permission denied
+        end
+    else PLUGIN Level
+        PM->>PM: Check plugin access rules
+        PM->>IPC: Permission granted/denied
+    else PUBLIC Level
+        PM->>IPC: Permission granted
+    end
+    
+    alt Permission Granted
+        IPC->>H: Execute handler
+        H->>IPC: Return result
+        IPC->>R: Success response
+    else Permission Denied
+        IPC->>R: Error: Permission denied
+    end
+```
 
 #### App Handlers (handlers/app-handlers.ts)
 애플리케이션 기본 정보 관련 핸들러들입니다.

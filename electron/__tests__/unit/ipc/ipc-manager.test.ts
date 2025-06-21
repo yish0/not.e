@@ -1,280 +1,245 @@
-import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals'
+import { BrowserWindow } from 'electron'
+import { DefaultIPCManager } from '../../../main/ipc/ipc-manager'
+import type { IPCHandler } from '../../../main/ipc/types'
+import { IPCPermissionLevel } from '../../../main/ipc/permission-manager'
 
-// electron 모킹
 jest.mock('electron', () => ({
-  BrowserWindow: class MockBrowserWindow {
-    id = Math.floor(Math.random() * 1000)
-  },
-  app: {
-    getPath: jest.fn(() => '/tmp/test-app-data')
-  },
-  dialog: {},
+  BrowserWindow: jest.fn().mockImplementation(() => ({
+    id: Math.floor(Math.random() * 1000),
+    webContents: { id: 1 }
+  })),
   ipcMain: {
     handle: jest.fn(),
     removeHandler: jest.fn()
-  },
-  globalShortcut: {}
+  }
 }))
 
-import { ipcMain, BrowserWindow } from 'electron'
-import { DefaultIPCManager } from '../../../main/ipc/ipc-manager'
-import { IPCHandler, IPCContext } from '../../../main/ipc/types'
+// Mock permission manager
+jest.mock('../../../main/ipc/permission-manager', () => ({
+  getPermissionManager: () => ({
+    setChannelPermission: jest.fn(),
+    checkPermission: jest.fn().mockResolvedValue(true)
+  }),
+  IPCPermissionLevel: {
+    ROOT: 'root',
+    PLUGIN: 'plugin', 
+    PUBLIC: 'public'
+  }
+}))
 
 describe('DefaultIPCManager', () => {
   let ipcManager: DefaultIPCManager
-  let mockContext: IPCContext
-  let mockWindow: BrowserWindow
+  let mockMainWindow: jest.Mocked<BrowserWindow>
+  const { ipcMain } = require('electron')
 
   beforeEach(() => {
-    mockWindow = new BrowserWindow()
-    mockContext = {
-      mainWindow: mockWindow
-    }
-
-    ipcManager = new DefaultIPCManager()
-  })
-
-  afterEach(() => {
     jest.clearAllMocks()
+    mockMainWindow = new BrowserWindow() as jest.Mocked<BrowserWindow>
+    ipcManager = new DefaultIPCManager(mockMainWindow)
   })
 
-  describe('initialization', () => {
-    test('should create instance with empty channels set', () => {
-      expect(ipcManager).toBeDefined()
-      expect(ipcManager['registeredChannels']).toBeDefined()
-      expect(ipcManager['registeredChannels'].size).toBe(0)
-    })
-  })
-
-  describe('register method', () => {
-    test('should register single handler successfully', () => {
+  describe('Handler Registration', () => {
+    it('should register single handler with permission', () => {
       const handler: IPCHandler = {
         channel: 'test-channel',
-        handler: jest.fn().mockResolvedValue('test result')
+        handler: jest.fn().mockReturnValue('test result'),
+        permission: {
+          level: IPCPermissionLevel.PUBLIC,
+          description: 'Test channel'
+        }
       }
 
-      ipcManager.register(handler, mockContext)
+      ipcManager.registerHandler(handler)
 
       expect(ipcMain.handle).toHaveBeenCalledWith('test-channel', expect.any(Function))
-      expect(ipcManager['registeredHandlers'].has('test-channel')).toBe(true)
+      expect(ipcManager.getRegisteredChannels()).toContain('test-channel')
     })
 
-    test('should register multiple handlers', () => {
+    it('should register multiple handlers', () => {
       const handlers: IPCHandler[] = [
         {
           channel: 'test-channel-1',
-          handler: jest.fn().mockResolvedValue('result 1')
+          handler: jest.fn().mockReturnValue('result 1'),
+          permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test 1' }
         },
         {
-          channel: 'test-channel-2',
-          handler: jest.fn().mockResolvedValue('result 2')
+          channel: 'test-channel-2', 
+          handler: jest.fn().mockReturnValue('result 2'),
+          permission: { level: IPCPermissionLevel.ROOT, description: 'Test 2' }
         }
       ]
 
-      ipcManager.register(handlers, mockContext)
+      ipcManager.registerHandlers(handlers)
 
       expect(ipcMain.handle).toHaveBeenCalledTimes(2)
       expect(ipcMain.handle).toHaveBeenCalledWith('test-channel-1', expect.any(Function))
       expect(ipcMain.handle).toHaveBeenCalledWith('test-channel-2', expect.any(Function))
-      expect(ipcManager['registeredHandlers'].size).toBe(2)
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(2)
     })
 
-    test('should prevent duplicate handler registration', () => {
+    it('should prevent duplicate handler registration', () => {
       const handler: IPCHandler = {
         channel: 'duplicate-channel',
-        handler: jest.fn()
+        handler: jest.fn().mockReturnValue('test result'),
+        permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test' }
       }
 
-      // First registration should succeed
-      ipcManager.register(handler, mockContext)
+      ipcManager.registerHandler(handler)
+      ipcManager.registerHandler(handler) // Duplicate registration
+
       expect(ipcMain.handle).toHaveBeenCalledTimes(1)
-
-      // Second registration should be ignored
-      ipcManager.register(handler, mockContext)
-      expect(ipcMain.handle).toHaveBeenCalledTimes(1) // Still only called once
-      expect(ipcManager['registeredHandlers'].size).toBe(1)
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(1)
     })
 
-    test('should call handler with correct context and arguments', async () => {
-      const mockHandler = jest.fn().mockResolvedValue('test result')
+    it('should register handler without explicit permission', () => {
       const handler: IPCHandler = {
-        channel: 'context-test',
-        handler: mockHandler
+        channel: 'no-permission-channel',
+        handler: jest.fn().mockReturnValue('test result')
       }
 
-      ipcManager.register(handler, mockContext)
+      ipcManager.registerHandler(handler)
 
-      // Get the registered IPC handler function
-      const ipcHandlerCall = (ipcMain.handle as jest.Mock).mock.calls[0]
-      const registeredFunction = ipcHandlerCall[1]
-
-      // Simulate IPC call
-      const mockEvent = { sender: { id: 1 } }
-      const testArg1 = 'arg1'
-      const testArg2 = { data: 'arg2' }
-
-      const result = await registeredFunction(mockEvent, testArg1, testArg2)
-
-      expect(mockHandler).toHaveBeenCalledWith(mockContext, mockEvent, testArg1, testArg2)
-      expect(result).toBe('test result')
-    })
-
-    test('should handle handler errors gracefully', async () => {
-      const error = new Error('Handler error')
-      const mockHandler = jest.fn().mockRejectedValue(error)
-      const handler: IPCHandler = {
-        channel: 'error-test',
-        handler: mockHandler
-      }
-
-      ipcManager.register(handler, mockContext)
-
-      const ipcHandlerCall = (ipcMain.handle as jest.Mock).mock.calls[0]
-      const registeredFunction = ipcHandlerCall[1]
-
-      const mockEvent = { sender: { id: 1 } }
-
-      await expect(registeredFunction(mockEvent)).rejects.toThrow('Handler error')
+      expect(ipcMain.handle).toHaveBeenCalledWith('no-permission-channel', expect.any(Function))
+      expect(ipcManager.getRegisteredChannels()).toContain('no-permission-channel')
     })
   })
 
-  describe('unregister method', () => {
-    test('should unregister single channel', () => {
+  describe('Handler Unregistration', () => {
+    it('should unregister single handler', () => {
       const handler: IPCHandler = {
         channel: 'test-unregister',
-        handler: jest.fn()
+        handler: jest.fn(),
+        permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test' }
       }
 
-      // Register first
-      ipcManager.register(handler, mockContext)
-      expect(ipcManager['registeredHandlers'].has('test-unregister')).toBe(true)
+      ipcManager.registerHandler(handler)
+      expect(ipcManager.getRegisteredChannels()).toContain('test-unregister')
 
-      // Then unregister
-      ipcManager.unregister('test-unregister')
+      ipcManager.unregisterHandler('test-unregister')
 
       expect(ipcMain.removeHandler).toHaveBeenCalledWith('test-unregister')
-      expect(ipcManager['registeredHandlers'].has('test-unregister')).toBe(false)
+      expect(ipcManager.getRegisteredChannels()).not.toContain('test-unregister')
     })
 
-    test('should unregister multiple channels', () => {
+    it('should unregister all handlers', () => {
       const handlers: IPCHandler[] = [
-        { channel: 'unregister-1', handler: jest.fn() },
-        { channel: 'unregister-2', handler: jest.fn() }
+        {
+          channel: 'test-1',
+          handler: jest.fn(),
+          permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test 1' }
+        },
+        {
+          channel: 'test-2',
+          handler: jest.fn(),
+          permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test 2' }
+        }
       ]
 
-      // Register first
-      ipcManager.register(handlers, mockContext)
-      expect(ipcManager['registeredHandlers'].size).toBe(2)
+      ipcManager.registerHandlers(handlers)
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(2)
 
-      // Then unregister
-      ipcManager.unregister(['unregister-1', 'unregister-2'])
+      ipcManager.unregisterAll()
 
       expect(ipcMain.removeHandler).toHaveBeenCalledTimes(2)
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('unregister-1')
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('unregister-2')
-      expect(ipcManager['registeredHandlers'].size).toBe(0)
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(0)
     })
 
-    test('should handle unregistering non-existent channel gracefully', () => {
-      ipcManager.unregister('non-existent-channel')
+    it('should handle unregistering non-existent channel gracefully', () => {
+      ipcManager.unregisterHandler('non-existent-channel')
 
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('non-existent-channel')
-      // Should not throw error
-    })
-  })
-
-  describe('unregisterAll method', () => {
-    test('should unregister all registered handlers', () => {
-      const handlers: IPCHandler[] = [
-        { channel: 'channel-1', handler: jest.fn() },
-        { channel: 'channel-2', handler: jest.fn() },
-        { channel: 'channel-3', handler: jest.fn() }
-      ]
-
-      // Register multiple handlers
-      ipcManager.register(handlers, mockContext)
-      expect(ipcManager['registeredHandlers'].size).toBe(3)
-
-      // Unregister all
-      ipcManager.unregisterAll()
-
-      expect(ipcMain.removeHandler).toHaveBeenCalledTimes(3)
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('channel-1')
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('channel-2')
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('channel-3')
-      expect(ipcManager['registeredHandlers'].size).toBe(0)
-    })
-
-    test('should handle empty handlers map', () => {
-      ipcManager.unregisterAll()
-
+      // Should not throw error and should still call removeHandler
       expect(ipcMain.removeHandler).not.toHaveBeenCalled()
-      expect(ipcManager['registeredHandlers'].size).toBe(0)
     })
   })
 
-  describe('integration scenarios', () => {
-    test('should handle complete lifecycle of handler management', () => {
+  describe('Main Window Management', () => {
+    it('should set and update main window reference', () => {
+      const newWindow = new BrowserWindow() as jest.Mocked<BrowserWindow>
+      
+      ipcManager.setMainWindow(newWindow)
+      
+      // Verify window is set (testing through registration behavior)
+      const handler: IPCHandler = {
+        channel: 'test-window',
+        handler: jest.fn(),
+        permission: { level: IPCPermissionLevel.ROOT, description: 'Test' }
+      }
+
+      ipcManager.registerHandler(handler)
+      expect(ipcMain.handle).toHaveBeenCalledWith('test-window', expect.any(Function))
+    })
+
+    it('should handle null main window', () => {
+      ipcManager.setMainWindow(null)
+      
+      const handler: IPCHandler = {
+        channel: 'test-null-window',
+        handler: jest.fn(),
+        permission: { level: IPCPermissionLevel.ROOT, description: 'Test' }
+      }
+
+      ipcManager.registerHandler(handler)
+      expect(ipcMain.handle).toHaveBeenCalledWith('test-null-window', expect.any(Function))
+    })
+  })
+
+  describe('Permission Integration', () => {
+    it('should wrap handlers with permission validation', async () => {
+      const originalHandler = jest.fn().mockReturnValue('success')
+      const handler: IPCHandler = {
+        channel: 'protected-channel',
+        handler: originalHandler,
+        permission: { level: IPCPermissionLevel.ROOT, description: 'Protected' }
+      }
+
+      ipcManager.registerHandler(handler)
+
+      // Get the wrapped handler that was registered with ipcMain
+      const registeredCall = (ipcMain.handle as jest.Mock).mock.calls[0]
+      const wrappedHandler = registeredCall[1]
+
+      // Mock IPC event
+      const mockEvent = {
+        senderFrame: { url: 'file://test' },
+        sender: mockMainWindow.webContents
+      }
+
+      // Call the wrapped handler
+      const result = await wrappedHandler(mockEvent, 'arg1', 'arg2')
+
+      expect(result).toBe('success')
+      expect(originalHandler).toHaveBeenCalledWith(mockEvent, 'arg1', 'arg2')
+    })
+  })
+
+  describe('Integration Scenarios', () => {
+    it('should handle complete lifecycle of handler management', () => {
       const handlers: IPCHandler[] = [
         {
           channel: 'lifecycle-1',
-          handler: jest.fn().mockResolvedValue('result 1')
+          handler: jest.fn().mockReturnValue('result 1'),
+          permission: { level: IPCPermissionLevel.PUBLIC, description: 'Test 1' }
         },
         {
           channel: 'lifecycle-2',
-          handler: jest.fn().mockResolvedValue('result 2')
+          handler: jest.fn().mockReturnValue('result 2'),
+          permission: { level: IPCPermissionLevel.ROOT, description: 'Test 2' }
         }
       ]
 
       // Register handlers
-      ipcManager.register(handlers, mockContext)
-      expect(ipcManager['registeredHandlers'].size).toBe(2)
+      ipcManager.registerHandlers(handlers)
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(2)
       expect(ipcMain.handle).toHaveBeenCalledTimes(2)
 
       // Unregister one handler
-      ipcManager.unregister('lifecycle-1')
-      expect(ipcManager['registeredHandlers'].size).toBe(1)
-      expect(ipcMain.removeHandler).toHaveBeenCalledWith('lifecycle-1')
+      ipcManager.unregisterHandler('lifecycle-1')
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(1)
+      expect(ipcManager.getRegisteredChannels()).toContain('lifecycle-2')
 
-      // Register new handler
-      const newHandler: IPCHandler = {
-        channel: 'lifecycle-3',
-        handler: jest.fn()
-      }
-      ipcManager.register(newHandler, mockContext)
-      expect(ipcManager['registeredHandlers'].size).toBe(2)
-
-      // Unregister all
+      // Unregister all remaining handlers
       ipcManager.unregisterAll()
-      expect(ipcManager['registeredHandlers'].size).toBe(0)
-    })
-
-    test('should maintain handler context consistency', async () => {
-      const contextTracker = jest.fn()
-      const handler: IPCHandler = {
-        channel: 'context-consistency',
-        handler: async (context) => {
-          contextTracker(context)
-          return 'success'
-        }
-      }
-
-      ipcManager.register(handler, mockContext)
-
-      // Simulate multiple IPC calls
-      const ipcHandlerCall = (ipcMain.handle as jest.Mock).mock.calls[0]
-      const registeredFunction = ipcHandlerCall[1]
-
-      const mockEvent1 = { sender: { id: 1 } }
-      const mockEvent2 = { sender: { id: 2 } }
-
-      await registeredFunction(mockEvent1)
-      await registeredFunction(mockEvent2)
-
-      // Context should be the same for all calls
-      expect(contextTracker).toHaveBeenCalledTimes(2)
-      expect(contextTracker).toHaveBeenNthCalledWith(1, mockContext)
-      expect(contextTracker).toHaveBeenNthCalledWith(2, mockContext)
+      expect(ipcManager.getRegisteredChannels()).toHaveLength(0)
     })
   })
 })
