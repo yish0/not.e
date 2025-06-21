@@ -2,7 +2,7 @@
   "name": "not.e",
   "version": "1.0.0",
   "description": "Enterprise-level note-taking app with Electron + SvelteKit + shadcn/ui",
-  "main": "dist/main.js",
+  "main": "dist/main/main.js",
   "type": "module",
   "scripts": {
     "dev": "bun run build:electron && concurrently \"bun run dev:svelte\" \"bun run dev:electron\"",

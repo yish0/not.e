@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - formatter는 prettier를 사용해
 - 작업이 완료된 후에는 항상 적절한 작업단위로 commit을 하고, 나중에 commit log로부터 너가 무었을 했는지 알기쉽게 commit메세지를 작성해줘.
 - 항상 작업이 완료된 후에는 너가 이번작업을 통해 새롭게 배운내용이나 주의할 점을 CLAUDE.md에 기록해둬.
+- commit로그에 너가 어떤작업을 했는지가 모두 기록되어있으니까 컨텍스트로써 commit로그그의 참고가 필요한 경우엔 참고해서 명령을 이행하도록해.
 
 ## Repository Status
 

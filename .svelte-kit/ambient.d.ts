@@ -51,8 +51,8 @@ declare module '$env/static/private' {
 	export const WARP_USE_SSH_WRAPPER: string;
 	export const PATH: string;
 	export const npm_package_json: string;
-	export const _: string;
 	export const LaunchInstanceID: string;
+	export const _: string;
 	export const __CFBundleIdentifier: string;
 	export const PWD: string;
 	export const TTY: string;
@@ -140,8 +140,8 @@ declare module '$env/dynamic/private' {
 		WARP_USE_SSH_WRAPPER: string;
 		PATH: string;
 		npm_package_json: string;
-		_: string;
 		LaunchInstanceID: string;
+		_: string;
 		__CFBundleIdentifier: string;
 		PWD: string;
 		TTY: string;

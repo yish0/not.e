@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
     "types": ["node", "electron"]
   },
   "include": ["electron/**/*"],
