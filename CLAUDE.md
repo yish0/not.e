@@ -16,30 +16,47 @@ This repository (not.e) contains an enterprise-level Electron + SvelteKit + shad
 ### Build, Test, and Development Commands
 
 - `bun run dev` - Start development servers (SvelteKit + Electron)
+- `bun run dev:electron-only` - Run only Electron (after manual SvelteKit build)
 - `bun run build` - Build the application for production
 - `bun run package` - Package the Electron application
+- `bun run package:dir` - Package without creating distributable (faster for testing)
 - `bun run lint` - Check code formatting and linting
 - `bun run lint:fix` - Fix formatting and linting issues
 - `bun run typecheck` - Run TypeScript type checking
 
+#### Testing Commands
+- `bun run test` - Run all unit tests
+- `bun run test:watch` - Run tests in watch mode
+- `bun run test:coverage` - Run tests with coverage report
+- `bun x jest electron/__tests__/unit/vault/` - Run specific module tests
+- `bun x jest electron/__tests__/unit/vault/vault-repository.test.ts` - Run single test file
+
 ### Architecture Overview
 
 ```
-src/
-├── lib/
-│   ├── components/
-│   │   ├── ui/           # shadcn/ui components
-│   │   ├── layout/       # Layout components
-│   │   └── common/       # Common reusable components
-│   └── utils.ts          # Utility functions
-├── routes/               # SvelteKit pages
-├── styles/               # Global styles
-└── types/               # TypeScript definitions
+src/                     # SvelteKit frontend
+├── lib/components/ui/   # shadcn/ui components
+├── routes/              # SvelteKit pages
+└── styles/              # Global styles
 
 electron/
 ├── main/                # Electron main process
-├── preload/             # Preload scripts
-└── config.ts           # Electron configuration
+│   ├── vault/           # Note vault management system
+│   │   ├── services/    # Business logic (VaultManager, Initializer, Dialog)
+│   │   ├── repositories/ # Data access (VaultRepository, AppConfigRepository)
+│   │   └── interfaces.ts # Core domain types
+│   ├── shortcuts/       # Global/local shortcut system
+│   │   ├── global-shortcut-manager.ts
+│   │   ├── local-shortcut-manager.ts
+│   │   ├── action-executor.ts
+│   │   └── config-manager.ts
+│   ├── ipc/             # Inter-Process Communication
+│   │   ├── handlers/    # IPC request handlers by feature
+│   │   ├── ipc-manager.ts # Central IPC registration
+│   │   └── types.ts     # IPC interfaces
+│   └── actions/         # Application actions (file, view, global)
+├── preload/             # Secure renderer bridge
+└── __tests__/unit/      # Comprehensive unit test suite
 ```
 
 ### Project-specific Development Guidelines
@@ -120,3 +137,22 @@ electron/
   - Extension guides for future development
   - Testing and security considerations
 - **Change Impact**: Any modification to interfaces, patterns, or core functionality must be reflected in documentation
+
+### Unit Testing System Architecture
+- **Comprehensive Test Coverage**: 87+ unit tests covering all core modules (VaultRepository, VaultManagerService, ShortcutManager, IPC handlers)
+- **Jest with Bun Integration**: Use `bun x jest` to run Jest tests through bun for proper dependency resolution
+- **Mock-Driven Testing**: Extensive mocking of Electron APIs, file system operations, and service dependencies
+- **Modular Test Structure**: Each module has its own test directory under `electron/__tests__/unit/`
+- **Testing Patterns**:
+  - Mock all external dependencies (fs, electron APIs, service dependencies)
+  - Test both success and failure scenarios
+  - Use proper TypeScript typing for mocks with `jest.Mocked<T>`
+  - Comprehensive integration scenarios testing end-to-end workflows
+- **Test Execution**: Always run tests after making changes to ensure no regressions
+- **Critical Bug Detection**: Unit tests have caught production bugs (e.g., missing fs.constants import in VaultRepository)
+
+### Core System Interactions
+- **Vault System**: Repository pattern with VaultRepository for file operations, VaultManagerService for business logic, and factory pattern for initialization
+- **Shortcut System**: Strategy pattern with separate global/local managers, centralized config management, and action executor for command dispatch  
+- **IPC Architecture**: Modular handler registration through DefaultIPCManager, feature-based handler organization, and type-safe communication patterns
+- **Service Integration**: Dependency injection through constructor parameters, interface-based contracts, and centralized service factories
