@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
-import { AppConfig, AppConfigRepository } from '../interfaces'
+import type { AppConfig, AppConfigRepository } from '../types/'
 
 export class FileAppConfigRepository implements AppConfigRepository {
   private configPath: string

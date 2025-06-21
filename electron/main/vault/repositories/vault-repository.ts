@@ -1,6 +1,6 @@
 import { promises as fs, constants } from 'fs'
 import { join, resolve } from 'path'
-import { VaultRepository, VaultValidationResult, VaultMetadata } from '../interfaces'
+import type { VaultRepository, VaultValidationResult, VaultMetadata } from '../types/'
 import { createWelcomeNoteContent } from '../templates/welcome-note'
 
 export class FileVaultRepository implements VaultRepository {

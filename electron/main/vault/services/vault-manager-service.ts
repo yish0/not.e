@@ -1,11 +1,11 @@
-import {
+import type {
   VaultManagerService,
   AppConfigRepository,
   VaultInitializerService,
   VaultConfig,
   VaultInitResult,
   AppConfig
-} from '../interfaces'
+} from '../types/'
 
 export class DefaultVaultManagerService implements VaultManagerService {
   private appConfig: AppConfig

@@ -1,11 +1,11 @@
 import { resolve, basename } from 'path'
-import {
+import type {
   VaultInitializerService,
   VaultRepository,
   VaultInitResult,
   VaultValidationResult,
   VaultConfig
-} from '../interfaces'
+} from '../types/'
 
 export class DefaultVaultInitializerService implements VaultInitializerService {
   constructor(private vaultRepository: VaultRepository) {}
