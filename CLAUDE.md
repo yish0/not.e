@@ -104,3 +104,19 @@ electron/
 - **Modular Design**: Break large files into smaller, focused modules (max ~200-300 lines per file)
 - **Interface Segregation**: Create specific interfaces rather than large monolithic ones
 - **Type Safety**: Use TypeScript interfaces and types extensively for compile-time safety
+
+### Documentation and Context Management
+- **README-driven Development**: Every module/directory must have comprehensive README.md documentation
+- **Context Awareness**: Before modifying any code, always check if a README.md exists in the target directory
+- **Documentation Synchronization**: When modifying existing code or adding new features:
+  1. Read the relevant README.md file first to understand the current architecture and patterns
+  2. Use the README as context for making consistent changes
+  3. Update the README.md to reflect any architectural changes, new features, or modified patterns
+  4. Ensure code examples in README stay current with actual implementation
+- **README Structure**: Each README should include:
+  - Architecture overview with Mermaid diagrams
+  - Component descriptions with code examples
+  - Usage patterns and best practices
+  - Extension guides for future development
+  - Testing and security considerations
+- **Change Impact**: Any modification to interfaces, patterns, or core functionality must be reflected in documentation
