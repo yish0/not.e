@@ -1,0 +1,8 @@
+.svelte-kit/
+build/
+dist/
+node_modules/
+*.min.js
+*.lock
+bun.lockb
+.claude/
