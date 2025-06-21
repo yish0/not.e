@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "bun run build:electron && concurrently \"bun run dev:svelte\" \"bun run dev:electron\"",
     "dev:svelte": "vite dev",
-    "dev:electron": "wait-on http://localhost:5173 && electronmon .",
+    "dev:electron": "wait-on http://localhost:5173 && NODE_ENV=development electronmon .",
     "dev:electron-only": "bun run build:electron && electronmon .",
     "build": "bun run build:svelte && bun run build:electron",
     "build:svelte": "vite build",
