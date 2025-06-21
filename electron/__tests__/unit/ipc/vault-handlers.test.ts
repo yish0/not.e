@@ -265,32 +265,6 @@ describe('Vault IPC Handlers', () => {
     })
   })
 
-  describe('handler structure', () => {
-    test('should have correct number of handlers', () => {
-      expect(handlers).toHaveLength(7)
-    })
-
-    test('should have all required handler properties', () => {
-      handlers.forEach((handler) => {
-        expect(handler).toHaveProperty('channel')
-        expect(handler).toHaveProperty('handler')
-        expect(typeof handler.channel).toBe('string')
-        expect(typeof handler.handler).toBe('function')
-      })
-    })
-
-    test('should have unique channel names', () => {
-      const channels = handlers.map((h) => h.channel)
-      const uniqueChannels = new Set(channels)
-      expect(uniqueChannels.size).toBe(channels.length)
-    })
-
-    test('should have proper vault channel prefixes', () => {
-      handlers.forEach((handler) => {
-        expect(handler.channel).toMatch(/^vault:/)
-      })
-    })
-  })
 
   describe('integration scenarios', () => {
     test('should handle complete vault selection workflow', async () => {

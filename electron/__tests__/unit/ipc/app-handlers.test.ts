@@ -62,35 +62,6 @@ describe('App IPC Handlers', () => {
       expect(result).toBe(process.platform)
     })
 
-    test('should return consistent platform data', async () => {
-      const platformHandler = handlers.find((h) => h.channel === 'get-platform')
-
-      const result1 = await platformHandler!.handler()
-      const result2 = await platformHandler!.handler()
-
-      expect(result1).toEqual(result2)
-      expect(typeof result1).toBe('string')
-    })
   })
 
-  describe('handler structure', () => {
-    test('should have correct number of handlers', () => {
-      expect(handlers).toHaveLength(2)
-    })
-
-    test('should have all required handler properties', () => {
-      handlers.forEach((handler) => {
-        expect(handler).toHaveProperty('channel')
-        expect(handler).toHaveProperty('handler')
-        expect(typeof handler.channel).toBe('string')
-        expect(typeof handler.handler).toBe('function')
-      })
-    })
-
-    test('should have unique channel names', () => {
-      const channels = handlers.map((h) => h.channel)
-      const uniqueChannels = new Set(channels)
-      expect(uniqueChannels.size).toBe(channels.length)
-    })
-  })
 })

@@ -57,11 +57,6 @@ describe('FileVaultRepository', () => {
 
   describe('validatePath', () => {
     test('should validate existing writable directory', async () => {
-      // 디버깅을 위한 console.log 추가
-      const accessSpy = jest.spyOn(mockFs, 'access')
-      const statSpy = jest.spyOn(mockFs, 'stat')
-      const readFileSpy = jest.spyOn(mockFs, 'readFile')
-
       // 모든 fs 호출이 성공하도록 설정
       mockFs.access.mockResolvedValue(undefined)
       mockFs.stat.mockResolvedValue({
@@ -70,12 +65,6 @@ describe('FileVaultRepository', () => {
       mockFs.readFile.mockRejectedValue(new Error('ENOENT'))
 
       const result = await repository.validatePath(testVaultPath)
-
-      // 디버깅 정보 출력
-      console.log('accessSpy calls:', accessSpy.mock.calls)
-      console.log('statSpy calls:', statSpy.mock.calls)
-      console.log('readFileSpy calls:', readFileSpy.mock.calls)
-      console.log('Result:', result)
 
       // access가 2번 호출되었는지 확인 (존재 확인 + 쓰기 권한)
       expect(mockFs.access).toHaveBeenCalledTimes(2)

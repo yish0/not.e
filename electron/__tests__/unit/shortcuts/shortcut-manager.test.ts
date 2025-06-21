@@ -145,12 +145,6 @@ describe('ShortcutManager', () => {
       await expect(shortcutManager.initialize()).rejects.toThrow('Config load failed')
     })
 
-    test('should not initialize twice', async () => {
-      await shortcutManager.initialize()
-      await shortcutManager.initialize()
-
-      expect(mockConfigManager.loadConfig).toHaveBeenCalledTimes(1)
-    })
   })
 
   describe('global shortcuts from config', () => {

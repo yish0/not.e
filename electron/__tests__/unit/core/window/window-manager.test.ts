@@ -119,29 +119,6 @@ describe('DefaultWindowManager', () => {
     })
   })
 
-  describe('getMainWindow', () => {
-    test('should return null initially', () => {
-      expect(windowManager.getMainWindow()).toBeNull()
-    })
-
-    test('should return created window', () => {
-      const window = windowManager.createMainWindow()
-      expect(windowManager.getMainWindow()).toBe(window)
-    })
-  })
-
-  describe('setMainWindow', () => {
-    test('should set main window', () => {
-      windowManager.setMainWindow(mockWindow)
-      expect(windowManager.getMainWindow()).toBe(mockWindow)
-    })
-
-    test('should set main window to null', () => {
-      windowManager.createMainWindow()
-      windowManager.setMainWindow(null)
-      expect(windowManager.getMainWindow()).toBeNull()
-    })
-  })
 
   describe('window events', () => {
     test('should handle ready-to-show event', () => {

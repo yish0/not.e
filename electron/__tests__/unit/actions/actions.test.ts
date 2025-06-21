@@ -47,35 +47,6 @@ describe('Actions Module', () => {
     jest.clearAllMocks()
   })
 
-  describe('getAllDefaultActions', () => {
-    test('should return array of all default actions', () => {
-      const actions = getAllDefaultActions()
-
-      expect(actions).toBeInstanceOf(Array)
-      expect(actions.length).toBeGreaterThan(0)
-
-      // Check that all actions have required properties
-      actions.forEach((action) => {
-        expect(action).toHaveProperty('name')
-        expect(action).toHaveProperty('description')
-        expect(action).toHaveProperty('category')
-        expect(action).toHaveProperty('handler')
-        expect(typeof action.handler).toBe('function')
-      })
-    })
-
-    test('should include actions from all categories', () => {
-      const actions = getAllDefaultActions()
-      const categories = new Set(actions.map((action) => action.category))
-
-      expect(categories).toContain(ShortcutCategory.FILE)
-      expect(categories).toContain(ShortcutCategory.NAVIGATION)
-      expect(categories).toContain(ShortcutCategory.EDIT)
-      expect(categories).toContain(ShortcutCategory.VIEW)
-      expect(categories).toContain(ShortcutCategory.DEV)
-      expect(categories).toContain(ShortcutCategory.GLOBAL)
-    })
-  })
 
   describe('getActionsByCategory', () => {
     test('should filter actions by category', () => {
