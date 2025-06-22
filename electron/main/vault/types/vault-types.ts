@@ -17,11 +17,20 @@ export interface VaultMetadata {
   lastModified: string
 }
 
+export interface ToggleSettings {
+  toggleType: 'sidebar' | 'standard'
+  sidebarPosition?: 'left' | 'right'
+  sidebarWidth?: number // pixels, default 400
+}
+
 export interface AppConfig {
   currentVault?: string
   recentVaults: VaultConfig[]
   showVaultSelector: boolean
   lastUsedVault?: string
+  windowMode: 'normal' | 'toggle'
+  toggleSettings?: ToggleSettings
+  // Legacy field for migration
   enableCrossDesktopToggle?: boolean
 }
 

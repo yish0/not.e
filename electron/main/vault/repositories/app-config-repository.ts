@@ -17,8 +17,16 @@ export class FileAppConfigRepository implements AppConfigRepository {
   async load(): Promise<AppConfig> {
     try {
       const data = await fs.readFile(this.configPath, 'utf-8')
-      const config = JSON.parse(data) as AppConfig
-      return { ...this.getDefaultConfig(), ...config }
+      const rawConfig = JSON.parse(data) as AppConfig
+      const migratedConfig = this.migrateOldConfig(rawConfig)
+      const config = { ...this.getDefaultConfig(), ...migratedConfig }
+
+      // Save migrated config if changes were made
+      if (this.needsMigration(rawConfig)) {
+        await this.save(config)
+      }
+
+      return config
     } catch (error) {
       console.log('No existing app config found, using defaults')
       const defaultConfig = this.getDefaultConfig()
@@ -43,7 +51,49 @@ export class FileAppConfigRepository implements AppConfigRepository {
     return {
       recentVaults: [],
       showVaultSelector: true,
-      enableCrossDesktopToggle: false
+      windowMode: 'normal',
+      toggleSettings: {
+        toggleType: 'standard',
+        sidebarPosition: 'right',
+        sidebarWidth: 400
+      }
     }
+  }
+
+  private needsMigration(config: AppConfig): boolean {
+    return config.enableCrossDesktopToggle !== undefined || config.windowMode === undefined
+  }
+
+  private migrateOldConfig(config: AppConfig): AppConfig {
+    const migratedConfig = { ...config }
+
+    // Migrate enableCrossDesktopToggle to new windowMode system
+    if (config.enableCrossDesktopToggle !== undefined) {
+      // If cross-desktop toggle was enabled, set to toggle mode with standard type
+      migratedConfig.windowMode = config.enableCrossDesktopToggle ? 'toggle' : 'normal'
+      migratedConfig.toggleSettings = {
+        toggleType: 'standard',
+        sidebarPosition: 'right',
+        sidebarWidth: 400
+      }
+      // Remove the old field
+      delete migratedConfig.enableCrossDesktopToggle
+    }
+
+    // Ensure windowMode is set
+    if (!migratedConfig.windowMode) {
+      migratedConfig.windowMode = 'normal'
+    }
+
+    // Ensure toggleSettings exist if in toggle mode
+    if (migratedConfig.windowMode === 'toggle' && !migratedConfig.toggleSettings) {
+      migratedConfig.toggleSettings = {
+        toggleType: 'standard',
+        sidebarPosition: 'right',
+        sidebarWidth: 400
+      }
+    }
+
+    return migratedConfig
   }
 }
