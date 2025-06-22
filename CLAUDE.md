@@ -247,3 +247,26 @@ electron/
 - **shortcuts/**: Keyboard shortcut system with managers, actions, and configuration
 - **vault/**: Note vault system with services, repositories, managers, and templates
 - **Window Utilities**: Extracted window-related utilities from global actions for better organization
+
+### Module System and TypeScript Configuration
+
+- **ES Module Consistency**: Use ES2022 modules throughout the entire codebase for consistency between SvelteKit and Electron
+- **TypeScript Module Configuration**: 
+  - `tsconfig.electron.json` with `"module": "ES2022"` ensures TypeScript compiles to ES module syntax
+  - `package.json` with `"type": "module"` tells Node.js to interpret .js files as ES modules
+  - Both settings must align: TypeScript generates ES modules, Node.js executes them as ES modules
+- **No Explicit Extensions Required**: With ES2022 modules, directory imports work without explicit `.js` extensions (e.g., `import { foo } from './core'`)
+- **Workaround Elimination**: Properly configured ES modules eliminate the need for `dist/package.json` workarounds
+- **Module System Migration Strategy**:
+  1. Update TypeScript configuration to target ES modules
+  2. Ensure package.json has correct module type declaration
+  3. Test build process to verify module loading works correctly
+  4. Remove any temporary workarounds once ES modules work properly
+- **TypeScript vs Runtime Alignment**: Critical that TypeScript compilation output matches Node.js execution environment (both ES modules or both CommonJS)
+
+### Technical Debt Management
+
+- **TODO.md Pattern**: Centralized technical debt tracking in TODO.md with detailed problem descriptions, solutions, and priority levels
+- **Issue Documentation Structure**: Include current issue, why it needs fixing, recommended solution with code examples, benefits, effort estimation, and risk assessment
+- **Systematic Resolution**: Break complex technical debt into trackable tasks with clear completion criteria
+- **Context Preservation**: Document not just what to fix, but why it's important for maintainability, performance, and commercial viability
