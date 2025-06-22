@@ -53,14 +53,58 @@ export function centerWindowOnCurrentDisplay(window: BrowserWindow): void {
   window.setPosition(centerX, centerY)
 }
 
+
 /**
  * 윈도우를 표시하고 포커스합니다 (필요시 복원 및 위치 조정)
+ * 현재 활성화된 데스크탑에서 윈도우를 표시합니다
  */
 export function showWindow(window: BrowserWindow): void {
   if (window.isMinimized()) window.restore()
-  centerWindowOnCurrentDisplay(window)
-  window.show()
-  window.focus()
+  
+  if (process.platform === 'darwin') {
+    // 커서 위치 기반으로 현재 디스플레이를 찾고 윈도우를 그 위치로 이동
+    const { x, y } = screen.getCursorScreenPoint()
+    const currentDisplay = screen.getDisplayNearestPoint({ x, y })
+    
+    // 윈도우를 숨기고 현재 디스플레이의 중앙으로 직접 이동
+    window.hide()
+    
+    const windowBounds = window.getBounds()
+    const centerX = currentDisplay.workArea.x + Math.floor((currentDisplay.workArea.width - windowBounds.width) / 2)
+    const centerY = currentDisplay.workArea.y + Math.floor((currentDisplay.workArea.height - windowBounds.height) / 2)
+    
+    window.setPosition(centerX, centerY)
+    
+    // 지연 후 표시하여 현재 데스크탑에서 나타나도록 함
+    setTimeout(() => {
+      window.setVisibleOnAllWorkspaces(false)
+      window.show()
+      window.focus()
+    }, 100)
+  } else {
+    // macOS가 아닌 경우 기본 동작
+    centerWindowOnCurrentDisplay(window)
+    window.show()
+    window.focus()
+  }
+}
+
+/**
+ * 윈도우를 현재 데스크탑에서 완전히 숨깁니다 (데스크탑 고정 해제)
+ */
+function hideFromCurrentDesktop(window: BrowserWindow): void {
+  if (process.platform === 'darwin') {
+    try {
+      // 모든 워크스페이스에서 보이게 한 후 숨기면 데스크탑 고정이 해제됨
+      window.setVisibleOnAllWorkspaces(true)
+      window.hide()
+    } catch (error) {
+      console.warn('Failed to hide from current desktop:', error)
+      window.hide()
+    }
+  } else {
+    window.hide()
+  }
 }
 
 /**
@@ -68,7 +112,7 @@ export function showWindow(window: BrowserWindow): void {
  */
 export function toggleWindowVisibility(window: BrowserWindow): void {
   if (window.isVisible() && window.isFocused()) {
-    window.hide()
+    hideFromCurrentDesktop(window)
   } else {
     showWindow(window)
   }
