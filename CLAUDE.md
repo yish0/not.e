@@ -2,12 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-- 토큰 사용 최소화를 위해서 어떤 언어로 프롬프트를 입력해도 내부에서는 영어로 처리하고 최종 출력만 프롬프트에 사용된 언어로 출력해.
-- 패키지매니저는 언제나 bun을 사용해주고, typescript에서는 ;(세미콜론)은 사용하지 않는 방침으로 해줘.
-- formatter는 prettier를 사용해
-- 작업이 완료된 후에는 항상 적절한 작업단위로 commit을 하고, 나중에 commit log로부터 너가 무었을 했는지 알기쉽게 commit메세지를 작성해줘.
-- 항상 작업이 완료된 후에는 너가 이번작업을 통해 새롭게 배운내용이나 주의할 점을 CLAUDE.md에 기록해둬.
-- commit로그에 너가 어떤작업을 했는지가 모두 기록되어있으니까 컨텍스트로써 commit로그그의 참고가 필요한 경우엔 참고해서 명령을 이행하도록해.
+## Core Development Guidelines
+
+- **Language Processing**: For token efficiency, process all prompts internally in English regardless of input language, and only output in the original prompt language for final responses
+- **Package Manager**: Always use `bun` as the package manager
+- **TypeScript Style**: Do not use semicolons (`;`) in TypeScript code
+- **Code Formatting**: Use Prettier for all code formatting
+- **Commit Policy**: Always commit work in appropriate logical units after completing tasks, with clear commit messages that explain what was accomplished
+- **Documentation Updates**: After each work session, document newly learned insights or important considerations in this CLAUDE.md file
+- **Context Awareness**: Reference commit logs as context when needed to understand previous work and maintain consistency
 
 ## Repository Status
 
@@ -63,22 +66,42 @@ src/                     # SvelteKit frontend
 
 electron/
 ├── main/                # Electron main process
-│   ├── vault/           # Note vault management system
-│   │   ├── services/    # Business logic (VaultManager, Initializer, Dialog)
-│   │   ├── repositories/ # Data access (VaultRepository, AppConfigRepository)
-│   │   └── interfaces.ts # Core domain types
-│   ├── shortcuts/       # Global/local shortcut system
-│   │   ├── global-shortcut-manager.ts
-│   │   ├── local-shortcut-manager.ts
-│   │   ├── action-executor.ts
-│   │   └── config-manager.ts
+│   ├── actions/         # Application actions organized by category
+│   │   ├── file/        # File operations (new, open, save, etc.)
+│   │   ├── view/        # View-related actions (zoom, layout, etc.)
+│   │   ├── global/      # Global actions with window utilities
+│   │   ├── edit/        # Edit operations (undo, redo, etc.)
+│   │   ├── navigation/  # Navigation actions
+│   │   └── dev/         # Development-specific actions
+│   ├── core/            # Core system functionality
+│   │   ├── window/      # Window management system
+│   │   ├── lifecycle/   # Application lifecycle management
+│   │   └── integration/ # System integration utilities
 │   ├── ipc/             # Inter-Process Communication
+│   │   ├── core/        # IPC manager and core functionality
 │   │   ├── handlers/    # IPC request handlers by feature
-│   │   ├── ipc-manager.ts # Central IPC registration
+│   │   ├── permissions/ # Permission management system
 │   │   └── types.ts     # IPC interfaces
-│   └── actions/         # Application actions (file, view, global)
+│   ├── shortcuts/       # Keyboard shortcut system
+│   │   ├── managers/    # Global/local shortcut managers
+│   │   ├── actions/     # Action executor for shortcuts
+│   │   ├── config/      # Configuration and default shortcuts
+│   │   └── types/       # Shortcut type definitions
+│   └── vault/           # Note vault management system
+│       ├── core/        # Vault factory and core functionality
+│       ├── managers/    # Vault manager
+│       ├── services/    # Business logic (VaultManager, Initializer, Dialog)
+│       ├── repositories/ # Data access (VaultRepository, AppConfigRepository)
+│       ├── templates/   # Note templates and welcome content
+│       ├── types/       # Core domain types
+│       └── utils/       # Vault utilities
 ├── preload/             # Secure renderer bridge
 └── __tests__/unit/      # Comprehensive unit test suite
+    ├── actions/         # Action system tests
+    ├── core/            # Core system tests
+    ├── ipc/             # IPC and permission tests
+    ├── shortcuts/       # Shortcut system tests
+    └── vault/           # Vault system tests
 ```
 
 ### Project-specific Development Guidelines
@@ -215,3 +238,12 @@ electron/
 - **Test Structure Mirroring**: Organize test directories to mirror main code structure for easy navigation
 - **Comprehensive Test Coverage**: Create tests for all new modules and architectural components
 - **Mock Utilities**: Develop reusable test helpers and mock utilities for consistent testing patterns
+
+### Current Module Structure
+
+- **actions/**: Application actions organized by category (file, view, global, edit, navigation, dev)
+- **core/**: Core system functionality (window management, lifecycle, integration)
+- **ipc/**: Inter-process communication with handlers, permissions, and type definitions
+- **shortcuts/**: Keyboard shortcut system with managers, actions, and configuration
+- **vault/**: Note vault system with services, repositories, managers, and templates
+- **Window Utilities**: Extracted window-related utilities from global actions for better organization
