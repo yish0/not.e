@@ -42,7 +42,8 @@ export class FileAppConfigRepository implements AppConfigRepository {
   private getDefaultConfig(): AppConfig {
     return {
       recentVaults: [],
-      showVaultSelector: true
+      showVaultSelector: true,
+      enableCrossDesktopToggle: false
     }
   }
 }

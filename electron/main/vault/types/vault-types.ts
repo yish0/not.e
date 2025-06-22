@@ -22,6 +22,7 @@ export interface AppConfig {
   recentVaults: VaultConfig[]
   showVaultSelector: boolean
   lastUsedVault?: string
+  enableCrossDesktopToggle?: boolean
 }
 
 export interface VaultInitResult {
