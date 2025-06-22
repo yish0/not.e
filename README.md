@@ -205,6 +205,15 @@ bun run package
 - `bun run lint:fix` - Fix formatting and linting issues
 - `bun run typecheck` - Run TypeScript type checking
 
+### Development Configuration
+
+The application uses separate configuration files for development and production environments:
+
+- **Development Mode**: `app-config.dev.json` - Used when `NODE_ENV=development` or `NODE_ENV` is undefined
+- **Production Mode**: `app-config.json` - Used in production builds
+
+This separation allows developers to maintain different settings (window modes, shortcuts, vault configurations) during development without affecting production configurations. The configuration files are automatically created in the user's data directory (`userData`) when the application first runs.
+
 ### Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.

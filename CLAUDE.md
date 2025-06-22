@@ -293,3 +293,13 @@ electron/
 - **Issue Documentation Structure**: Include current issue, why it needs fixing, recommended solution with code examples, benefits, effort estimation, and risk assessment
 - **Systematic Resolution**: Break complex technical debt into trackable tasks with clear completion criteria
 - **Context Preservation**: Document not just what to fix, but why it's important for maintainability, performance, and commercial viability
+
+### Development Environment Configuration
+
+- **Separate Config Files**: Development and production environments use different configuration files for better developer experience
+  - **Development**: `app-config.dev.json` - Used when `NODE_ENV=development` or undefined
+  - **Production**: `app-config.json` - Used in production builds
+- **Automatic Environment Detection**: Configuration file selection is handled automatically by `isDev` flag from `electron/config.ts`
+- **Developer Workflow Benefits**: Allows developers to maintain separate window modes, shortcuts, and vault configurations during development without affecting production settings
+- **File Location**: Configuration files are stored in user's `userData` directory (`app.getPath('userData')`)
+- **Migration Support**: Legacy configuration migration system supports this dual-file approach seamlessly
