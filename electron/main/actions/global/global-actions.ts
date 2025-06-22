@@ -23,11 +23,11 @@ export function createGlobalActions(): ShortcutAction[] {
       name: 'toggle-window',
       description: 'Show/hide window on current desktop (global)',
       category: ShortcutCategory.GLOBAL,
-      handler: (window: BrowserWindow | null): void => {
+      handler: async (window: BrowserWindow | null): Promise<void> => {
         const targetWindow = findTargetWindow(window)
         
         if (targetWindow) {
-          toggleWindowVisibility(targetWindow)
+          await toggleWindowVisibility(targetWindow)
         }
       }
     }
