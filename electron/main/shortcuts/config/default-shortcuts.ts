@@ -11,7 +11,23 @@ export const DEFAULT_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
   {
     key: 'CmdOrCtrl+Shift+T',
     action: 'toggle-window',
-    description: 'Show/hide window on current desktop (global)',
+    description: 'Show/hide window (standard behavior)',
+    category: ShortcutCategory.GLOBAL
+  }
+]
+
+// 크로스 데스크탑 모드에서 사용할 단축키 설정
+export const CROSS_DESKTOP_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
+  {
+    key: 'CmdOrCtrl+Shift+N',
+    action: 'quick-note',
+    description: 'Quick note (global)',
+    category: ShortcutCategory.GLOBAL
+  },
+  {
+    key: 'CmdOrCtrl+Shift+T',
+    action: 'toggle-window-cross-desktop',
+    description: 'Show/hide window on current desktop (cross-desktop mode)',
     category: ShortcutCategory.GLOBAL
   }
 ]

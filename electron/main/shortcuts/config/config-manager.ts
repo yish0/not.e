@@ -35,6 +35,7 @@ export class ShortcutConfigManager {
     }
   }
 
+
   async loadConfig(): Promise<ShortcutConfigData> {
     try {
       const data = await fs.readFile(this.configPath, 'utf-8')
