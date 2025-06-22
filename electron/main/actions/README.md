@@ -192,10 +192,15 @@ export function createDevActions(): ShortcutAction[] {
 
 ### 6. Global Actions (global/global-actions.ts)
 
-전역 단축키로 사용되는 액션들입니다. 복잡한 윈도우 관리 로직은 별도 유틸리티 모듈로 분리되어 있습니다.
+전역 단축키로 사용되는 액션들입니다. 새로운 윈도우 모드 시스템을 통해 사용자의 워크플로우에 맞는 유연한 윈도우 관리를 제공합니다.
 
 ```typescript
-import { findTargetWindow, showWindow, centerWindowOnCurrentDisplay } from './window-utils'
+import { 
+  findTargetWindow, 
+  centerWindowOnCurrentDisplay, 
+  showWindowAsSidebar 
+} from './window-utils'
+import { getWindowMode, getToggleSettings } from './toggle-mode-manager'
 
 export function createGlobalActions(): ShortcutAction[] {
   return [
@@ -214,12 +219,45 @@ export function createGlobalActions(): ShortcutAction[] {
       }
     },
     {
-      name: 'toggle-window',
+      name: 'toggle-window-sidebar',
+      description: 'Show/hide window as sidebar',
+      category: 'global',
+      handler: async (window: BrowserWindow | null): Promise<void> => {
+        const windowMode = await getWindowMode()
+        if (windowMode !== 'toggle') {
+          console.log('Toggle disabled in normal mode')
+          return
+        }
+
+        const toggleSettings = await getToggleSettings()
+        const targetWindow = findTargetWindow(window)
+        
+        if (targetWindow) {
+          if (targetWindow.isVisible() && targetWindow.isFocused()) {
+            targetWindow.hide()
+          } else {
+            showWindowAsSidebar(
+              targetWindow, 
+              toggleSettings.sidebarPosition || 'right',
+              toggleSettings.sidebarWidth || 400
+            )
+          }
+        }
+      }
+    },
+    {
+      name: 'toggle-window-standard',
       description: 'Show/hide window (standard behavior)',
       category: 'global',
-      handler: (window: BrowserWindow | null): void => {
-        const targetWindow = findTargetWindow(window)
+      handler: async (window: BrowserWindow | null): Promise<void> => {
+        const windowMode = await getWindowMode()
+        if (windowMode !== 'toggle') {
+          console.log('Toggle disabled in normal mode')
+          return
+        }
 
+        const targetWindow = findTargetWindow(window)
+        
         if (targetWindow) {
           if (targetWindow.isVisible() && targetWindow.isFocused()) {
             targetWindow.hide()
@@ -231,33 +269,6 @@ export function createGlobalActions(): ShortcutAction[] {
           }
         }
       }
-    },
-    {
-      name: 'toggle-window-cross-desktop',
-      description: 'Show/hide window on current desktop (cross-desktop mode)',
-      category: 'global',
-      handler: async (window: BrowserWindow | null): Promise<void> => {
-        const targetWindow = findTargetWindow(window)
-
-        if (targetWindow) {
-          if (targetWindow.isVisible() && targetWindow.isFocused()) {
-            // 크로스 데스크탑 숨김: macOS 워크스페이스 고정 해제
-            if (process.platform === 'darwin') {
-              try {
-                targetWindow.setVisibleOnAllWorkspaces(true)
-                targetWindow.hide()
-              } catch (error) {
-                console.warn('Failed to hide from current desktop:', error)
-                targetWindow.hide()
-              }
-            } else {
-              targetWindow.hide()
-            }
-          } else {
-            await showWindow(targetWindow)
-          }
-        }
-      }
     }
   ]
 }
@@ -266,22 +277,39 @@ export function createGlobalActions(): ShortcutAction[] {
 **포함된 액션들:**
 
 - `quick-note`: 전역 빠른 노트 (앱을 활성화하고 새 노트 생성)
-- `toggle-window`: 표준 윈도우 표시/숨김 토글
-- `toggle-window-cross-desktop`: 크로스 데스크탑 윈도우 토글 (macOS Mission Control 데스크탑/스페이스 간 이동 지원)
+- `toggle-window-sidebar`: 사이드바 모드 윈도우 토글 (고정 너비로 화면 가장자리에 배치)
+- `toggle-window-standard`: 표준 모드 윈도우 토글 (화면 중앙에 기존 크기로 표시)
 
-#### 윈도우 토글 모드 비교
+#### 새로운 윈도우 모드 시스템
 
-| 기능                | `toggle-window`                  | `toggle-window-cross-desktop` |
-| ------------------- | -------------------------------- | ----------------------------- |
-| 기본 동작           | 표준 윈도우 표시/숨김            | 현재 데스크탑에서 표시/숨김   |
-| macOS 데스크탑 전환 | 이전 데스크탑으로 이동할 수 있음 | 현재 데스크탑에서 나타남      |
-| 멀티모니터 지원     | 기본 디스플레이에 표시           | 커서가 있는 디스플레이에 표시 |
-| 성능                | 빠름 (설정 확인 없음)            | 빠름 (설정 확인 없음)         |
-| 권장 사용           | 일반적인 사용                    | Raycast 스타일 동작 선호 시   |
+| 모드        | 설명                              | 토글 동작                        | 사용 권장 시나리오                 |
+| ----------- | --------------------------------- | -------------------------------- | ---------------------------------- |
+| **Normal**  | 토글 기능 완전 비활성화           | 없음                             | 전통적인 데스크탑 앱 사용 선호     |
+| **Sidebar** | 고정 너비로 화면 가장자리에 배치  | `toggle-window-sidebar` 실행     | 빠른 메모, Raycast/Alfred 스타일   |
+| **Standard**| 화면 중앙에 기존 크기로 표시      | `toggle-window-standard` 실행    | 일반적인 토글 사용, 포커스 작업    |
+
+#### 윈도우 모드별 특징
+
+**Normal Mode (일반 모드):**
+- 토글 단축키 없음 (깔끔한 인터페이스)
+- 전통적인 윈도우 관리 방식
+- 다른 앱들과 동일한 사용 경험
+
+**Sidebar Mode (사이드바 모드):**
+- 고정 너비 (기본 400px, 사용자 설정 가능)
+- 좌측/우측 위치 선택 가능
+- 화면 전체 높이 사용
+- 빠른 접근을 위한 최적화
+
+**Standard Mode (표준 모드):**
+- 기존 윈도우 크기/위치 유지
+- 화면 중앙 배치
+- 크로스 데스크탑 지원 포함
+- 집중적인 작업에 적합
 
 ### 6.1. Window Utilities (global/window-utils.ts)
 
-전역 액션에서 사용하는 윈도우 관리 유틸리티 함수들입니다.
+전역 액션에서 사용하는 윈도우 관리 유틸리티 함수들입니다. 새로운 사이드바 모드를 포함한 다양한 윈도우 배치 옵션을 제공합니다.
 
 ```typescript
 // 유효한 타겟 윈도우 찾기
@@ -298,6 +326,20 @@ export function centerWindowOnCurrentDisplay(window: BrowserWindow): void
 
 // 크로스 데스크탑 모드 윈도우 표시 (현재 데스크탑 + 커서 디스플레이)
 export async function showWindow(window: BrowserWindow): Promise<void>
+
+// 사이드바 모드로 윈도우 표시 (새로운 기능)
+export function showWindowAsSidebar(
+  window: BrowserWindow, 
+  position: 'left' | 'right' = 'right', 
+  width: number = 400
+): void
+
+// 사이드바 위치에 따른 윈도우 경계 계산 (새로운 기능)
+export function getSidebarBounds(
+  display: Electron.Display, 
+  position: 'left' | 'right', 
+  width: number
+): Electron.Rectangle
 ```
 
 **유틸리티 함수 설명:**
@@ -307,6 +349,21 @@ export async function showWindow(window: BrowserWindow): Promise<void>
 - `restoreWindowOnCurrentDisplay()`: 윈도우를 현재 디스플레이 영역 내로 이동/조정
 - `centerWindowOnCurrentDisplay()`: 마우스 커서가 있는 디스플레이의 중앙에 윈도우 배치
 - `showWindow()`: 크로스 데스크탑 지원 윈도우 표시 (macOS Mission Control 대응)
+- `showWindowAsSidebar()`: 윈도우를 사이드바 모드로 배치 (고정 너비, 전체 높이)
+- `getSidebarBounds()`: 주어진 디스플레이와 설정에 따른 사이드바 경계 계산
+
+**새로운 사이드바 기능:**
+
+```typescript
+// 사이드바 모드 사용 예시
+showWindowAsSidebar(window, 'right', 400)  // 우측에 400px 너비로 배치
+showWindowAsSidebar(window, 'left', 300)   // 좌측에 300px 너비로 배치
+
+// 사이드바 경계 계산 예시
+const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+const bounds = getSidebarBounds(display, 'right', 400)
+// Returns: { x: 1520, y: 0, width: 400, height: 1080 } (1920x1080 디스플레이 기준)
+```
 
 **크로스 데스크탑 지원 (macOS):**
 
@@ -326,61 +383,110 @@ export async function showWindow(window: BrowserWindow): Promise<void>
 
 ### 6.2. Toggle Mode Manager (global/toggle-mode-manager.ts)
 
-크로스 데스크탑 토글 기능의 설정을 관리하는 유틸리티입니다.
+새로운 윈도우 모드 시스템의 설정을 관리하는 유틸리티입니다. 세 가지 윈도우 모드와 세부 토글 설정을 제공합니다.
 
 ```typescript
-// 크로스 데스크탑 토글 모드 설정
-export async function setCrossDesktopToggleEnabled(enabled: boolean): Promise<void>
+// 새로운 윈도우 모드 API
+export async function getWindowMode(): Promise<'normal' | 'toggle'>
+export async function setWindowMode(mode: 'normal' | 'toggle'): Promise<void>
+export async function getToggleSettings(): Promise<ToggleSettings>
+export async function setToggleSettings(settings: ToggleSettings): Promise<void>
+export async function getAppConfig(): Promise<AppConfig>
 
-// 현재 크로스 데스크탑 토글 모드 상태 확인
+// 레거시 API (하위 호환성)
 export async function getCrossDesktopToggleEnabled(): Promise<boolean>
+export async function setCrossDesktopToggleEnabled(enabled: boolean): Promise<void>
+```
+
+**새로운 타입 정의:**
+
+```typescript
+interface ToggleSettings {
+  toggleType: 'sidebar' | 'standard'
+  sidebarPosition?: 'left' | 'right'
+  sidebarWidth?: number // pixels, default 400
+}
+
+interface AppConfig {
+  windowMode: 'normal' | 'toggle'
+  toggleSettings?: ToggleSettings
+  // ... 기타 설정들
+}
 ```
 
 **기능 설명:**
 
-- `setCrossDesktopToggleEnabled()`: 사용자 설정에 크로스 데스크탑 모드 활성화 여부 저장
-- `getCrossDesktopToggleEnabled()`: 현재 설정된 크로스 데스크탑 모드 상태 반환
+- `getWindowMode()` / `setWindowMode()`: 현재 윈도우 모드 확인/설정
+- `getToggleSettings()` / `setToggleSettings()`: 토글 모드 세부 설정 관리
+- `getAppConfig()`: 전체 앱 설정 조회
+- 레거시 함수들: 기존 코드와의 호환성 유지
 
 **사용 예시:**
 
 ```typescript
 import {
-  setCrossDesktopToggleEnabled,
-  getCrossDesktopToggleEnabled
+  getWindowMode,
+  setWindowMode,
+  getToggleSettings,
+  setToggleSettings
 } from '../actions/global/toggle-mode-manager'
 
-// 크로스 데스크탑 모드 활성화
-await setCrossDesktopToggleEnabled(true)
+// 윈도우 모드 설정
+await setWindowMode('toggle')
+
+// 사이드바 토글 설정
+await setToggleSettings({
+  toggleType: 'sidebar',
+  sidebarPosition: 'right',
+  sidebarWidth: 350
+})
 
 // 현재 설정 확인
-const isEnabled = await getCrossDesktopToggleEnabled()
-console.log('Cross-desktop mode:', isEnabled ? 'enabled' : 'disabled')
+const mode = await getWindowMode()
+const settings = await getToggleSettings()
+console.log(`Window mode: ${mode}`)
+console.log(`Toggle type: ${settings.toggleType}`)
 ```
 
-**설정 저장 위치:**
+**설정 마이그레이션:**
 
-- 설정은 `FileAppConfigRepository`를 통해 `app-config.json`에 저장됩니다
-- 설정 필드: `enableCrossDesktopToggle: boolean`
-- 기본값: `false` (하위 호환성 보장)
+기존 `enableCrossDesktopToggle` 설정이 자동으로 새 구조로 마이그레이션됩니다:
+
+```typescript
+// 기존 설정: { enableCrossDesktopToggle: true }
+// 마이그레이션 후: {
+//   windowMode: 'toggle',
+//   toggleSettings: {
+//     toggleType: 'standard',
+//     sidebarPosition: 'right',
+//     sidebarWidth: 400
+//   }
+// }
+```
 
 **IPC 통합:**
 
-토글 모드 매니저는 IPC 시스템과 통합되어 프론트엔드에서 설정을 변경할 수 있습니다:
+새로운 IPC API를 통해 프론트엔드에서 완전한 제어가 가능합니다:
 
 ```typescript
-// 프론트엔드에서 설정 확인
-const isEnabled = await window.electronAPI.getCrossDesktopToggleEnabled()
+// 프론트엔드에서 사용
+const mode = await window.electronAPI.getWindowMode()
+await window.electronAPI.setWindowMode('toggle')
 
-// 프론트엔드에서 설정 변경
-await window.electronAPI.setCrossDesktopToggleEnabled(true)
+const settings = await window.electronAPI.getToggleSettings()
+await window.electronAPI.setToggleSettings({
+  toggleType: 'sidebar',
+  sidebarPosition: 'left',
+  sidebarWidth: 300
+})
 ```
 
 **관련 IPC 핸들러:**
 
-- `get-cross-desktop-toggle-enabled` (ROOT): 현재 토글 모드 상태 확인
-- `set-cross-desktop-toggle-enabled` (ROOT): 토글 모드 설정 변경
-
-자세한 IPC 사용법은 `electron/main/ipc/README.md`와 `electron/preload/README.md`를 참고하세요.
+- `get-window-mode` / `set-window-mode` (ROOT): 윈도우 모드 관리
+- `get-toggle-settings` / `set-toggle-settings` (ROOT): 토글 설정 관리
+- `get-app-config` (ROOT): 전체 설정 조회
+- 레거시: `get/set-cross-desktop-toggle-enabled` (하위 호환성)
 
 ## 액션 실행 흐름
 

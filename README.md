@@ -30,6 +30,16 @@ not.e aims to be the ultimate note-taking solution that bridges the gap between 
 - **Plugin System**: Extend functionality with custom plugins
 - **Browser Integration**: Embed web content directly in your notes
 
+### 🪟 Flexible Window Management
+
+- **Three Window Modes**: Choose between normal, sidebar toggle, and standard toggle based on your workflow
+- **Normal Mode**: Traditional desktop app behavior with no global toggle shortcuts
+- **Sidebar Mode**: Fixed-width window (200-800px) that snaps to left/right screen edges for quick access
+- **Standard Mode**: Center-screen window with cross-desktop support and traditional toggle behavior
+- **Dynamic Shortcuts**: Keyboard shortcuts automatically adapt to your current window mode
+- **Configuration API**: Complete programmatic control through IPC with frontend settings interface
+- **Seamless Switching**: Change modes instantly via settings with automatic shortcut reconfiguration
+
 ### 🎨 Complete Customization
 
 - **Custom Themes**: Style your workspace exactly how you want
@@ -44,6 +54,15 @@ not.e aims to be the ultimate note-taking solution that bridges the gap between 
 - **Markdown Files**: All notes stored as standard markdown with YAML frontmatter
 - **Git Integration**: Version control through plugin system
 - **Real-time Sync**: Automatic detection of external file changes
+
+### Window Management System
+
+- **Mode-Based Architecture**: Three distinct window modes (normal, sidebar toggle, standard toggle)
+- **Dynamic Shortcuts**: Keyboard shortcuts generate automatically based on current mode configuration
+- **Sidebar Positioning**: Configurable left/right positioning with adjustable width (200-800px)
+- **Configuration Migration**: Automatic migration from legacy `enableCrossDesktopToggle` setting
+- **IPC Communication**: Comprehensive API for window mode and toggle settings management
+- **Platform Integration**: Native macOS window management with Mission Control and multi-monitor support
 
 ### File Structure
 
@@ -95,6 +114,11 @@ Should we go with RESTful API or GraphQL?
 ### Phase 1: MVP (Foundation)
 
 - [x] Basic Electron + SvelteKit setup
+- [x] Window management system with three modes (normal, sidebar toggle, standard toggle)
+- [x] Global shortcut system with dynamic mode-based configuration
+- [x] Configuration management with automatic migration from legacy settings
+- [x] IPC API for complete window mode and toggle settings control
+- [x] Comprehensive unit test coverage for core systems
 - [ ] Vault selection and management
 - [ ] Basic text editing with markdown support
 - [ ] Workspace and channel creation

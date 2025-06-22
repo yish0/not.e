@@ -218,23 +218,32 @@ sequenceDiagram
 
 #### App Handlers (handlers/app-handlers.ts)
 
-애플리케이션 기본 정보 및 설정 관련 핸들러들입니다.
+애플리케이션 기본 정보 및 윈도우 모드 설정 관련 핸들러들입니다. 새로운 윈도우 모드 시스템을 통한 완전한 제어를 제공합니다.
 
 **Available Channels:**
 
+**기본 정보:**
 - `get-app-version` (PUBLIC): 앱 버전 정보 조회
 - `get-platform` (PUBLIC): 플랫폼 정보 조회
+
+**새로운 윈도우 모드 API:**
+- `get-window-mode` (ROOT): 현재 윈도우 모드 조회 ('normal' | 'toggle')
+- `set-window-mode` (ROOT): 윈도우 모드 설정 변경
+- `get-toggle-settings` (ROOT): 토글 설정 조회 (사이드바 위치, 너비 등)
+- `set-toggle-settings` (ROOT): 토글 설정 변경
+- `get-app-config` (ROOT): 전체 앱 설정 조회
+
+**레거시 API (하위 호환성):**
 - `get-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 상태 확인
 - `set-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 설정 변경
 
 ```typescript
 export function createAppHandlers(): IPCHandler[] {
   return [
+    // 기본 정보
     {
       channel: 'get-app-version',
-      handler: (): string => {
-        return app.getVersion()
-      },
+      handler: (): string => app.getVersion(),
       permission: {
         level: IPCPermissionLevel.PUBLIC,
         description: 'Get application version'
@@ -242,14 +251,68 @@ export function createAppHandlers(): IPCHandler[] {
     },
     {
       channel: 'get-platform',
-      handler: (): NodeJS.Platform => {
-        return process.platform
-      },
+      handler: (): NodeJS.Platform => process.platform,
       permission: {
         level: IPCPermissionLevel.PUBLIC,
         description: 'Get platform information'
       }
     },
+    
+    // 새로운 윈도우 모드 API
+    {
+      channel: 'get-window-mode',
+      handler: async (): Promise<'normal' | 'toggle'> => {
+        return await getWindowMode()
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Get current window mode'
+      }
+    },
+    {
+      channel: 'set-window-mode',
+      handler: async (_, mode: 'normal' | 'toggle'): Promise<void> => {
+        await setWindowMode(mode)
+        // TODO: 단축키 시스템 재초기화 트리거
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Set window mode'
+      }
+    },
+    {
+      channel: 'get-toggle-settings',
+      handler: async (): Promise<ToggleSettings> => {
+        return await getToggleSettings()
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Get current toggle settings'
+      }
+    },
+    {
+      channel: 'set-toggle-settings',
+      handler: async (_, settings: ToggleSettings): Promise<void> => {
+        await setToggleSettings(settings)
+        // TODO: 단축키 시스템 재초기화 트리거
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Update toggle settings'
+      }
+    },
+    {
+      channel: 'get-app-config',
+      handler: async (): Promise<AppConfig> => {
+        return await getAppConfig()
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Get complete app configuration'
+      }
+    },
+    
+    // 레거시 API (하위 호환성)
     {
       channel: 'get-cross-desktop-toggle-enabled',
       handler: async (): Promise<boolean> => {
@@ -257,20 +320,37 @@ export function createAppHandlers(): IPCHandler[] {
       },
       permission: {
         level: IPCPermissionLevel.ROOT,
-        description: 'Check if cross-desktop toggle mode is enabled'
+        description: 'Check if cross-desktop toggle mode is enabled (deprecated)'
       }
     },
     {
       channel: 'set-cross-desktop-toggle-enabled',
       handler: async (_, enabled: boolean): Promise<void> => {
         await setCrossDesktopToggleEnabled(enabled)
+        // TODO: 단축키 시스템 재초기화 트리거
       },
       permission: {
         level: IPCPermissionLevel.ROOT,
-        description: 'Set cross-desktop toggle mode enabled state'
+        description: 'Set cross-desktop toggle mode enabled state (deprecated)'
       }
     }
   ]
+}
+```
+
+**새로운 타입 정의:**
+
+```typescript
+interface ToggleSettings {
+  toggleType: 'sidebar' | 'standard'
+  sidebarPosition?: 'left' | 'right'
+  sidebarWidth?: number // pixels, default 400
+}
+
+interface AppConfig {
+  windowMode: 'normal' | 'toggle'
+  toggleSettings?: ToggleSettings
+  // ... 기타 설정
 }
 ```
 

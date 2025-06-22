@@ -249,15 +249,27 @@ electron/
 - **vault/**: Note vault system with services, repositories, managers, and templates
 - **Window Utilities**: Extracted window-related utilities from global actions for better organization
 
-### Cross-Desktop Window Toggle System
+### Window Mode System Redesign (December 2024)
 
-- **Dual Toggle Modes**: Implemented separate `toggle-window` (standard) and `toggle-window-cross-desktop` (advanced) actions
-- **Configuration-Based Selection**: Users can choose between standard and cross-desktop behavior via `enableCrossDesktopToggle` setting
+- **Three-Mode Architecture**: Completely redesigned from dual toggle system to flexible three-mode system (normal, sidebar toggle, standard toggle)
+- **Dynamic Shortcut Generation**: Implemented `generateGlobalShortcuts()` function that adapts keyboard shortcuts based on current window mode and toggle settings
+- **Sidebar Mode**: New window mode with configurable position (left/right) and adjustable width (200-800px) for quick access workflows
+- **Configuration Migration**: Automatic migration from legacy `enableCrossDesktopToggle` boolean to new structured settings with backward compatibility
+- **Comprehensive IPC API**: Added complete set of IPC endpoints for window mode management (get/set-window-mode, get/set-toggle-settings, get-app-config)
+- **Action System Redesign**: Replaced old `toggle-window` and `toggle-window-cross-desktop` with new `toggle-window-sidebar` and `toggle-window-standard` actions
+- **Type Safety**: Introduced `ToggleSettings` interface with proper TypeScript definitions throughout the system
+- **Test Coverage**: Updated all unit tests to work with new system, maintaining 87+ test coverage across core modules
+- **Documentation Synchronization**: Updated all module READMEs, main README, and API documentation to reflect new architecture
+
+### Legacy Cross-Desktop Window Toggle System (Deprecated)
+
+- **Dual Toggle Modes**: Previously implemented separate `toggle-window` (standard) and `toggle-window-cross-desktop` (advanced) actions
+- **Configuration-Based Selection**: Users could choose between standard and cross-desktop behavior via `enableCrossDesktopToggle` setting
 - **Performance Optimized**: Eliminated runtime configuration checks by providing separate action handlers
 - **macOS Mission Control Integration**: Cross-desktop mode uses `setVisibleOnAllWorkspaces()` and cursor position detection for proper desktop targeting
 - **Multi-Monitor Support**: Cursor position-based display detection ensures windows appear on the correct monitor
 - **Clean Architecture**: Configuration management separated into `toggle-mode-manager.ts` for maintainability
-- **Shortcut Configuration**: Separate `DEFAULT_GLOBAL_SHORTCUTS` and `CROSS_DESKTOP_GLOBAL_SHORTCUTS` arrays for different user preferences
+- **Migration Path**: Legacy settings automatically migrate to new three-mode system for seamless user experience
 
 ### Module System and TypeScript Configuration
 

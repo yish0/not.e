@@ -170,45 +170,80 @@ await configManager.saveConfig()
 
 ```typescript
 import {
-  DEFAULT_GLOBAL_SHORTCUTS,
-  CROSS_DESKTOP_GLOBAL_SHORTCUTS,
+  generateGlobalShortcuts,
+  NORMAL_MODE_GLOBAL_SHORTCUTS,
   DEFAULT_LOCAL_SHORTCUTS
 } from './config/default-shortcuts'
 
-// 기본 전역 단축키들 (표준 모드)
-console.log(DEFAULT_GLOBAL_SHORTCUTS)
+// 동적 전역 단축키 생성 (새로운 시스템)
+const windowMode = await getWindowMode()
+const toggleSettings = await getToggleSettings()
+const shortcuts = generateGlobalShortcuts(windowMode, toggleSettings)
+
+// 일반 모드 (토글 없음)
+console.log(generateGlobalShortcuts('normal'))
 // [
-//   { key: 'CmdOrCtrl+Shift+N', action: 'quick-note', ... },
-//   { key: 'CmdOrCtrl+Shift+T', action: 'toggle-window', ... }
+//   { key: 'CmdOrCtrl+Shift+N', action: 'quick-note', ... }
 // ]
 
-// 크로스 데스크탑 전역 단축키들 (크로스 데스크탑 모드)
-console.log(CROSS_DESKTOP_GLOBAL_SHORTCUTS)
+// 토글 모드 - 사이드바
+console.log(generateGlobalShortcuts('toggle', { toggleType: 'sidebar' }))
 // [
 //   { key: 'CmdOrCtrl+Shift+N', action: 'quick-note', ... },
-//   { key: 'CmdOrCtrl+Shift+T', action: 'toggle-window-cross-desktop', ... }
+//   { key: 'CmdOrCtrl+Shift+T', action: 'toggle-window-sidebar', ... }
 // ]
 
-// 기본 로컬 단축키들 (카테고리별로 구성)
+// 토글 모드 - 표준
+console.log(generateGlobalShortcuts('toggle', { toggleType: 'standard' }))
+// [
+//   { key: 'CmdOrCtrl+Shift+N', action: 'quick-note', ... },
+//   { key: 'CmdOrCtrl+Shift+T', action: 'toggle-window-standard', ... }
+// ]
+
+// 기본 로컬 단축키들 (변경 없음)
 console.log(DEFAULT_LOCAL_SHORTCUTS)
 // 파일, 네비게이션, 편집, 뷰, 개발자 도구 카테고리별 단축키들
 ```
 
-### 윈도우 토글 모드 설정
+### 새로운 윈도우 모드 시스템
 
-두 가지 다른 윈도우 토글 동작을 제공합니다:
+세 가지 윈도우 모드와 동적 단축키 생성을 제공합니다:
 
-| 모드                     | 액션                          | 동작                                                      | 사용 시나리오               |
-| ------------------------ | ----------------------------- | --------------------------------------------------------- | --------------------------- |
-| **표준 모드**            | `toggle-window`               | 기본 윈도우 표시/숨김                                     | 일반적인 사용               |
-| **크로스 데스크탑 모드** | `toggle-window-cross-desktop` | 현재 데스크탑에서 표시/숨김 + 커서 위치 디스플레이에 표시 | Raycast 스타일 동작 선호 시 |
+| 윈도우 모드  | 토글 타입     | 액션                        | 단축키 동작                   | 사용 시나리오                    |
+| ------------ | ------------- | --------------------------- | ----------------------------- | -------------------------------- |
+| **Normal**   | 없음          | 없음                        | 토글 단축키 비활성화          | 전통적인 데스크탑 앱 사용        |
+| **Toggle**   | **Sidebar**   | `toggle-window-sidebar`     | 사이드바 모드 토글            | 빠른 메모, Raycast/Alfred 스타일 |
+| **Toggle**   | **Standard**  | `toggle-window-standard`    | 표준 윈도우 토글              | 일반적인 토글 사용               |
 
 ```typescript
-// 사용자 설정에 따른 단축키 선택
-const appConfig = await appConfigRepository.load()
-const shortcuts = appConfig.enableCrossDesktopToggle
-  ? CROSS_DESKTOP_GLOBAL_SHORTCUTS
-  : DEFAULT_GLOBAL_SHORTCUTS
+// 새로운 동적 단축키 시스템
+import { generateGlobalShortcuts } from './config/default-shortcuts'
+import { getWindowMode, getToggleSettings } from '../actions/global/toggle-mode-manager'
+
+// 현재 설정에 맞는 단축키 생성
+const windowMode = await getWindowMode()
+const toggleSettings = await getToggleSettings() 
+const shortcuts = generateGlobalShortcuts(windowMode, toggleSettings)
+
+// 설정 변경 시 단축키 재등록
+await shortcutManager.updateGlobalShortcutsForWindowMode(windowMode, toggleSettings)
+```
+
+### 동적 단축키 관리
+
+새로운 시스템은 윈도우 모드 변경 시 자동으로 단축키를 재구성합니다:
+
+```typescript
+// ShortcutManager에 추가된 새 메서드
+await shortcutManager.updateGlobalShortcutsForWindowMode('toggle', {
+  toggleType: 'sidebar',
+  sidebarPosition: 'right',
+  sidebarWidth: 400
+})
+
+// 1. 기존 전역 단축키 모두 해제
+// 2. 새로운 모드에 맞는 단축키 생성
+// 3. 생성된 단축키로 재등록
 ```
 
 ## 데이터 흐름

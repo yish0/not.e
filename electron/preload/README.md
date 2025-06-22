@@ -37,12 +37,35 @@ graph TB
 렌더러 프로세스에서 사용할 수 있는 모든 API의 타입 정의입니다.
 
 ```typescript
+export interface ToggleSettings {
+  toggleType: 'sidebar' | 'standard'
+  sidebarPosition?: 'left' | 'right'
+  sidebarWidth?: number
+}
+
+export interface AppConfig {
+  currentVault?: string
+  recentVaults: any[]
+  showVaultSelector: boolean
+  lastUsedVault?: string
+  windowMode: 'normal' | 'toggle'
+  toggleSettings?: ToggleSettings
+  enableCrossDesktopToggle?: boolean
+}
+
 export interface ElectronAPI {
   // App Information APIs
   getAppVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
-
-  // Toggle Mode Configuration APIs
+  
+  // 새로운 윈도우 모드 API
+  getWindowMode: () => Promise<'normal' | 'toggle'>
+  setWindowMode: (mode: 'normal' | 'toggle') => Promise<void>
+  getToggleSettings: () => Promise<ToggleSettings>
+  setToggleSettings: (settings: ToggleSettings) => Promise<void>
+  getAppConfig: () => Promise<AppConfig>
+  
+  // 레거시 API (하위 호환성)
   getCrossDesktopToggleEnabled: () => Promise<boolean>
   setCrossDesktopToggleEnabled: (enabled: boolean) => Promise<void>
 }
@@ -103,37 +126,107 @@ const platform = await window.electronAPI.getPlatform()
 console.log(`Platform: ${platform}`)
 ```
 
-### Toggle Mode Configuration APIs
+### 새로운 윈도우 모드 Configuration APIs
+
+#### `getWindowMode()`
+
+- **설명**: 현재 윈도우 모드를 조회합니다
+- **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
+- **반환값**: `Promise<'normal' | 'toggle'>`
+
+```typescript
+const mode = await window.electronAPI.getWindowMode()
+console.log(`Current window mode: ${mode}`)
+```
+
+#### `setWindowMode(mode: 'normal' | 'toggle')`
+
+- **설명**: 윈도우 모드를 설정합니다
+- **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
+- **매개변수**:
+  - `mode: 'normal' | 'toggle'` - 윈도우 모드
+- **반환값**: `Promise<void>`
+
+```typescript
+// 토글 모드로 변경
+await window.electronAPI.setWindowMode('toggle')
+
+// 일반 모드로 변경
+await window.electronAPI.setWindowMode('normal')
+```
+
+#### `getToggleSettings()`
+
+- **설명**: 현재 토글 설정을 조회합니다
+- **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
+- **반환값**: `Promise<ToggleSettings>`
+
+```typescript
+const settings = await window.electronAPI.getToggleSettings()
+console.log(`Toggle type: ${settings.toggleType}`)
+console.log(`Sidebar position: ${settings.sidebarPosition}`)
+console.log(`Sidebar width: ${settings.sidebarWidth}px`)
+```
+
+#### `setToggleSettings(settings: ToggleSettings)`
+
+- **설명**: 토글 설정을 변경합니다
+- **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
+- **매개변수**:
+  - `settings: ToggleSettings` - 토글 설정 객체
+- **반환값**: `Promise<void>`
+
+```typescript
+// 사이드바 모드로 설정
+await window.electronAPI.setToggleSettings({
+  toggleType: 'sidebar',
+  sidebarPosition: 'right',
+  sidebarWidth: 350
+})
+
+// 표준 모드로 설정
+await window.electronAPI.setToggleSettings({
+  toggleType: 'standard'
+})
+```
+
+#### `getAppConfig()`
+
+- **설명**: 전체 앱 설정을 조회합니다
+- **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
+- **반환값**: `Promise<AppConfig>`
+
+```typescript
+const config = await window.electronAPI.getAppConfig()
+console.log('Complete app configuration:', config)
+```
+
+### 레거시 Toggle Mode APIs (하위 호환성)
 
 #### `getCrossDesktopToggleEnabled()`
 
-- **설명**: 크로스 데스크탑 토글 모드의 현재 활성화 상태를 확인합니다
+- **설명**: 크로스 데스크탑 토글 모드의 현재 활성화 상태를 확인합니다 (deprecated)
 - **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
 - **반환값**: `Promise<boolean>`
 
 ```typescript
 const isEnabled = await window.electronAPI.getCrossDesktopToggleEnabled()
 if (isEnabled) {
-  console.log('Cross-desktop toggle mode is enabled')
-} else {
-  console.log('Standard toggle mode is active')
+  console.log('Toggle mode is enabled (legacy check)')
 }
 ```
 
 #### `setCrossDesktopToggleEnabled(enabled: boolean)`
 
-- **설명**: 크로스 데스크탑 토글 모드를 활성화/비활성화합니다
+- **설명**: 크로스 데스크탑 토글 모드를 활성화/비활성화합니다 (deprecated)
 - **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
 - **매개변수**:
   - `enabled: boolean` - 활성화 여부
 - **반환값**: `Promise<void>`
 
 ```typescript
-// 크로스 데스크탑 토글 모드 활성화
+// 레거시 API (새 API 사용 권장)
 await window.electronAPI.setCrossDesktopToggleEnabled(true)
-
-// 표준 토글 모드로 변경
-await window.electronAPI.setCrossDesktopToggleEnabled(false)
 ```
 
 ## 사용 방법
@@ -141,56 +234,137 @@ await window.electronAPI.setCrossDesktopToggleEnabled(false)
 ### SvelteKit 컴포넌트에서 사용
 
 ```typescript
-<!-- Settings.svelte -->
+<!-- WindowModeSettings.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte'
+  import type { ToggleSettings } from '../types/electron'
 
-  let crossDesktopEnabled = false
   let appVersion = ''
   let platform = ''
+  let windowMode: 'normal' | 'toggle' = 'normal'
+  let toggleSettings: ToggleSettings = {
+    toggleType: 'standard',
+    sidebarPosition: 'right',
+    sidebarWidth: 400
+  }
 
   onMount(async () => {
     // 앱 정보 로드
     appVersion = await window.electronAPI.getAppVersion()
     platform = await window.electronAPI.getPlatform()
 
-    // 토글 모드 상태 로드
-    crossDesktopEnabled = await window.electronAPI.getCrossDesktopToggleEnabled()
+    // 윈도우 모드 및 설정 로드
+    windowMode = await window.electronAPI.getWindowMode()
+    if (windowMode === 'toggle') {
+      toggleSettings = await window.electronAPI.getToggleSettings()
+    }
   })
 
-  async function toggleCrossDesktopMode() {
-    await window.electronAPI.setCrossDesktopToggleEnabled(!crossDesktopEnabled)
-    crossDesktopEnabled = !crossDesktopEnabled
+  async function updateWindowMode() {
+    await window.electronAPI.setWindowMode(windowMode)
+    if (windowMode === 'toggle') {
+      await window.electronAPI.setToggleSettings(toggleSettings)
+    }
+  }
+
+  async function updateToggleSettings() {
+    if (windowMode === 'toggle') {
+      await window.electronAPI.setToggleSettings(toggleSettings)
+    }
   }
 </script>
 
 <div class="settings-panel">
-  <h2>Application Settings</h2>
+  <h2>Window Mode Settings</h2>
 
   <div class="info-section">
     <p>Version: {appVersion}</p>
     <p>Platform: {platform}</p>
   </div>
 
-  <div class="toggle-section">
+  <div class="window-mode-section">
+    <h3>Window Mode</h3>
     <label>
       <input
-        type="checkbox"
-        bind:checked={crossDesktopEnabled}
-        on:change={toggleCrossDesktopMode}
+        type="radio"
+        bind:group={windowMode}
+        value="normal"
+        on:change={updateWindowMode}
       />
-      Enable Cross-Desktop Toggle Mode
+      Normal Mode (no toggle)
     </label>
-    <p class="help-text">
-      {#if crossDesktopEnabled}
-        Window will appear on all desktops and follow cursor position
-      {:else}
-        Window will toggle on current desktop only
-      {/if}
-    </p>
+    <label>
+      <input
+        type="radio"
+        bind:group={windowMode}
+        value="toggle"
+        on:change={updateWindowMode}
+      />
+      Toggle Mode
+    </label>
   </div>
-</div>
-```
+
+  {#if windowMode === 'toggle'}
+    <div class="toggle-settings-section">
+      <h3>Toggle Settings</h3>
+      
+      <div class="toggle-type">
+        <label>
+          <input
+            type="radio"
+            bind:group={toggleSettings.toggleType}
+            value="standard"
+            on:change={updateToggleSettings}
+          />
+          Standard (center screen)
+        </label>
+        <label>
+          <input
+            type="radio"
+            bind:group={toggleSettings.toggleType}
+            value="sidebar"
+            on:change={updateToggleSettings}
+          />
+          Sidebar (fixed width)
+        </label>
+      </div>
+
+      {#if toggleSettings.toggleType === 'sidebar'}
+        <div class="sidebar-settings">
+          <label>
+            Position:
+            <select
+              bind:value={toggleSettings.sidebarPosition}
+              on:change={updateToggleSettings}
+            >
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </label>
+          
+          <label>
+            Width: {toggleSettings.sidebarWidth}px
+            <input
+              type="range"
+              min="200"
+              max="800"
+              bind:value={toggleSettings.sidebarWidth}
+              on:input={updateToggleSettings}
+            />
+          </label>
+        </div>
+      {/if}
+    </div>
+  {/if}
+
+  <div class="help-text">
+    {#if windowMode === 'normal'}
+      Traditional window behavior with no global toggle shortcut.
+    {:else if toggleSettings.toggleType === 'sidebar'}
+      Window will appear as a {toggleSettings.sidebarWidth}px wide sidebar on the {toggleSettings.sidebarPosition} side.
+    {:else}
+      Window will toggle in the center of the screen with standard behavior.
+    {/if}
 
 ### React/Vue에서 사용 (향후 지원)
 
