@@ -2,7 +2,12 @@ import { promises as fs } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
 import type { ShortcutConfig } from '../types/shortcut-types'
-import { DEFAULT_GLOBAL_SHORTCUTS, DEFAULT_LOCAL_SHORTCUTS } from './default-shortcuts'
+import type { ToggleSettings } from '../../vault/types/vault-types'
+import { 
+  DEFAULT_GLOBAL_SHORTCUTS, 
+  DEFAULT_LOCAL_SHORTCUTS, 
+  generateGlobalShortcuts 
+} from './default-shortcuts'
 
 export interface ShortcutConfigData {
   version: string
@@ -34,7 +39,6 @@ export class ShortcutConfigManager {
       }
     }
   }
-
 
   async loadConfig(): Promise<ShortcutConfigData> {
     try {
@@ -186,5 +190,12 @@ export class ShortcutConfigManager {
     })
 
     return merged
+  }
+
+  // 윈도우 모드 변경에 따라 글로벌 단축키 설정 업데이트
+  updateForWindowMode(windowMode: 'normal' | 'toggle', toggleSettings?: ToggleSettings): void {
+    const newGlobalShortcuts = generateGlobalShortcuts(windowMode, toggleSettings)
+    this.config.shortcuts.global = newGlobalShortcuts
+    this.config.lastModified = new Date().toISOString()
   }
 }

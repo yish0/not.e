@@ -1,22 +1,64 @@
 import type { ShortcutConfig } from '../types/shortcut-types'
 import { ShortcutCategory } from '../types/shortcut-types'
+import type { ToggleSettings } from '../../vault/types/vault-types'
 
-export const DEFAULT_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
+// 일반 모드에서는 토글 기능이 비활성화된 단축키
+export const NORMAL_MODE_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
   {
     key: 'CmdOrCtrl+Shift+N',
     action: 'quick-note',
     description: 'Quick note (global)',
     category: ShortcutCategory.GLOBAL
-  },
-  {
-    key: 'CmdOrCtrl+Shift+T',
-    action: 'toggle-window',
-    description: 'Show/hide window (standard behavior)',
-    category: ShortcutCategory.GLOBAL
   }
+  // 토글 관련 단축키는 제거됨
 ]
 
-// 크로스 데스크탑 모드에서 사용할 단축키 설정
+/**
+ * 윈도우 모드와 토글 설정에 따라 동적으로 글로벌 단축키를 생성합니다
+ */
+export function generateGlobalShortcuts(
+  windowMode: 'normal' | 'toggle',
+  toggleSettings?: ToggleSettings
+): ShortcutConfig[] {
+  const baseShortcuts: ShortcutConfig[] = [
+    {
+      key: 'CmdOrCtrl+Shift+N',
+      action: 'quick-note',
+      description: 'Quick note (global)',
+      category: ShortcutCategory.GLOBAL
+    }
+  ]
+
+  // 일반 모드에서는 기본 단축키만 사용
+  if (windowMode === 'normal') {
+    return baseShortcuts
+  }
+
+  // 토글 모드에서는 토글 설정에 따라 적절한 액션 할당
+  if (windowMode === 'toggle' && toggleSettings) {
+    const toggleAction = toggleSettings.toggleType === 'sidebar'
+      ? 'toggle-window-sidebar'
+      : 'toggle-window-standard'
+    
+    const toggleDescription = toggleSettings.toggleType === 'sidebar'
+      ? 'Show/hide window as sidebar'
+      : 'Show/hide window (standard behavior)'
+
+    baseShortcuts.push({
+      key: 'CmdOrCtrl+Shift+T',
+      action: toggleAction,
+      description: toggleDescription,
+      category: ShortcutCategory.GLOBAL
+    })
+  }
+
+  return baseShortcuts
+}
+
+// Legacy exports for backward compatibility
+export const DEFAULT_GLOBAL_SHORTCUTS: ShortcutConfig[] = NORMAL_MODE_GLOBAL_SHORTCUTS
+
+// @deprecated Use generateGlobalShortcuts instead
 export const CROSS_DESKTOP_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
   {
     key: 'CmdOrCtrl+Shift+N',
@@ -26,8 +68,8 @@ export const CROSS_DESKTOP_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
   },
   {
     key: 'CmdOrCtrl+Shift+T',
-    action: 'toggle-window-cross-desktop',
-    description: 'Show/hide window on current desktop (cross-desktop mode)',
+    action: 'toggle-window-standard',
+    description: 'Show/hide window (standard behavior)',
     category: ShortcutCategory.GLOBAL
   }
 ]
