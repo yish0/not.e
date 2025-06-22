@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 // Mock fs for electron
-const mockFs = {
+const _mockFs = {
   existsSync: jest.fn().mockReturnValue(true),
   readFileSync: jest.fn().mockReturnValue(''),
   writeFileSync: jest.fn(),
@@ -37,7 +37,7 @@ export class BrowserWindow {
   setVisibleOnAllWorkspaces = jest.fn()
   id = 1
 
-  constructor(options?: any) {
+  constructor(_options?: any) {
     // Mock constructor
   }
 }

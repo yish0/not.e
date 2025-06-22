@@ -30,6 +30,7 @@ jest.mock('../../../main/ipc/permissions/permission-manager', () => ({
 describe('DefaultIPCManager', () => {
   let ipcManager: DefaultIPCManager
   let mockMainWindow: jest.Mocked<BrowserWindow>
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { ipcMain } = require('electron')
 
   beforeEach(() => {

@@ -82,7 +82,7 @@ export class ElectronLocalShortcutManager implements LocalShortcutManager {
   }
 
   private isShortcutMatch(input: Electron.Input, shortcut: string): boolean {
-    const keys = shortcut.toLowerCase().split('+')
+    const _keys = shortcut.toLowerCase().split('+')
     const inputKeys: string[] = []
 
     // 수정자 키 처리
