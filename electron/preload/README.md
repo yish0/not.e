@@ -41,7 +41,7 @@ export interface ElectronAPI {
   // App Information APIs
   getAppVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
-  
+
   // Toggle Mode Configuration APIs
   getCrossDesktopToggleEnabled: () => Promise<boolean>
   setCrossDesktopToggleEnabled: (enabled: boolean) => Promise<void>
@@ -57,10 +57,10 @@ const electronAPI: ElectronAPI = {
   // App Information
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   getPlatform: () => ipcRenderer.invoke('get-platform'),
-  
+
   // Toggle Mode Configuration
   getCrossDesktopToggleEnabled: () => ipcRenderer.invoke('get-cross-desktop-toggle-enabled'),
-  setCrossDesktopToggleEnabled: (enabled: boolean) => 
+  setCrossDesktopToggleEnabled: (enabled: boolean) =>
     ipcRenderer.invoke('set-cross-desktop-toggle-enabled', enabled)
 }
 
@@ -82,6 +82,7 @@ declare global {
 ### App Information APIs
 
 #### `getAppVersion()`
+
 - **설명**: 현재 애플리케이션 버전을 조회합니다
 - **권한 레벨**: PUBLIC
 - **반환값**: `Promise<string>`
@@ -92,6 +93,7 @@ console.log(`App version: ${version}`)
 ```
 
 #### `getPlatform()`
+
 - **설명**: 현재 실행 중인 플랫폼 정보를 조회합니다
 - **권한 레벨**: PUBLIC
 - **반환값**: `Promise<NodeJS.Platform>`
@@ -104,6 +106,7 @@ console.log(`Platform: ${platform}`)
 ### Toggle Mode Configuration APIs
 
 #### `getCrossDesktopToggleEnabled()`
+
 - **설명**: 크로스 데스크탑 토글 모드의 현재 활성화 상태를 확인합니다
 - **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
 - **반환값**: `Promise<boolean>`
@@ -118,9 +121,10 @@ if (isEnabled) {
 ```
 
 #### `setCrossDesktopToggleEnabled(enabled: boolean)`
+
 - **설명**: 크로스 데스크탑 토글 모드를 활성화/비활성화합니다
 - **권한 레벨**: ROOT (메인 윈도우에서만 접근 가능)
-- **매개변수**: 
+- **매개변수**:
   - `enabled: boolean` - 활성화 여부
 - **반환값**: `Promise<void>`
 
@@ -149,7 +153,7 @@ await window.electronAPI.setCrossDesktopToggleEnabled(false)
     // 앱 정보 로드
     appVersion = await window.electronAPI.getAppVersion()
     platform = await window.electronAPI.getPlatform()
-    
+
     // 토글 모드 상태 로드
     crossDesktopEnabled = await window.electronAPI.getCrossDesktopToggleEnabled()
   })
@@ -162,7 +166,7 @@ await window.electronAPI.setCrossDesktopToggleEnabled(false)
 
 <div class="settings-panel">
   <h2>Application Settings</h2>
-  
+
   <div class="info-section">
     <p>Version: {appVersion}</p>
     <p>Platform: {platform}</p>
@@ -170,8 +174,8 @@ await window.electronAPI.setCrossDesktopToggleEnabled(false)
 
   <div class="toggle-section">
     <label>
-      <input 
-        type="checkbox" 
+      <input
+        type="checkbox"
         bind:checked={crossDesktopEnabled}
         on:change={toggleCrossDesktopMode}
       />
@@ -223,7 +227,7 @@ function SettingsPanel() {
       <h2>Settings</h2>
       <p>Version: {appInfo.version}</p>
       <p>Platform: {appInfo.platform}</p>
-      
+
       <label>
         <input
           type="checkbox"
@@ -257,7 +261,7 @@ function SettingsPanel() {
 ```typescript
 export interface ElectronAPI {
   // 기존 APIs...
-  
+
   // 새로운 API 추가
   newFeature: {
     getData: () => Promise<SomeData>
@@ -271,7 +275,7 @@ export interface ElectronAPI {
 ```typescript
 const electronAPI: ElectronAPI = {
   // 기존 구현...
-  
+
   newFeature: {
     getData: () => ipcRenderer.invoke('new-feature:get-data'),
     setData: (data: SomeData) => ipcRenderer.invoke('new-feature:set-data', data)

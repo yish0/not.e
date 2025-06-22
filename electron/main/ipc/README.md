@@ -221,8 +221,9 @@ sequenceDiagram
 애플리케이션 기본 정보 및 설정 관련 핸들러들입니다.
 
 **Available Channels:**
+
 - `get-app-version` (PUBLIC): 앱 버전 정보 조회
-- `get-platform` (PUBLIC): 플랫폼 정보 조회  
+- `get-platform` (PUBLIC): 플랫폼 정보 조회
 - `get-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 상태 확인
 - `set-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 설정 변경
 

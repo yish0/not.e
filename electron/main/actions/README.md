@@ -205,7 +205,7 @@ export function createGlobalActions(): ShortcutAction[] {
       category: 'global',
       handler: (window: BrowserWindow | null): void => {
         const targetWindow = findTargetWindow(window)
-        
+
         if (targetWindow) {
           if (targetWindow.isMinimized()) targetWindow.restore()
           targetWindow.focus()
@@ -219,7 +219,7 @@ export function createGlobalActions(): ShortcutAction[] {
       category: 'global',
       handler: (window: BrowserWindow | null): void => {
         const targetWindow = findTargetWindow(window)
-        
+
         if (targetWindow) {
           if (targetWindow.isVisible() && targetWindow.isFocused()) {
             targetWindow.hide()
@@ -238,7 +238,7 @@ export function createGlobalActions(): ShortcutAction[] {
       category: 'global',
       handler: async (window: BrowserWindow | null): Promise<void> => {
         const targetWindow = findTargetWindow(window)
-        
+
         if (targetWindow) {
           if (targetWindow.isVisible() && targetWindow.isFocused()) {
             // 크로스 데스크탑 숨김: macOS 워크스페이스 고정 해제
@@ -271,13 +271,13 @@ export function createGlobalActions(): ShortcutAction[] {
 
 #### 윈도우 토글 모드 비교
 
-| 기능 | `toggle-window` | `toggle-window-cross-desktop` |
-|------|----------------|----------------------------|
-| 기본 동작 | 표준 윈도우 표시/숨김 | 현재 데스크탑에서 표시/숨김 |
-| macOS 데스크탑 전환 | 이전 데스크탑으로 이동할 수 있음 | 현재 데스크탑에서 나타남 |
-| 멀티모니터 지원 | 기본 디스플레이에 표시 | 커서가 있는 디스플레이에 표시 |
-| 성능 | 빠름 (설정 확인 없음) | 빠름 (설정 확인 없음) |
-| 권장 사용 | 일반적인 사용 | Raycast 스타일 동작 선호 시 |
+| 기능                | `toggle-window`                  | `toggle-window-cross-desktop` |
+| ------------------- | -------------------------------- | ----------------------------- |
+| 기본 동작           | 표준 윈도우 표시/숨김            | 현재 데스크탑에서 표시/숨김   |
+| macOS 데스크탑 전환 | 이전 데스크탑으로 이동할 수 있음 | 현재 데스크탑에서 나타남      |
+| 멀티모니터 지원     | 기본 디스플레이에 표시           | 커서가 있는 디스플레이에 표시 |
+| 성능                | 빠름 (설정 확인 없음)            | 빠름 (설정 확인 없음)         |
+| 권장 사용           | 일반적인 사용                    | Raycast 스타일 동작 선호 시   |
 
 ### 6.1. Window Utilities (global/window-utils.ts)
 
@@ -344,7 +344,10 @@ export async function getCrossDesktopToggleEnabled(): Promise<boolean>
 **사용 예시:**
 
 ```typescript
-import { setCrossDesktopToggleEnabled, getCrossDesktopToggleEnabled } from '../actions/global/toggle-mode-manager'
+import {
+  setCrossDesktopToggleEnabled,
+  getCrossDesktopToggleEnabled
+} from '../actions/global/toggle-mode-manager'
 
 // 크로스 데스크탑 모드 활성화
 await setCrossDesktopToggleEnabled(true)
@@ -373,6 +376,7 @@ await window.electronAPI.setCrossDesktopToggleEnabled(true)
 ```
 
 **관련 IPC 핸들러:**
+
 - `get-cross-desktop-toggle-enabled` (ROOT): 현재 토글 모드 상태 확인
 - `set-cross-desktop-toggle-enabled` (ROOT): 토글 모드 설정 변경
 
@@ -669,14 +673,14 @@ import { findTargetWindow, showWindow, centerWindowOnCurrentDisplay } from '../g
   category: 'custom',
   handler: (window: BrowserWindow | null): void => {
     const targetWindow = findTargetWindow(window)
-    
+
     if (targetWindow) {
       // 단순히 윈도우 표시
       showWindow(targetWindow)
-      
+
       // 또는 현재 디스플레이로만 이동
       centerWindowOnCurrentDisplay(targetWindow)
-      
+
       // 커스텀 로직 추가
       targetWindow.webContents.send('custom-action')
     }

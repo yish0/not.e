@@ -169,10 +169,10 @@ await configManager.saveConfig()
 기본 단축키 설정들을 중앙화하여 관리합니다. 이 파일에서 모든 기본 단축키 정의를 담당합니다.
 
 ```typescript
-import { 
-  DEFAULT_GLOBAL_SHORTCUTS, 
-  CROSS_DESKTOP_GLOBAL_SHORTCUTS, 
-  DEFAULT_LOCAL_SHORTCUTS 
+import {
+  DEFAULT_GLOBAL_SHORTCUTS,
+  CROSS_DESKTOP_GLOBAL_SHORTCUTS,
+  DEFAULT_LOCAL_SHORTCUTS
 } from './config/default-shortcuts'
 
 // 기본 전역 단축키들 (표준 모드)
@@ -198,16 +198,16 @@ console.log(DEFAULT_LOCAL_SHORTCUTS)
 
 두 가지 다른 윈도우 토글 동작을 제공합니다:
 
-| 모드 | 액션 | 동작 | 사용 시나리오 |
-|------|------|------|-------------|
-| **표준 모드** | `toggle-window` | 기본 윈도우 표시/숨김 | 일반적인 사용 |
+| 모드                     | 액션                          | 동작                                                      | 사용 시나리오               |
+| ------------------------ | ----------------------------- | --------------------------------------------------------- | --------------------------- |
+| **표준 모드**            | `toggle-window`               | 기본 윈도우 표시/숨김                                     | 일반적인 사용               |
 | **크로스 데스크탑 모드** | `toggle-window-cross-desktop` | 현재 데스크탑에서 표시/숨김 + 커서 위치 디스플레이에 표시 | Raycast 스타일 동작 선호 시 |
 
 ```typescript
 // 사용자 설정에 따른 단축키 선택
 const appConfig = await appConfigRepository.load()
-const shortcuts = appConfig.enableCrossDesktopToggle 
-  ? CROSS_DESKTOP_GLOBAL_SHORTCUTS 
+const shortcuts = appConfig.enableCrossDesktopToggle
+  ? CROSS_DESKTOP_GLOBAL_SHORTCUTS
   : DEFAULT_GLOBAL_SHORTCUTS
 ```
 

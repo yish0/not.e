@@ -262,7 +262,7 @@ electron/
 ### Module System and TypeScript Configuration
 
 - **ES Module Consistency**: Use ES2022 modules throughout the entire codebase for consistency between SvelteKit and Electron
-- **TypeScript Module Configuration**: 
+- **TypeScript Module Configuration**:
   - `tsconfig.electron.json` with `"module": "ES2022"` ensures TypeScript compiles to ES module syntax
   - `package.json` with `"type": "module"` tells Node.js to interpret .js files as ES modules
   - Both settings must align: TypeScript generates ES modules, Node.js executes them as ES modules

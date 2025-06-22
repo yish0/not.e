@@ -8,25 +8,25 @@
 graph TB
     A[App Lifecycle Manager] --> B[Window Manager]
     A --> C[System Integrator]
-    
+
     B --> D[BrowserWindow Creation]
     B --> E[Window Event Handling]
     B --> F[Content Loading]
-    
+
     C --> G[Vault System Init]
     C --> H[Shortcut System Init]
     C --> I[Window Integration]
-    
+
     subgraph "Core Components"
         J[main.ts] --> A
         A --> K[System Ready]
     end
-    
+
     subgraph "External Systems"
         L[Vault Manager] <--> G
         M[Shortcut Manager] <--> H
     end
-    
+
     K --> N[Application Running]
 ```
 
@@ -46,7 +46,7 @@ export interface WindowManager {
 
 export class DefaultWindowManager implements WindowManager {
   private mainWindow: BrowserWindow | null = null
-  
+
   createMainWindow(config: WindowConfig = {}): BrowserWindow {
     // 윈도우 생성 및 설정
     this.mainWindow = new BrowserWindow({
@@ -59,16 +59,17 @@ export class DefaultWindowManager implements WindowManager {
       },
       titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default'
     })
-    
+
     this.setupWindowEvents()
     this.loadContent()
-    
+
     return this.mainWindow
   }
 }
 ```
 
 **주요 기능:**
+
 - 플랫폼별 윈도우 설정 (macOS: hiddenInset titleBar)
 - 보안 설정 (contextIsolation, preload)
 - 개발/프로덕션 환경별 콘텐츠 로딩
@@ -97,7 +98,7 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
       return { success: false, error: error.message }
     }
   }
-  
+
   async initializeShortcutSystem(): Promise<InitializationResult> {
     try {
       const shortcutManager = getShortcutManager()
@@ -111,6 +112,7 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
 ```
 
 **주요 기능:**
+
 - Vault 시스템 초기화 및 에러 처리
 - 단축키 시스템 초기화 (실패 시 앱 계속 실행)
 - 윈도우-시스템 간 통합 설정
@@ -132,20 +134,20 @@ export interface AppLifecycleManager {
 export class DefaultAppLifecycleManager implements AppLifecycleManager {
   private windowManager = getWindowManager()
   private systemIntegrator = getSystemIntegrator()
-  
+
   async initialize(): Promise<void> {
     await app.whenReady()
-    
+
     // 시스템 초기화
     await this.initializeSystems()
-    
+
     // 메인 윈도우 생성
     await this.createMainWindow()
-    
+
     // 앱 이벤트 리스너 등록
     this.setupAppEventListeners()
   }
-  
+
   private async initializeSystems(): Promise<void> {
     // Vault 시스템 초기화 (실패 시 앱 종료)
     const vaultResult = await this.systemIntegrator.initializeVaultSystem()
@@ -154,7 +156,7 @@ export class DefaultAppLifecycleManager implements AppLifecycleManager {
       app.quit()
       return
     }
-    
+
     // 단축키 시스템 초기화 (실패해도 계속)
     const shortcutResult = await this.systemIntegrator.initializeShortcutSystem()
     if (!shortcutResult.success) {
@@ -165,6 +167,7 @@ export class DefaultAppLifecycleManager implements AppLifecycleManager {
 ```
 
 **주요 기능:**
+
 - Electron app.whenReady() 처리
 - 시스템 초기화 순서 관리
 - 메인 윈도우 생성 및 통합
@@ -183,17 +186,18 @@ graph LR
 ```
 
 각 컴포넌트는 명확히 정의된 책임만을 가집니다:
+
 - **WindowManager**: 윈도우 생성/관리만
-- **SystemIntegrator**: 시스템 초기화만  
+- **SystemIntegrator**: 시스템 초기화만
 - **AppLifecycleManager**: 전체 흐름 조정만
 
 ### 2. Dependency Injection
 
 ```typescript
 export class DefaultAppLifecycleManager implements AppLifecycleManager {
-  private windowManager = getWindowManager()        // 의존성 주입
-  private systemIntegrator = getSystemIntegrator()  // 의존성 주입
-  
+  private windowManager = getWindowManager() // 의존성 주입
+  private systemIntegrator = getSystemIntegrator() // 의존성 주입
+
   // 테스트 시 모킹 가능한 구조
 }
 ```
@@ -231,25 +235,25 @@ sequenceDiagram
     participant Integrator as SystemIntegrator
     participant WindowMgr as WindowManager
     participant App as Electron App
-    
+
     Main->>Lifecycle: getAppLifecycleManager()
     Main->>Lifecycle: initialize()
-    
+
     Lifecycle->>App: app.whenReady()
     App-->>Lifecycle: Ready
-    
+
     Lifecycle->>Integrator: initializeVaultSystem()
     Integrator-->>Lifecycle: Success/Failure
-    
+
     Lifecycle->>Integrator: initializeShortcutSystem()
     Integrator-->>Lifecycle: Success/Failure
-    
+
     Lifecycle->>WindowMgr: createMainWindow()
     WindowMgr-->>Lifecycle: BrowserWindow
-    
+
     Lifecycle->>Integrator: setupWindowIntegration(window)
     Integrator-->>Lifecycle: Complete
-    
+
     Lifecycle->>Lifecycle: setupAppEventListeners()
 ```
 
@@ -301,12 +305,12 @@ export class CustomSystemIntegrator implements SystemIntegrator {
     // 커스텀 Vault 초기화 로직
     return { success: true }
   }
-  
+
   async initializeShortcutSystem(): Promise<InitializationResult> {
     // 커스텀 단축키 시스템 초기화
     return { success: true }
   }
-  
+
   async setupWindowIntegration(window: BrowserWindow): Promise<void> {
     // 커스텀 윈도우 통합 로직
   }
@@ -357,7 +361,7 @@ export interface SystemIntegrator {
 ```typescript
 private async initializeSystems(): Promise<void> {
   // 기존 초기화...
-  
+
   // 플러그인 시스템 초기화
   const pluginResult = await this.systemIntegrator.initializePluginSystem()
   if (!pluginResult.success) {
