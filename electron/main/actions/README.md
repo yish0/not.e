@@ -195,7 +195,7 @@ export function createDevActions(): ShortcutAction[] {
 전역 단축키로 사용되는 액션들입니다. 복잡한 윈도우 관리 로직은 별도 유틸리티 모듈로 분리되어 있습니다.
 
 ```typescript
-import { findTargetWindow, toggleWindowVisibility } from './window-utils'
+import { findTargetWindow, showWindow, centerWindowOnCurrentDisplay } from './window-utils'
 
 export function createGlobalActions(): ShortcutAction[] {
   return [
@@ -215,13 +215,47 @@ export function createGlobalActions(): ShortcutAction[] {
     },
     {
       name: 'toggle-window',
-      description: 'Show/hide window on current desktop (global)',
+      description: 'Show/hide window (standard behavior)',
       category: 'global',
       handler: (window: BrowserWindow | null): void => {
         const targetWindow = findTargetWindow(window)
         
         if (targetWindow) {
-          toggleWindowVisibility(targetWindow)
+          if (targetWindow.isVisible() && targetWindow.isFocused()) {
+            targetWindow.hide()
+          } else {
+            if (targetWindow.isMinimized()) targetWindow.restore()
+            centerWindowOnCurrentDisplay(targetWindow)
+            targetWindow.show()
+            targetWindow.focus()
+          }
+        }
+      }
+    },
+    {
+      name: 'toggle-window-cross-desktop',
+      description: 'Show/hide window on current desktop (cross-desktop mode)',
+      category: 'global',
+      handler: async (window: BrowserWindow | null): Promise<void> => {
+        const targetWindow = findTargetWindow(window)
+        
+        if (targetWindow) {
+          if (targetWindow.isVisible() && targetWindow.isFocused()) {
+            // 크로스 데스크탑 숨김: macOS 워크스페이스 고정 해제
+            if (process.platform === 'darwin') {
+              try {
+                targetWindow.setVisibleOnAllWorkspaces(true)
+                targetWindow.hide()
+              } catch (error) {
+                console.warn('Failed to hide from current desktop:', error)
+                targetWindow.hide()
+              }
+            } else {
+              targetWindow.hide()
+            }
+          } else {
+            await showWindow(targetWindow)
+          }
         }
       }
     }
@@ -232,7 +266,18 @@ export function createGlobalActions(): ShortcutAction[] {
 **포함된 액션들:**
 
 - `quick-note`: 전역 빠른 노트 (앱을 활성화하고 새 노트 생성)
-- `toggle-window`: 윈도우 표시/숨김 토글 (현재 디스플레이로 이동)
+- `toggle-window`: 표준 윈도우 표시/숨김 토글
+- `toggle-window-cross-desktop`: 크로스 데스크탑 윈도우 토글 (macOS Mission Control 데스크탑/스페이스 간 이동 지원)
+
+#### 윈도우 토글 모드 비교
+
+| 기능 | `toggle-window` | `toggle-window-cross-desktop` |
+|------|----------------|----------------------------|
+| 기본 동작 | 표준 윈도우 표시/숨김 | 현재 데스크탑에서 표시/숨김 |
+| macOS 데스크탑 전환 | 이전 데스크탑으로 이동할 수 있음 | 현재 데스크탑에서 나타남 |
+| 멀티모니터 지원 | 기본 디스플레이에 표시 | 커서가 있는 디스플레이에 표시 |
+| 성능 | 빠름 (설정 확인 없음) | 빠름 (설정 확인 없음) |
+| 권장 사용 | 일반적인 사용 | Raycast 스타일 동작 선호 시 |
 
 ### 6.1. Window Utilities (global/window-utils.ts)
 
@@ -242,32 +287,78 @@ export function createGlobalActions(): ShortcutAction[] {
 // 유효한 타겟 윈도우 찾기
 export function findTargetWindow(window: BrowserWindow | null): BrowserWindow | null
 
+// 현재 커서가 있는 디스플레이의 작업 영역 반환
+export function getCurrentWorkArea(): Electron.Display['workArea']
+
+// 현재 디스플레이 기준으로 윈도우 복원
+export function restoreWindowOnCurrentDisplay(window: BrowserWindow): void
+
 // 현재 커서가 있는 디스플레이 중앙에 윈도우 배치
 export function centerWindowOnCurrentDisplay(window: BrowserWindow): void
 
-// 윈도우 표시 및 포커스 (복원, 위치 조정 포함)
-export function showWindow(window: BrowserWindow): void
-
-// 윈도우 가시성 토글 (보이면 숨기고, 숨어있으면 표시)
-export function toggleWindowVisibility(window: BrowserWindow): void
+// 크로스 데스크탑 모드 윈도우 표시 (현재 데스크탑 + 커서 디스플레이)
+export async function showWindow(window: BrowserWindow): Promise<void>
 ```
 
 **유틸리티 함수 설명:**
 
 - `findTargetWindow()`: 주어진 윈도우가 유효하지 않으면 대체 윈도우를 찾음
+- `getCurrentWorkArea()`: 마우스 커서가 있는 디스플레이의 작업 영역 정보 반환
+- `restoreWindowOnCurrentDisplay()`: 윈도우를 현재 디스플레이 영역 내로 이동/조정
 - `centerWindowOnCurrentDisplay()`: 마우스 커서가 있는 디스플레이의 중앙에 윈도우 배치
-- `showWindow()`: 윈도우를 복원하고 적절한 위치에 표시한 후 포커스
-- `toggleWindowVisibility()`: 윈도우가 보이고 포커스되어 있으면 숨기고, 그렇지 않으면 표시
+- `showWindow()`: 크로스 데스크탑 지원 윈도우 표시 (macOS Mission Control 대응)
 
-**다중 디스플레이 지원:**
+**크로스 데스크탑 지원 (macOS):**
 
 ```typescript
-// toggle-window 액션의 다중 디스플레이 동작
+// showWindow()의 크로스 데스크탑 동작 (macOS 전용)
 // 1. 현재 마우스 커서 위치 감지
 // 2. 해당 디스플레이의 작업 영역 계산
-// 3. 윈도우를 해당 디스플레이 중앙으로 이동
-// 4. 윈도우 표시 및 포커스
+// 3. 윈도우를 숨기고 목표 위치로 이동
+// 4. setVisibleOnAllWorkspaces(false) 호출로 현재 데스크탑에 고정
+// 5. 100ms 지연 후 윈도우 표시 및 포커스
 ```
+
+**사용 권장사항:**
+
+- **표준 토글**: `centerWindowOnCurrentDisplay()` + 기본 `show()`/`hide()`
+- **크로스 데스크탑 토글**: `showWindow()` + macOS 워크스페이스 관리 로직
+
+### 6.2. Toggle Mode Manager (global/toggle-mode-manager.ts)
+
+크로스 데스크탑 토글 기능의 설정을 관리하는 유틸리티입니다.
+
+```typescript
+// 크로스 데스크탑 토글 모드 설정
+export async function setCrossDesktopToggleEnabled(enabled: boolean): Promise<void>
+
+// 현재 크로스 데스크탑 토글 모드 상태 확인
+export async function getCrossDesktopToggleEnabled(): Promise<boolean>
+```
+
+**기능 설명:**
+
+- `setCrossDesktopToggleEnabled()`: 사용자 설정에 크로스 데스크탑 모드 활성화 여부 저장
+- `getCrossDesktopToggleEnabled()`: 현재 설정된 크로스 데스크탑 모드 상태 반환
+
+**사용 예시:**
+
+```typescript
+import { setCrossDesktopToggleEnabled, getCrossDesktopToggleEnabled } from '../actions/global/toggle-mode-manager'
+
+// 크로스 데스크탑 모드 활성화
+await setCrossDesktopToggleEnabled(true)
+
+// 현재 설정 확인
+const isEnabled = await getCrossDesktopToggleEnabled()
+console.log('Cross-desktop mode:', isEnabled ? 'enabled' : 'disabled')
+```
+
+**설정 저장 위치:**
+
+- 설정은 `FileAppConfigRepository`를 통해 `app-config.json`에 저장됩니다
+- 설정 필드: `enableCrossDesktopToggle: boolean`
+- 기본값: `false` (하위 호환성 보장)
 
 ## 액션 실행 흐름
 

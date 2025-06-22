@@ -242,11 +242,22 @@ electron/
 ### Current Module Structure
 
 - **actions/**: Application actions organized by category (file, view, global, edit, navigation, dev)
+  - **global/**: Global window management actions with dual toggle modes and configuration utilities
 - **core/**: Core system functionality (window management, lifecycle, integration)
 - **ipc/**: Inter-process communication with handlers, permissions, and type definitions
 - **shortcuts/**: Keyboard shortcut system with managers, actions, and configuration
 - **vault/**: Note vault system with services, repositories, managers, and templates
 - **Window Utilities**: Extracted window-related utilities from global actions for better organization
+
+### Cross-Desktop Window Toggle System
+
+- **Dual Toggle Modes**: Implemented separate `toggle-window` (standard) and `toggle-window-cross-desktop` (advanced) actions
+- **Configuration-Based Selection**: Users can choose between standard and cross-desktop behavior via `enableCrossDesktopToggle` setting
+- **Performance Optimized**: Eliminated runtime configuration checks by providing separate action handlers
+- **macOS Mission Control Integration**: Cross-desktop mode uses `setVisibleOnAllWorkspaces()` and cursor position detection for proper desktop targeting
+- **Multi-Monitor Support**: Cursor position-based display detection ensures windows appear on the correct monitor
+- **Clean Architecture**: Configuration management separated into `toggle-mode-manager.ts` for maintainability
+- **Shortcut Configuration**: Separate `DEFAULT_GLOBAL_SHORTCUTS` and `CROSS_DESKTOP_GLOBAL_SHORTCUTS` arrays for different user preferences
 
 ### Module System and TypeScript Configuration
 
