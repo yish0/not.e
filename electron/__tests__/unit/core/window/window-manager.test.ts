@@ -25,7 +25,11 @@ jest.mock('../../../../config', () => ({
 }))
 
 import { BrowserWindow } from 'electron'
-import { DefaultWindowManager, getWindowManager, resetWindowManager } from '../../../../main/core/window/window-manager'
+import {
+  DefaultWindowManager,
+  getWindowManager,
+  resetWindowManager
+} from '../../../../main/core/window/window-manager'
 
 const MockBrowserWindow = BrowserWindow as jest.MockedClass<typeof BrowserWindow>
 
@@ -118,7 +122,6 @@ describe('DefaultWindowManager', () => {
       expect(mockWindow.loadURL).not.toHaveBeenCalled()
     })
   })
-
 
   describe('window events', () => {
     test('should handle ready-to-show event', () => {

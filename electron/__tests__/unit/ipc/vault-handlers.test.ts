@@ -265,7 +265,6 @@ describe('Vault IPC Handlers', () => {
     })
   })
 
-
   describe('integration scenarios', () => {
     test('should handle complete vault selection workflow', async () => {
       // 1. Get current vault (none)

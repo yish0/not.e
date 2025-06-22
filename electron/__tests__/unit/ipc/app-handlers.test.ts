@@ -61,7 +61,5 @@ describe('App IPC Handlers', () => {
 
       expect(result).toBe(process.platform)
     })
-
   })
-
 })

@@ -1,6 +1,11 @@
 import { BrowserWindow } from 'electron'
 import { VaultFactory } from '../core/vault-factory'
-import type { VaultManagerService, VaultDialogService, VaultConfig, VaultInitResult } from '../types/vault-types'
+import type {
+  VaultManagerService,
+  VaultDialogService,
+  VaultConfig,
+  VaultInitResult
+} from '../types/vault-types'
 
 export class VaultManager {
   private managerService: VaultManagerService

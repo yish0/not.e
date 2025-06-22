@@ -1,8 +1,4 @@
-import type {
-  IPCPermissionManager,
-  IPCPermission,
-  PermissionContext
-} from './permission-types'
+import type { IPCPermissionManager, IPCPermission, PermissionContext } from './permission-types'
 import { IPCPermissionLevel } from './permission-types'
 import { DEFAULT_PERMISSIONS } from './default-permissions'
 
