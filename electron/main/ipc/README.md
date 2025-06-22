@@ -218,7 +218,13 @@ sequenceDiagram
 
 #### App Handlers (handlers/app-handlers.ts)
 
-애플리케이션 기본 정보 관련 핸들러들입니다.
+애플리케이션 기본 정보 및 설정 관련 핸들러들입니다.
+
+**Available Channels:**
+- `get-app-version` (PUBLIC): 앱 버전 정보 조회
+- `get-platform` (PUBLIC): 플랫폼 정보 조회  
+- `get-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 상태 확인
+- `set-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 설정 변경
 
 ```typescript
 export function createAppHandlers(): IPCHandler[] {
@@ -227,12 +233,40 @@ export function createAppHandlers(): IPCHandler[] {
       channel: 'get-app-version',
       handler: (): string => {
         return app.getVersion()
+      },
+      permission: {
+        level: IPCPermissionLevel.PUBLIC,
+        description: 'Get application version'
       }
     },
     {
       channel: 'get-platform',
       handler: (): NodeJS.Platform => {
         return process.platform
+      },
+      permission: {
+        level: IPCPermissionLevel.PUBLIC,
+        description: 'Get platform information'
+      }
+    },
+    {
+      channel: 'get-cross-desktop-toggle-enabled',
+      handler: async (): Promise<boolean> => {
+        return await getCrossDesktopToggleEnabled()
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Check if cross-desktop toggle mode is enabled'
+      }
+    },
+    {
+      channel: 'set-cross-desktop-toggle-enabled',
+      handler: async (_, enabled: boolean): Promise<void> => {
+        await setCrossDesktopToggleEnabled(enabled)
+      },
+      permission: {
+        level: IPCPermissionLevel.ROOT,
+        description: 'Set cross-desktop toggle mode enabled state'
       }
     }
   ]

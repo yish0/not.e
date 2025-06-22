@@ -360,6 +360,24 @@ console.log('Cross-desktop mode:', isEnabled ? 'enabled' : 'disabled')
 - 설정 필드: `enableCrossDesktopToggle: boolean`
 - 기본값: `false` (하위 호환성 보장)
 
+**IPC 통합:**
+
+토글 모드 매니저는 IPC 시스템과 통합되어 프론트엔드에서 설정을 변경할 수 있습니다:
+
+```typescript
+// 프론트엔드에서 설정 확인
+const isEnabled = await window.electronAPI.getCrossDesktopToggleEnabled()
+
+// 프론트엔드에서 설정 변경
+await window.electronAPI.setCrossDesktopToggleEnabled(true)
+```
+
+**관련 IPC 핸들러:**
+- `get-cross-desktop-toggle-enabled` (ROOT): 현재 토글 모드 상태 확인
+- `set-cross-desktop-toggle-enabled` (ROOT): 토글 모드 설정 변경
+
+자세한 IPC 사용법은 `electron/main/ipc/README.md`와 `electron/preload/README.md`를 참고하세요.
+
 ## 액션 실행 흐름
 
 ```mermaid
