@@ -74,7 +74,11 @@ await configRepo.save({
 })
 ```
 
-**저장 위치**: `~/.config/not.e/app-config.json`
+**저장 위치**: 
+- **개발 모드**: `{userData}/app-config.dev.json`
+- **프로덕션 모드**: `{userData}/app-config.json`
+
+> 개발 환경에서는 별도의 설정 파일을 사용하여 개발자가 개발 중 다른 설정(윈도우 모드, 단축키, 볼트 구성 등)을 유지할 수 있습니다.
 
 #### FileVaultRepository
 
@@ -316,6 +320,8 @@ if (vaultManager.shouldShowVaultSelector()) {
   }
 }
 ```
+
+> **개발 환경 설정**: 개발 모드에서는 `app-config.dev.json` 파일이 별도로 관리되어, 개발 중인 볼트 설정이 프로덕션 설정과 분리됩니다. 이를 통해 개발자는 프로덕션에 영향을 주지 않고 다양한 볼트 구성을 테스트할 수 있습니다.
 
 ### Vault 관리
 
