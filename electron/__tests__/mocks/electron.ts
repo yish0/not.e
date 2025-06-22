@@ -25,6 +25,17 @@ export class BrowserWindow {
   close = jest.fn()
   on = jest.fn()
   once = jest.fn()
+  isVisible = jest.fn().mockReturnValue(true)
+  isFocused = jest.fn().mockReturnValue(false)
+  isMinimized = jest.fn().mockReturnValue(false)
+  isDestroyed = jest.fn().mockReturnValue(false)
+  focus = jest.fn()
+  restore = jest.fn()
+  setPosition = jest.fn()
+  setBounds = jest.fn()
+  getBounds = jest.fn().mockReturnValue({ x: 0, y: 0, width: 800, height: 600 })
+  setVisibleOnAllWorkspaces = jest.fn()
+  id = 1
 
   constructor(options?: any) {
     // Mock constructor
@@ -79,4 +90,12 @@ export const globalShortcut = {
 export const shell = {
   openExternal: jest.fn(),
   showItemInFolder: jest.fn()
+}
+
+// Mock screen
+export const screen = {
+  getCursorScreenPoint: jest.fn().mockReturnValue({ x: 100, y: 100 }),
+  getDisplayNearestPoint: jest.fn().mockReturnValue({
+    workArea: { x: 0, y: 0, width: 1920, height: 1080 }
+  })
 }

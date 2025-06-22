@@ -14,11 +14,12 @@ jest.mock('electron', () => ({
 }))
 
 import { BrowserWindow, screen } from 'electron'
-import { 
-  findTargetWindow, 
-  centerWindowOnCurrentDisplay, 
-  showWindow, 
-  toggleWindowVisibility 
+import {
+  findTargetWindow,
+  centerWindowOnCurrentDisplay,
+  showWindow,
+  showWindowAsSidebar,
+  getSidebarBounds
 } from '../../../../main/actions/global/window-utils'
 
 describe('Window Utils', () => {
@@ -32,10 +33,12 @@ describe('Window Utils', () => {
       isFocused: jest.fn(() => true),
       getBounds: jest.fn(() => ({ x: 0, y: 0, width: 800, height: 600 })),
       setPosition: jest.fn(),
+      setBounds: jest.fn(),
       restore: jest.fn(),
       show: jest.fn(),
       focus: jest.fn(),
-      hide: jest.fn()
+      hide: jest.fn(),
+      setVisibleOnAllWorkspaces: jest.fn()
     } as any
 
     jest.clearAllMocks()
@@ -55,7 +58,7 @@ describe('Window Utils', () => {
 
     test('should find alternative window when provided window is null', () => {
       ;(BrowserWindow.getAllWindows as jest.Mock).mockReturnValue([mockWindow])
-      
+
       const result = findTargetWindow(null)
       expect(result).toBe(mockWindow)
     })
@@ -72,40 +75,82 @@ describe('Window Utils', () => {
   })
 
   describe('showWindow', () => {
-    test('should show and focus window', () => {
-      showWindow(mockWindow)
-
-      expect(mockWindow.show).toHaveBeenCalled()
-      expect(mockWindow.focus).toHaveBeenCalled()
-      expect(mockWindow.setPosition).toHaveBeenCalled()
-    })
-
-    test('should restore minimized window', () => {
+    test('should restore minimized window', async () => {
       mockWindow.isMinimized.mockReturnValue(true)
       
-      showWindow(mockWindow)
+      await showWindow(mockWindow)
 
       expect(mockWindow.restore).toHaveBeenCalled()
     })
-  })
 
-  describe('toggleWindowVisibility', () => {
-    test('should hide visible and focused window', () => {
-      mockWindow.isVisible.mockReturnValue(true)
-      mockWindow.isFocused.mockReturnValue(true)
+    test('should set window position on macOS', async () => {
+      // Mock process.platform for this test
+      const originalPlatform = process.platform
+      Object.defineProperty(process, 'platform', { value: 'darwin' })
 
-      toggleWindowVisibility(mockWindow)
+      await showWindow(mockWindow)
 
-      expect(mockWindow.hide).toHaveBeenCalled()
+      expect(mockWindow.setPosition).toHaveBeenCalled()
+      
+      // Restore original platform
+      Object.defineProperty(process, 'platform', { value: originalPlatform })
     })
 
-    test('should show invisible window', () => {
-      mockWindow.isVisible.mockReturnValue(false)
+  })
 
-      toggleWindowVisibility(mockWindow)
+  describe('showWindowAsSidebar', () => {
+    test('should show window as sidebar with correct bounds', () => {
+      showWindowAsSidebar(mockWindow, 'right', 400)
 
+      expect(mockWindow.setBounds).toHaveBeenCalledWith({
+        x: 1520, // 1920 - 400
+        y: 0,
+        width: 400,
+        height: 1080
+      })
       expect(mockWindow.show).toHaveBeenCalled()
       expect(mockWindow.focus).toHaveBeenCalled()
+    })
+
+    test('should restore minimized window before showing as sidebar', () => {
+      mockWindow.isMinimized.mockReturnValue(true)
+
+      showWindowAsSidebar(mockWindow, 'left', 300)
+
+      expect(mockWindow.restore).toHaveBeenCalled()
+      expect(mockWindow.setBounds).toHaveBeenCalled()
+    })
+  })
+
+  describe('getSidebarBounds', () => {
+    test('should calculate correct bounds for right sidebar', () => {
+      const display = {
+        workArea: { x: 0, y: 0, width: 1920, height: 1080 }
+      } as any
+
+      const bounds = getSidebarBounds(display, 'right', 400)
+
+      expect(bounds).toEqual({
+        x: 1520, // 1920 - 400
+        y: 0,
+        width: 400,
+        height: 1080
+      })
+    })
+
+    test('should calculate correct bounds for left sidebar', () => {
+      const display = {
+        workArea: { x: 0, y: 0, width: 1920, height: 1080 }
+      } as any
+
+      const bounds = getSidebarBounds(display, 'left', 300)
+
+      expect(bounds).toEqual({
+        x: 0,
+        y: 0,
+        width: 300,
+        height: 1080
+      })
     })
   })
 })

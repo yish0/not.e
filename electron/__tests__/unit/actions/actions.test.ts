@@ -13,6 +13,16 @@ jest.mock('electron', () => ({
   }
 }))
 
+// Mock toggle-mode-manager
+jest.mock('../../../main/actions/global/toggle-mode-manager', () => ({
+  getWindowMode: jest.fn().mockResolvedValue('toggle'),
+  getToggleSettings: jest.fn().mockResolvedValue({
+    toggleType: 'standard',
+    sidebarPosition: 'right',
+    sidebarWidth: 400
+  })
+}))
+
 import { BrowserWindow } from 'electron'
 import { getAllDefaultActions, getActionsByCategory } from '../../../main/actions'
 import { ShortcutCategory } from '../../../main/shortcuts/types/shortcut-types'
@@ -46,7 +56,6 @@ describe('Actions Module', () => {
 
     jest.clearAllMocks()
   })
-
 
   describe('getActionsByCategory', () => {
     test('should filter actions by category', () => {
@@ -143,12 +152,17 @@ describe('Actions Module', () => {
       expect(mockWindow.webContents.send).toHaveBeenCalledWith('shortcut:quick-note')
     })
 
-    test('should handle toggle-window action when window is visible and focused', () => {
+    test('should handle toggle-window-standard action when window is visible and focused', async () => {
       const actions = getAllDefaultActions()
-      const toggleAction = actions.find((action) => action.name === 'toggle-window')
+      const toggleAction = actions.find((action) => action.name === 'toggle-window-standard')
 
       expect(toggleAction).toBeDefined()
-      toggleAction!.handler(mockWindow)
+      
+      // Mock the window mode to be in toggle mode
+      mockWindow.isVisible.mockReturnValue(true)
+      mockWindow.isFocused.mockReturnValue(true)
+      
+      await toggleAction!.handler(mockWindow)
 
       expect(mockWindow.hide).toHaveBeenCalled()
     })
