@@ -1,11 +1,7 @@
 import { BrowserWindow } from 'electron'
 import type { ShortcutAction } from '../../shortcuts/types/shortcut-types'
 import { ShortcutCategory } from '../../shortcuts/types/shortcut-types'
-import {
-  findTargetWindow,
-  centerWindowOnCurrentDisplay,
-  showWindowAsSidebar
-} from './window-utils'
+import { findTargetWindow, centerWindowOnCurrentDisplay, showWindowAsSidebar } from './window-utils'
 import { getWindowMode, getToggleSettings } from './toggle-mode-manager'
 
 export function createGlobalActions(): ShortcutAction[] {

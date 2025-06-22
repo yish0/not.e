@@ -3,10 +3,10 @@ import { join } from 'path'
 import { app } from 'electron'
 import type { ShortcutConfig } from '../types/shortcut-types'
 import type { ToggleSettings } from '../../vault/types/vault-types'
-import { 
-  DEFAULT_GLOBAL_SHORTCUTS, 
-  DEFAULT_LOCAL_SHORTCUTS, 
-  generateGlobalShortcuts 
+import {
+  DEFAULT_GLOBAL_SHORTCUTS,
+  DEFAULT_LOCAL_SHORTCUTS,
+  generateGlobalShortcuts
 } from './default-shortcuts'
 
 export interface ShortcutConfigData {

@@ -14,9 +14,9 @@ export class DefaultVaultManagerService implements VaultManagerService {
     private configRepository: AppConfigRepository,
     private initializerService: VaultInitializerService
   ) {
-    this.appConfig = { 
-      recentVaults: [], 
-      showVaultSelector: true, 
+    this.appConfig = {
+      recentVaults: [],
+      showVaultSelector: true,
       windowMode: 'normal',
       toggleSettings: {
         toggleType: 'standard',

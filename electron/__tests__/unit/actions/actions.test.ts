@@ -157,11 +157,11 @@ describe('Actions Module', () => {
       const toggleAction = actions.find((action) => action.name === 'toggle-window-standard')
 
       expect(toggleAction).toBeDefined()
-      
+
       // Mock the window mode to be in toggle mode
       mockWindow.isVisible.mockReturnValue(true)
       mockWindow.isFocused.mockReturnValue(true)
-      
+
       await toggleAction!.handler(mockWindow)
 
       expect(mockWindow.hide).toHaveBeenCalled()

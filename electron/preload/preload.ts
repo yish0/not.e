@@ -19,14 +19,14 @@ export interface AppConfig {
 export interface ElectronAPI {
   getAppVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
-  
+
   // New window mode API
   getWindowMode: () => Promise<'normal' | 'toggle'>
   setWindowMode: (mode: 'normal' | 'toggle') => Promise<void>
   getToggleSettings: () => Promise<ToggleSettings>
   setToggleSettings: (settings: ToggleSettings) => Promise<void>
   getAppConfig: () => Promise<AppConfig>
-  
+
   // Legacy API (deprecated)
   getCrossDesktopToggleEnabled: () => Promise<boolean>
   setCrossDesktopToggleEnabled: (enabled: boolean) => Promise<void>
@@ -35,14 +35,15 @@ export interface ElectronAPI {
 const electronAPI: ElectronAPI = {
   getAppVersion: () => ipcRenderer.invoke('get-app-version'),
   getPlatform: () => ipcRenderer.invoke('get-platform'),
-  
+
   // New window mode API
   getWindowMode: () => ipcRenderer.invoke('get-window-mode'),
   setWindowMode: (mode: 'normal' | 'toggle') => ipcRenderer.invoke('set-window-mode', mode),
   getToggleSettings: () => ipcRenderer.invoke('get-toggle-settings'),
-  setToggleSettings: (settings: ToggleSettings) => ipcRenderer.invoke('set-toggle-settings', settings),
+  setToggleSettings: (settings: ToggleSettings) =>
+    ipcRenderer.invoke('set-toggle-settings', settings),
   getAppConfig: () => ipcRenderer.invoke('get-app-config'),
-  
+
   // Legacy API (deprecated)
   getCrossDesktopToggleEnabled: () => ipcRenderer.invoke('get-cross-desktop-toggle-enabled'),
   setCrossDesktopToggleEnabled: (enabled: boolean) =>

@@ -288,18 +288,18 @@ export class ShortcutManager {
 
   // 윈도우 모드 변경 시 전역 단축키 재등록
   async updateGlobalShortcutsForWindowMode(
-    windowMode: 'normal' | 'toggle', 
+    windowMode: 'normal' | 'toggle',
     toggleSettings?: ToggleSettings
   ): Promise<void> {
     // 기존 전역 단축키 모두 해제
     this.unregisterAllGlobalShortcuts()
-    
+
     // 새로운 모드에 맞는 단축키로 configManager 업데이트
     this.configManager.updateForWindowMode(windowMode, toggleSettings)
-    
+
     // 새로운 설정으로 전역 단축키 재등록
     await this.registerGlobalShortcutsFromConfig()
-    
+
     console.log(`Global shortcuts updated for window mode: ${windowMode}`)
   }
 

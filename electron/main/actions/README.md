@@ -195,11 +195,7 @@ export function createDevActions(): ShortcutAction[] {
 전역 단축키로 사용되는 액션들입니다. 새로운 윈도우 모드 시스템을 통해 사용자의 워크플로우에 맞는 유연한 윈도우 관리를 제공합니다.
 
 ```typescript
-import { 
-  findTargetWindow, 
-  centerWindowOnCurrentDisplay, 
-  showWindowAsSidebar 
-} from './window-utils'
+import { findTargetWindow, centerWindowOnCurrentDisplay, showWindowAsSidebar } from './window-utils'
 import { getWindowMode, getToggleSettings } from './toggle-mode-manager'
 
 export function createGlobalActions(): ShortcutAction[] {
@@ -231,13 +227,13 @@ export function createGlobalActions(): ShortcutAction[] {
 
         const toggleSettings = await getToggleSettings()
         const targetWindow = findTargetWindow(window)
-        
+
         if (targetWindow) {
           if (targetWindow.isVisible() && targetWindow.isFocused()) {
             targetWindow.hide()
           } else {
             showWindowAsSidebar(
-              targetWindow, 
+              targetWindow,
               toggleSettings.sidebarPosition || 'right',
               toggleSettings.sidebarWidth || 400
             )
@@ -257,7 +253,7 @@ export function createGlobalActions(): ShortcutAction[] {
         }
 
         const targetWindow = findTargetWindow(window)
-        
+
         if (targetWindow) {
           if (targetWindow.isVisible() && targetWindow.isFocused()) {
             targetWindow.hide()
@@ -282,26 +278,29 @@ export function createGlobalActions(): ShortcutAction[] {
 
 #### 새로운 윈도우 모드 시스템
 
-| 모드        | 설명                              | 토글 동작                        | 사용 권장 시나리오                 |
-| ----------- | --------------------------------- | -------------------------------- | ---------------------------------- |
-| **Normal**  | 토글 기능 완전 비활성화           | 없음                             | 전통적인 데스크탑 앱 사용 선호     |
-| **Sidebar** | 고정 너비로 화면 가장자리에 배치  | `toggle-window-sidebar` 실행     | 빠른 메모, Raycast/Alfred 스타일   |
-| **Standard**| 화면 중앙에 기존 크기로 표시      | `toggle-window-standard` 실행    | 일반적인 토글 사용, 포커스 작업    |
+| 모드         | 설명                             | 토글 동작                     | 사용 권장 시나리오               |
+| ------------ | -------------------------------- | ----------------------------- | -------------------------------- |
+| **Normal**   | 토글 기능 완전 비활성화          | 없음                          | 전통적인 데스크탑 앱 사용 선호   |
+| **Sidebar**  | 고정 너비로 화면 가장자리에 배치 | `toggle-window-sidebar` 실행  | 빠른 메모, Raycast/Alfred 스타일 |
+| **Standard** | 화면 중앙에 기존 크기로 표시     | `toggle-window-standard` 실행 | 일반적인 토글 사용, 포커스 작업  |
 
 #### 윈도우 모드별 특징
 
 **Normal Mode (일반 모드):**
+
 - 토글 단축키 없음 (깔끔한 인터페이스)
 - 전통적인 윈도우 관리 방식
 - 다른 앱들과 동일한 사용 경험
 
 **Sidebar Mode (사이드바 모드):**
+
 - 고정 너비 (기본 400px, 사용자 설정 가능)
 - 좌측/우측 위치 선택 가능
 - 화면 전체 높이 사용
 - 빠른 접근을 위한 최적화
 
 **Standard Mode (표준 모드):**
+
 - 기존 윈도우 크기/위치 유지
 - 화면 중앙 배치
 - 크로스 데스크탑 지원 포함
@@ -329,15 +328,15 @@ export async function showWindow(window: BrowserWindow): Promise<void>
 
 // 사이드바 모드로 윈도우 표시 (새로운 기능)
 export function showWindowAsSidebar(
-  window: BrowserWindow, 
-  position: 'left' | 'right' = 'right', 
+  window: BrowserWindow,
+  position: 'left' | 'right' = 'right',
   width: number = 400
 ): void
 
 // 사이드바 위치에 따른 윈도우 경계 계산 (새로운 기능)
 export function getSidebarBounds(
-  display: Electron.Display, 
-  position: 'left' | 'right', 
+  display: Electron.Display,
+  position: 'left' | 'right',
   width: number
 ): Electron.Rectangle
 ```
@@ -356,8 +355,8 @@ export function getSidebarBounds(
 
 ```typescript
 // 사이드바 모드 사용 예시
-showWindowAsSidebar(window, 'right', 400)  // 우측에 400px 너비로 배치
-showWindowAsSidebar(window, 'left', 300)   // 좌측에 300px 너비로 배치
+showWindowAsSidebar(window, 'right', 400) // 우측에 400px 너비로 배치
+showWindowAsSidebar(window, 'left', 300) // 좌측에 300px 너비로 배치
 
 // 사이드바 경계 계산 예시
 const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())

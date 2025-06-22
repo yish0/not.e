@@ -57,14 +57,14 @@ export interface ElectronAPI {
   // App Information APIs
   getAppVersion: () => Promise<string>
   getPlatform: () => Promise<NodeJS.Platform>
-  
+
   // 새로운 윈도우 모드 API
   getWindowMode: () => Promise<'normal' | 'toggle'>
   setWindowMode: (mode: 'normal' | 'toggle') => Promise<void>
   getToggleSettings: () => Promise<ToggleSettings>
   setToggleSettings: (settings: ToggleSettings) => Promise<void>
   getAppConfig: () => Promise<AppConfig>
-  
+
   // 레거시 API (하위 호환성)
   getCrossDesktopToggleEnabled: () => Promise<boolean>
   setCrossDesktopToggleEnabled: (enabled: boolean) => Promise<void>
@@ -233,7 +233,7 @@ await window.electronAPI.setCrossDesktopToggleEnabled(true)
 
 ### SvelteKit 컴포넌트에서 사용
 
-```typescript
+````typescript
 <!-- WindowModeSettings.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte'
@@ -307,7 +307,7 @@ await window.electronAPI.setCrossDesktopToggleEnabled(true)
   {#if windowMode === 'toggle'}
     <div class="toggle-settings-section">
       <h3>Toggle Settings</h3>
-      
+
       <div class="toggle-type">
         <label>
           <input
@@ -341,7 +341,7 @@ await window.electronAPI.setCrossDesktopToggleEnabled(true)
               <option value="right">Right</option>
             </select>
           </label>
-          
+
           <label>
             Width: {toggleSettings.sidebarWidth}px
             <input
@@ -413,7 +413,7 @@ function SettingsPanel() {
     </div>
   )
 }
-```
+````
 
 ## 보안 고려사항
 

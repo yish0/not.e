@@ -209,11 +209,11 @@ console.log(DEFAULT_LOCAL_SHORTCUTS)
 
 세 가지 윈도우 모드와 동적 단축키 생성을 제공합니다:
 
-| 윈도우 모드  | 토글 타입     | 액션                        | 단축키 동작                   | 사용 시나리오                    |
-| ------------ | ------------- | --------------------------- | ----------------------------- | -------------------------------- |
-| **Normal**   | 없음          | 없음                        | 토글 단축키 비활성화          | 전통적인 데스크탑 앱 사용        |
-| **Toggle**   | **Sidebar**   | `toggle-window-sidebar`     | 사이드바 모드 토글            | 빠른 메모, Raycast/Alfred 스타일 |
-| **Toggle**   | **Standard**  | `toggle-window-standard`    | 표준 윈도우 토글              | 일반적인 토글 사용               |
+| 윈도우 모드 | 토글 타입    | 액션                     | 단축키 동작          | 사용 시나리오                    |
+| ----------- | ------------ | ------------------------ | -------------------- | -------------------------------- |
+| **Normal**  | 없음         | 없음                     | 토글 단축키 비활성화 | 전통적인 데스크탑 앱 사용        |
+| **Toggle**  | **Sidebar**  | `toggle-window-sidebar`  | 사이드바 모드 토글   | 빠른 메모, Raycast/Alfred 스타일 |
+| **Toggle**  | **Standard** | `toggle-window-standard` | 표준 윈도우 토글     | 일반적인 토글 사용               |
 
 ```typescript
 // 새로운 동적 단축키 시스템
@@ -222,7 +222,7 @@ import { getWindowMode, getToggleSettings } from '../actions/global/toggle-mode-
 
 // 현재 설정에 맞는 단축키 생성
 const windowMode = await getWindowMode()
-const toggleSettings = await getToggleSettings() 
+const toggleSettings = await getToggleSettings()
 const shortcuts = generateGlobalShortcuts(windowMode, toggleSettings)
 
 // 설정 변경 시 단축키 재등록

@@ -36,13 +36,13 @@ export function generateGlobalShortcuts(
 
   // 토글 모드에서는 토글 설정에 따라 적절한 액션 할당
   if (windowMode === 'toggle' && toggleSettings) {
-    const toggleAction = toggleSettings.toggleType === 'sidebar'
-      ? 'toggle-window-sidebar'
-      : 'toggle-window-standard'
-    
-    const toggleDescription = toggleSettings.toggleType === 'sidebar'
-      ? 'Show/hide window as sidebar'
-      : 'Show/hide window (standard behavior)'
+    const toggleAction =
+      toggleSettings.toggleType === 'sidebar' ? 'toggle-window-sidebar' : 'toggle-window-standard'
+
+    const toggleDescription =
+      toggleSettings.toggleType === 'sidebar'
+        ? 'Show/hide window as sidebar'
+        : 'Show/hide window (standard behavior)'
 
     baseShortcuts.push({
       key: 'CmdOrCtrl+Shift+T',

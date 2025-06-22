@@ -77,7 +77,7 @@ describe('Window Utils', () => {
   describe('showWindow', () => {
     test('should restore minimized window', async () => {
       mockWindow.isMinimized.mockReturnValue(true)
-      
+
       await showWindow(mockWindow)
 
       expect(mockWindow.restore).toHaveBeenCalled()
@@ -91,11 +91,10 @@ describe('Window Utils', () => {
       await showWindow(mockWindow)
 
       expect(mockWindow.setPosition).toHaveBeenCalled()
-      
+
       // Restore original platform
       Object.defineProperty(process, 'platform', { value: originalPlatform })
     })
-
   })
 
   describe('showWindowAsSidebar', () => {

@@ -223,10 +223,12 @@ sequenceDiagram
 **Available Channels:**
 
 **기본 정보:**
+
 - `get-app-version` (PUBLIC): 앱 버전 정보 조회
 - `get-platform` (PUBLIC): 플랫폼 정보 조회
 
 **새로운 윈도우 모드 API:**
+
 - `get-window-mode` (ROOT): 현재 윈도우 모드 조회 ('normal' | 'toggle')
 - `set-window-mode` (ROOT): 윈도우 모드 설정 변경
 - `get-toggle-settings` (ROOT): 토글 설정 조회 (사이드바 위치, 너비 등)
@@ -234,6 +236,7 @@ sequenceDiagram
 - `get-app-config` (ROOT): 전체 앱 설정 조회
 
 **레거시 API (하위 호환성):**
+
 - `get-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 상태 확인
 - `set-cross-desktop-toggle-enabled` (ROOT): 크로스 데스크탑 토글 모드 설정 변경
 
@@ -257,7 +260,7 @@ export function createAppHandlers(): IPCHandler[] {
         description: 'Get platform information'
       }
     },
-    
+
     // 새로운 윈도우 모드 API
     {
       channel: 'get-window-mode',
@@ -311,7 +314,7 @@ export function createAppHandlers(): IPCHandler[] {
         description: 'Get complete app configuration'
       }
     },
-    
+
     // 레거시 API (하위 호환성)
     {
       channel: 'get-cross-desktop-toggle-enabled',
