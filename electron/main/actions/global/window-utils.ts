@@ -1,47 +1,4 @@
 import { BrowserWindow, screen } from 'electron'
-import { FileAppConfigRepository } from '../../vault/repositories/app-config-repository'
-
-let configRepository: FileAppConfigRepository | null = null
-
-/**
- * 크로스 데스크탑 토글 모드가 활성화되어 있는지 확인합니다
- */
-async function isCrossDesktopToggleEnabled(): Promise<boolean> {
-  try {
-    if (!configRepository) {
-      configRepository = new FileAppConfigRepository()
-    }
-    const config = await configRepository.load()
-    return config.enableCrossDesktopToggle ?? false
-  } catch (error) {
-    console.warn('Failed to load config for toggle mode:', error)
-    return false
-  }
-}
-
-/**
- * 크로스 데스크탑 토글 모드를 설정합니다
- */
-export async function setCrossDesktopToggleEnabled(enabled: boolean): Promise<void> {
-  try {
-    if (!configRepository) {
-      configRepository = new FileAppConfigRepository()
-    }
-    const config = await configRepository.load()
-    config.enableCrossDesktopToggle = enabled
-    await configRepository.save(config)
-  } catch (error) {
-    console.error('Failed to save toggle mode setting:', error)
-    throw error
-  }
-}
-
-/**
- * 현재 크로스 데스크탑 토글 모드 상태를 반환합니다
- */
-export async function getCrossDesktopToggleEnabled(): Promise<boolean> {
-  return isCrossDesktopToggleEnabled()
-}
 
 /**
  * 유효한 타겟 윈도우를 찾습니다
@@ -98,16 +55,14 @@ export function centerWindowOnCurrentDisplay(window: BrowserWindow): void {
 
 
 /**
- * 윈도우를 표시하고 포커스합니다 (필요시 복원 및 위치 조정)
- * 크로스 데스크탑 토글이 활성화된 경우 현재 활성화된 데스크탑에서 윈도우를 표시합니다
+ * 윈도우를 표시하고 포커스합니다 (크로스 데스크탑 모드)
+ * 현재 커서가 있는 디스플레이의 현재 데스크탑에서 윈도우를 표시합니다
  */
 export async function showWindow(window: BrowserWindow): Promise<void> {
   if (window.isMinimized()) window.restore()
   
-  const isCrossDesktopEnabled = await isCrossDesktopToggleEnabled()
-  
-  if (process.platform === 'darwin' && isCrossDesktopEnabled) {
-    // 크로스 데스크탑 모드: 커서 위치 기반으로 현재 디스플레이를 찾고 윈도우를 그 위치로 이동
+  if (process.platform === 'darwin') {
+    // 커서 위치 기반으로 현재 디스플레이를 찾고 윈도우를 그 위치로 이동
     const { x, y } = screen.getCursorScreenPoint()
     const currentDisplay = screen.getDisplayNearestPoint({ x, y })
     
@@ -127,42 +82,10 @@ export async function showWindow(window: BrowserWindow): Promise<void> {
       window.focus()
     }, 100)
   } else {
-    // 기본 모드: 일반적인 윈도우 표시
+    // macOS가 아닌 경우 기본 동작
     centerWindowOnCurrentDisplay(window)
     window.show()
     window.focus()
   }
 }
 
-/**
- * 윈도우를 현재 데스크탑에서 완전히 숨깁니다 (데스크탑 고정 해제)
- * 크로스 데스크탑 토글이 활성화된 경우에만 특별한 숨김 동작을 수행합니다
- */
-async function hideFromCurrentDesktop(window: BrowserWindow): Promise<void> {
-  const isCrossDesktopEnabled = await isCrossDesktopToggleEnabled()
-  
-  if (process.platform === 'darwin' && isCrossDesktopEnabled) {
-    try {
-      // 크로스 데스크탑 모드: 모든 워크스페이스에서 보이게 한 후 숨기면 데스크탑 고정이 해제됨
-      window.setVisibleOnAllWorkspaces(true)
-      window.hide()
-    } catch (error) {
-      console.warn('Failed to hide from current desktop:', error)
-      window.hide()
-    }
-  } else {
-    // 기본 모드: 일반적인 숨김
-    window.hide()
-  }
-}
-
-/**
- * 윈도우의 가시성을 토글합니다
- */
-export async function toggleWindowVisibility(window: BrowserWindow): Promise<void> {
-  if (window.isVisible() && window.isFocused()) {
-    await hideFromCurrentDesktop(window)
-  } else {
-    await showWindow(window)
-  }
-}
