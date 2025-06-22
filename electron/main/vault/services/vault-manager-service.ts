@@ -5,7 +5,7 @@ import type {
   VaultConfig,
   VaultInitResult,
   AppConfig
-} from '../types/'
+} from '../types/vault-types'
 
 export class DefaultVaultManagerService implements VaultManagerService {
   private appConfig: AppConfig

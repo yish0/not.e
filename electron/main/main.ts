@@ -1,4 +1,4 @@
-import { getAppLifecycleManager } from './core'
+import { getAppLifecycleManager } from './core/lifecycle/app-lifecycle'
 
 async function main(): Promise<void> {
   const appLifecycle = getAppLifecycleManager()

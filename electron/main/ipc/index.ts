@@ -1,6 +1,11 @@
-import { DefaultIPCManager } from './core'
+import { DefaultIPCManager } from './core/ipc-manager'
 import type { IPCManager, IPCContext } from './types'
-import { getAllIPCHandlers } from './handlers'
+import { createAppHandlers } from './handlers/app-handlers'
+import { createVaultHandlers } from './handlers/vault-handlers'
+
+function getAllIPCHandlers(context: IPCContext) {
+  return [...createAppHandlers(), ...createVaultHandlers(context)]
+}
 
 // Singleton instance
 let ipcManagerInstance: IPCManager | null = null
@@ -30,4 +35,4 @@ export function resetIPCManager(): void {
 export type { IPCHandler, IPCManager, IPCContext } from './types'
 
 // Re-exports
-export { DefaultIPCManager } from './core'
+export { DefaultIPCManager } from './core/ipc-manager'

@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron'
-import type { IPCPermission } from './permissions'
+import type { IPCPermission } from './permissions/permission-types'
 
 export interface IPCHandler {
   channel: string

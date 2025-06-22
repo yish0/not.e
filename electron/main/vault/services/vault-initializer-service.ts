@@ -5,7 +5,7 @@ import type {
   VaultInitResult,
   VaultValidationResult,
   VaultConfig
-} from '../types/'
+} from '../types/vault-types'
 
 export class DefaultVaultInitializerService implements VaultInitializerService {
   constructor(private vaultRepository: VaultRepository) {}

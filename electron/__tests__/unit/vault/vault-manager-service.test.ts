@@ -18,7 +18,7 @@ import type {
   AppConfig,
   VaultConfig,
   VaultInitResult
-} from '../../../main/vault/types'
+} from '../../../main/vault/types/vault-types'
 
 describe('DefaultVaultManagerService', () => {
   let service: DefaultVaultManagerService

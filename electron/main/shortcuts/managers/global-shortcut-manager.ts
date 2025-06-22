@@ -1,5 +1,5 @@
 import { globalShortcut } from 'electron'
-import type { GlobalShortcutManager, ActionExecutor } from '../types'
+import type { GlobalShortcutManager, ActionExecutor } from '../types/shortcut-types'
 
 export class ElectronGlobalShortcutManager implements GlobalShortcutManager {
   private registeredShortcuts: Map<string, string> = new Map() // key -> action

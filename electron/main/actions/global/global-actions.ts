@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
-import type { ShortcutAction } from '../../shortcuts/types'
-import { ShortcutCategory } from '../../shortcuts/types'
+import type { ShortcutAction } from '../../shortcuts/types/shortcut-types'
+import { ShortcutCategory } from '../../shortcuts/types/shortcut-types'
 import { findTargetWindow, toggleWindowVisibility } from './window-utils'
 
 export function createGlobalActions(): ShortcutAction[] {

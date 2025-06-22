@@ -1,9 +1,9 @@
 // 단축키 시스템의 공개 API
-export { ShortcutManager } from './managers'
-export { ShortcutConfigManager } from './config'
-export { DefaultActionExecutor } from './actions'
-export { ElectronGlobalShortcutManager } from './managers'
-export { ElectronLocalShortcutManager } from './managers'
+export { ShortcutManager } from './managers/shortcut-manager'
+export { ShortcutConfigManager } from './config/config-manager'
+export { DefaultActionExecutor } from './actions/action-executor'
+export { ElectronGlobalShortcutManager } from './managers/global-shortcut-manager'
+export { ElectronLocalShortcutManager } from './managers/local-shortcut-manager'
 
 export type {
   ShortcutConfig,
@@ -11,12 +11,12 @@ export type {
   GlobalShortcutManager,
   LocalShortcutManager,
   ActionExecutor
-} from './types'
+} from './types/shortcut-types'
 
-export type { ShortcutConfigData } from './config'
+export type { ShortcutConfigData } from './config/config-manager'
 
 // 편의 함수들
-import { ShortcutManager } from './managers'
+import { ShortcutManager } from './managers/shortcut-manager'
 
 // 싱글톤 인스턴스
 let shortcutManagerInstance: ShortcutManager | null = null

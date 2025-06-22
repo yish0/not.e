@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { getShortcutManager } from '../../shortcuts'
-import { getAllDefaultActions } from '../../actions'
+import { getAllDefaultActions } from '../../actions/index'
 import { getVaultManager } from '../../vault'
 import { setupIPCHandlers } from '../../ipc'
 

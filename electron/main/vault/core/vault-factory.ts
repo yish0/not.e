@@ -1,4 +1,4 @@
-import type { VaultManagerService, VaultDialogService } from '../types'
+import type { VaultManagerService, VaultDialogService } from '../types/vault-types'
 import { FileAppConfigRepository } from '../repositories/app-config-repository'
 import { FileVaultRepository } from '../repositories/vault-repository'
 import { ElectronVaultDialogService } from '../services/vault-dialog-service'

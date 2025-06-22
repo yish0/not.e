@@ -15,7 +15,7 @@ jest.mock('electron', () => ({
 
 import { BrowserWindow } from 'electron'
 import { getAllDefaultActions, getActionsByCategory } from '../../../main/actions'
-import { ShortcutCategory } from '../../../main/shortcuts/types'
+import { ShortcutCategory } from '../../../main/shortcuts/types/shortcut-types'
 
 describe('Actions Module', () => {
   let mockWindow: jest.Mocked<BrowserWindow>

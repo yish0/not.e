@@ -1,5 +1,5 @@
-import type { ShortcutConfig } from '../types'
-import { ShortcutCategory } from '../types'
+import type { ShortcutConfig } from '../types/shortcut-types'
+import { ShortcutCategory } from '../types/shortcut-types'
 
 export const DEFAULT_GLOBAL_SHORTCUTS: ShortcutConfig[] = [
   {

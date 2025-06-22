@@ -3,7 +3,7 @@ import type {
   VaultMetadata,
   WorkspaceConfig,
   ChannelConfig
-} from '../../main/vault/types'
+} from '../../main/vault/types/vault-types'
 
 export const mockVaultConfig: VaultConfig = {
   path: '/tmp/test-vault',

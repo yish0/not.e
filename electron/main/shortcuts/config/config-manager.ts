@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
-import type { ShortcutConfig } from '../types'
+import type { ShortcutConfig } from '../types/shortcut-types'
 import { DEFAULT_GLOBAL_SHORTCUTS, DEFAULT_LOCAL_SHORTCUTS } from './default-shortcuts'
 
 export interface ShortcutConfigData {

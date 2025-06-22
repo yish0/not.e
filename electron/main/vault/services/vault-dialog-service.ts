@@ -1,5 +1,5 @@
 import { dialog, BrowserWindow, type OpenDialogOptions } from 'electron'
-import type { VaultDialogService } from '../types/'
+import type { VaultDialogService } from '../types/vault-types'
 
 export class ElectronVaultDialogService implements VaultDialogService {
   async showSelectionDialog(window?: BrowserWindow): Promise<string | null> {

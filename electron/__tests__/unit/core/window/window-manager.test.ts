@@ -25,7 +25,7 @@ jest.mock('../../../../config', () => ({
 }))
 
 import { BrowserWindow } from 'electron'
-import { DefaultWindowManager, getWindowManager, resetWindowManager } from '../../../../main/core/window'
+import { DefaultWindowManager, getWindowManager, resetWindowManager } from '../../../../main/core/window/window-manager'
 
 const MockBrowserWindow = BrowserWindow as jest.MockedClass<typeof BrowserWindow>
 

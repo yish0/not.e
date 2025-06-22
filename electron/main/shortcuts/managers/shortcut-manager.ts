@@ -6,11 +6,11 @@ import {
   type ActionExecutor,
   type ShortcutActionHandler,
   ShortcutCategory
-} from '../types'
+} from '../types/shortcut-types'
 import { ElectronGlobalShortcutManager } from './global-shortcut-manager'
 import { ElectronLocalShortcutManager } from './local-shortcut-manager'
-import { DefaultActionExecutor } from '../actions'
-import { ShortcutConfigManager } from '../config'
+import { DefaultActionExecutor } from '../actions/action-executor'
+import { ShortcutConfigManager } from '../config/config-manager'
 
 export class ShortcutManager {
   private globalManager: GlobalShortcutManager

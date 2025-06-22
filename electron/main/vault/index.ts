@@ -1,9 +1,9 @@
-import { VaultManager } from './managers'
-import { VaultFactory } from './core'
+import { VaultManager } from './managers/vault-manager'
+import { VaultFactory } from './core/vault-factory'
 
 // Public API exports
-export { VaultManager } from './managers'
-export { VaultFactory } from './core'
+export { VaultManager } from './managers/vault-manager'
+export { VaultFactory } from './core/vault-factory'
 
 // Type exports
 export type {
@@ -12,7 +12,7 @@ export type {
   AppConfig,
   VaultInitResult,
   VaultValidationResult
-} from './types'
+} from './types/vault-types'
 
 // Singleton instance
 let vaultManagerInstance: VaultManager | null = null

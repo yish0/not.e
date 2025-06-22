@@ -33,8 +33,8 @@ import { ElectronGlobalShortcutManager } from '../../../main/shortcuts/managers/
 import { ElectronLocalShortcutManager } from '../../../main/shortcuts/managers/local-shortcut-manager'
 import { DefaultActionExecutor } from '../../../main/shortcuts/actions/action-executor'
 import { ShortcutConfigManager } from '../../../main/shortcuts/config/config-manager'
-import type { ShortcutConfig, ShortcutActionHandler } from '../../../main/shortcuts/types'
-import { ShortcutCategory } from '../../../main/shortcuts/types'
+import type { ShortcutConfig, ShortcutActionHandler } from '../../../main/shortcuts/types/shortcut-types'
+import { ShortcutCategory } from '../../../main/shortcuts/types/shortcut-types'
 
 // Mock 클래스들
 const MockElectronGlobalShortcutManager = ElectronGlobalShortcutManager as jest.MockedClass<
