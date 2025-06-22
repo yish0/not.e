@@ -2,12 +2,14 @@ import { promises as fs } from 'fs'
 import { join } from 'path'
 import { app } from 'electron'
 import type { AppConfig, AppConfigRepository } from '../types/vault-types'
+import { isDev } from '../../../config'
 
 export class FileAppConfigRepository implements AppConfigRepository {
   private configPath: string
 
   constructor() {
-    this.configPath = join(app.getPath('userData'), 'app-config.json')
+    const configFileName = isDev ? 'app-config.dev.json' : 'app-config.json'
+    this.configPath = join(app.getPath('userData'), configFileName)
   }
 
   getPath(): string {
