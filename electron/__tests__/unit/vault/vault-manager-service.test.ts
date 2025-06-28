@@ -45,15 +45,23 @@ describe('DefaultVaultManagerService', () => {
       ],
       showVaultSelector: true,
       currentVault: '/test/vault1',
-      lastUsedVault: '/test/vault1'
+      lastUsedVault: '/test/vault1',
+      windowMode: 'normal',
+      toggleSettings: {
+        toggleType: 'standard',
+        sidebarPosition: 'right',
+        sidebarWidth: 400
+      }
     }
 
     // Mock repositories and services
     mockConfigRepository = {
-      load: jest.fn().mockResolvedValue(mockAppConfig),
-      save: jest.fn().mockResolvedValue(undefined),
-      getPath: jest.fn().mockReturnValue('/test/config/path')
-    }
+      load: jest.fn(() => Promise.resolve(mockAppConfig)),
+      save: jest.fn(() => Promise.resolve()),
+      getPath: jest.fn(() => '/test/config/path'),
+      setCurrentVaultPath: jest.fn(),
+      migrateFromLegacyConfig: jest.fn(() => Promise.resolve())
+    } as jest.Mocked<AppConfigRepository>
 
     mockInitializerService = {
       initialize: jest.fn(),
