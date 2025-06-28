@@ -338,9 +338,14 @@ app.whenReady().then(async () => {
 ### 설정 파일 위치
 
 ```typescript
-// 앱 데이터 디렉토리 (Vault 선택 관련 설정)
+// Vault 선택 관련 설정 (환경별)
+// 프로덕션: userData 디렉토리
 const userDataPath = app.getPath('userData')
 const vaultSelectionConfig = join(userDataPath, 'vault-selection.json')
+
+// 개발: 프로젝트 루트 .dev-config 디렉토리
+const projectRoot = join(__dirname, '../..')
+const devVaultSelectionConfig = join(projectRoot, '.dev-config', 'vault-selection.json')
 
 // Vault별 앱 설정 (.not.e 디렉토리)
 const vaultAppConfig = join(vaultPath, '.not.e', 'app-config.json')      // 프로덕션

@@ -87,54 +87,70 @@ export class FileAppConfigRepository implements AppConfigRepository {
     const { isDev } = await import('../../../config')
 
     const legacyConfigFileName = isDev ? 'app-config.dev.json' : 'app-config.json'
-    const legacyConfigPath = join(app.getPath('userData'), legacyConfigFileName)
+    
+    // 개발 모드에서는 .dev-config 디렉토리에서도 확인
+    const legacyPaths = [
+      join(app.getPath('userData'), legacyConfigFileName)
+    ]
+    
+    if (isDev) {
+      const projectRoot = join(__dirname, '../../../../..')
+      const devConfigDir = join(projectRoot, '.dev-config')
+      legacyPaths.push(join(devConfigDir, legacyConfigFileName))
+    }
 
-    try {
-      // Check if legacy config exists
-      const legacyData = await fs.readFile(legacyConfigPath, 'utf-8')
-      const legacyConfig = JSON.parse(legacyData) as AppConfig
+    // Try to find and migrate from any legacy config location
+    for (const legacyConfigPath of legacyPaths) {
+      try {
+        // Check if legacy config exists
+        const legacyData = await fs.readFile(legacyConfigPath, 'utf-8')
+        const legacyConfig = JSON.parse(legacyData) as AppConfig
 
-      console.log('Found legacy config, migrating to new structure...')
+        console.log(`Found legacy config at ${legacyConfigPath}, migrating to new structure...`)
 
-      // Split into vault selection and app settings
-      const vaultSelectionConfig = {
-        currentVault: legacyConfig.currentVault,
-        recentVaults: legacyConfig.recentVaults,
-        showVaultSelector: legacyConfig.showVaultSelector,
-        lastUsedVault: legacyConfig.lastUsedVault
-      }
+        // Split into vault selection and app settings
+        const vaultSelectionConfig = {
+          currentVault: legacyConfig.currentVault,
+          recentVaults: legacyConfig.recentVaults,
+          showVaultSelector: legacyConfig.showVaultSelector,
+          lastUsedVault: legacyConfig.lastUsedVault
+        }
 
-      const appSettings = {
-        windowMode: legacyConfig.windowMode || 'normal',
-        toggleSettings: legacyConfig.toggleSettings || {
-          toggleType: 'standard' as const,
-          sidebarPosition: 'right' as const,
-          sidebarWidth: 400
-        },
-        enableCrossDesktopToggle: legacyConfig.enableCrossDesktopToggle
-      }
+        const appSettings = {
+          windowMode: legacyConfig.windowMode || 'normal',
+          toggleSettings: legacyConfig.toggleSettings || {
+            toggleType: 'standard' as const,
+            sidebarPosition: 'right' as const,
+            sidebarWidth: 400
+          },
+          enableCrossDesktopToggle: legacyConfig.enableCrossDesktopToggle
+        }
 
-      // Save vault selection config
-      await this.vaultSelectionRepo.save(vaultSelectionConfig)
+        // Save vault selection config
+        await this.vaultSelectionRepo.save(vaultSelectionConfig)
 
-      // Save app settings if current vault exists
-      if (legacyConfig.currentVault) {
-        await this.appSettingsRepo.save(legacyConfig.currentVault, appSettings)
-        console.log(`Migrated app settings to vault: ${legacyConfig.currentVault}`)
-      }
+        // Save app settings if current vault exists
+        if (legacyConfig.currentVault) {
+          await this.appSettingsRepo.save(legacyConfig.currentVault, appSettings)
+          console.log(`Migrated app settings to vault: ${legacyConfig.currentVault}`)
+        }
 
-      // Backup and remove legacy config
-      const backupPath = legacyConfigPath + '.backup'
-      await fs.rename(legacyConfigPath, backupPath)
-      console.log(`Legacy config backed up to: ${backupPath}`)
-      console.log('Migration completed successfully')
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        console.log('No legacy config found, skipping migration')
-      } else {
-        console.error('Failed to migrate legacy config:', error)
-        throw error
+        // Backup and remove legacy config
+        const backupPath = legacyConfigPath + '.backup'
+        await fs.rename(legacyConfigPath, backupPath)
+        console.log(`Legacy config backed up to: ${backupPath}`)
+        console.log('Migration completed successfully')
+        return // Exit after first successful migration
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          continue // Try next path
+        } else {
+          console.error(`Failed to migrate legacy config from ${legacyConfigPath}:`, error)
+          throw error
+        }
       }
     }
+    
+    console.log('No legacy config found in any location, skipping migration')
   }
 }

@@ -12,8 +12,13 @@ The repository layer is split into three main areas:
 
 ```mermaid
 graph TB
-    subgraph "User Data Directory"
-        VSC[VaultSelectionConfig<br/>vault-selection.json]
+    subgraph "Configuration Storage"
+        subgraph "Production"
+            VSC[VaultSelectionConfig<br/>{userData}/vault-selection.json]
+        end
+        subgraph "Development"
+            VSCD[VaultSelectionConfig<br/>{projectRoot}/.dev-config/vault-selection.json]
+        end
     end
     
     subgraph "Vault Directory"
@@ -37,9 +42,11 @@ graph TB
 
 ### VaultSelectionConfigRepository
 
-Manages vault selection and recent vault history in the global userData directory.
+Manages vault selection and recent vault history in environment-specific locations.
 
-**Storage Location**: `{userData}/vault-selection.json`
+**Storage Location**: 
+- **Production**: `{userData}/vault-selection.json`
+- **Development**: `{projectRoot}/.dev-config/vault-selection.json`
 
 **Responsibilities**:
 - Current vault selection
@@ -130,12 +137,21 @@ await backupAndRemoveLegacy()
 
 ### Development vs Production
 
-The system uses different configuration files for development and production:
+The system uses different configuration locations and files for development and production:
 
-- **Development**: Uses `app-config.dev.json` when `NODE_ENV === 'development'` or undefined
-- **Production**: Uses `app-config.json` in production builds
+**Vault Selection Configuration**:
+- **Development**: `{projectRoot}/.dev-config/vault-selection.json`
+- **Production**: `{userData}/vault-selection.json`
 
-This allows developers to maintain separate vault configurations and app settings during development without affecting production settings.
+**App Settings (per vault)**:
+- **Development**: `{vaultPath}/.not.e/app-config.dev.json`
+- **Production**: `{vaultPath}/.not.e/app-config.json`
+
+This separation allows developers to:
+- Use different vault configurations during development
+- Maintain separate app settings per vault
+- Avoid conflicts with production configurations
+- Keep development settings in the project directory for easy access
 
 ## Directory Structure Creation
 
