@@ -338,14 +338,16 @@ app.whenReady().then(async () => {
 ### 설정 파일 위치
 
 ```typescript
-// 앱 데이터 디렉토리
+// 앱 데이터 디렉토리 (Vault 선택 관련 설정)
 const userDataPath = app.getPath('userData')
+const vaultSelectionConfig = join(userDataPath, 'vault-selection.json')
 
-// 주요 설정 파일들
-const appConfig = join(userDataPath, 'app-config.json')
-const shortcutsConfig = join(userDataPath, 'shortcuts.json')
+// Vault별 앱 설정 (.not.e 디렉토리)
+const vaultAppConfig = join(vaultPath, '.not.e', 'app-config.json')      // 프로덕션
+const vaultAppConfigDev = join(vaultPath, '.not.e', 'app-config.dev.json') // 개발
+const vaultShortcuts = join(vaultPath, '.not.e', 'shortcuts.json')
 
-// Vault별 설정 (사용자가 선택한 Vault 디렉토리 내)
+// Vault 메타데이터 (.note 디렉토리)
 const vaultMetadata = join(vaultPath, '.note', 'vault.json')
 const workspacesConfig = join(vaultPath, '.note', 'workspaces.json')
 ```

@@ -54,31 +54,74 @@ graph TB
 
 ### 1. Repository Layer (데이터 접근층)
 
-#### FileAppConfigRepository
+#### VaultSelectionConfigRepository
 
-앱 설정 데이터의 영구 저장을 담당합니다.
+Vault 선택 관련 설정의 영구 저장을 담당합니다.
+
+```typescript
+import { FileVaultSelectionConfigRepository } from './repositories/vault-selection-config-repository'
+
+const vaultSelectionRepo = new FileVaultSelectionConfigRepository()
+
+// Vault 선택 설정 로드
+const config = await vaultSelectionRepo.load()
+
+// Vault 선택 설정 저장
+await vaultSelectionRepo.save({
+  currentVault: '/path/to/vault',
+  recentVaults: [...],
+  showVaultSelector: false,
+  lastUsedVault: '/path/to/vault'
+})
+```
+
+**저장 위치**: `{userData}/vault-selection.json`
+
+#### AppSettingsRepository
+
+Vault별 앱 설정의 영구 저장을 담당합니다.
+
+```typescript
+import { FileAppSettingsRepository } from './repositories/app-settings-repository'
+
+const appSettingsRepo = new FileAppSettingsRepository()
+
+// Vault별 앱 설정 로드
+const settings = await appSettingsRepo.load('/path/to/vault')
+
+// Vault별 앱 설정 저장
+await appSettingsRepo.save('/path/to/vault', {
+  windowMode: 'toggle',
+  toggleSettings: {
+    toggleType: 'sidebar',
+    sidebarPosition: 'left',
+    sidebarWidth: 350
+  }
+})
+```
+
+**저장 위치**: 
+- **개발 모드**: `{vaultPath}/.not.e/app-config.dev.json`
+- **프로덕션 모드**: `{vaultPath}/.not.e/app-config.json`
+
+> Vault별로 독립적인 앱 설정을 유지할 수 있으며, 개발 환경에서는 별도의 설정 파일을 사용합니다.
+
+#### FileAppConfigRepository (Legacy 호환성)
+
+기존 인터페이스와의 호환성을 위한 통합 리포지토리입니다.
 
 ```typescript
 import { FileAppConfigRepository } from './repositories/app-config-repository'
 
 const configRepo = new FileAppConfigRepository()
+configRepo.setCurrentVaultPath('/path/to/vault')
 
-// 설정 로드
+// 통합된 설정 로드 (VaultSelection + AppSettings)
 const config = await configRepo.load()
 
-// 설정 저장
-await configRepo.save({
-  currentVault: '/path/to/vault',
-  recentVaults: [...],
-  showVaultSelector: false
-})
+// 설정 저장 (자동으로 분리하여 저장)
+await configRepo.save(config)
 ```
-
-**저장 위치**: 
-- **개발 모드**: `{userData}/app-config.dev.json`
-- **프로덕션 모드**: `{userData}/app-config.json`
-
-> 개발 환경에서는 별도의 설정 파일을 사용하여 개발자가 개발 중 다른 설정(윈도우 모드, 단축키, 볼트 구성 등)을 유지할 수 있습니다.
 
 #### FileVaultRepository
 
@@ -366,7 +409,7 @@ if (result.success && result.isNewVault) {
 
 ## 설정 파일 구조
 
-### App Config (`~/.config/not.e/app-config.json`)
+### Vault Selection Config (`~/.config/not.e/vault-selection.json`)
 
 ```json
 {
@@ -384,6 +427,21 @@ if (result.success && result.isNewVault) {
   "lastUsedVault": "/Users/username/Documents/MyNotes"
 }
 ```
+
+### App Settings (`vault-root/.not.e/app-config.json`)
+
+```json
+{
+  "windowMode": "toggle",
+  "toggleSettings": {
+    "toggleType": "sidebar",
+    "sidebarPosition": "left",
+    "sidebarWidth": 350
+  }
+}
+```
+
+> **개발 환경**: 개발 모드에서는 `app-config.dev.json` 파일이 사용되어 프로덕션 설정과 분리됩니다.
 
 ### Vault Metadata (`vault-root/.note/vault.json`)
 

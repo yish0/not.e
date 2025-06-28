@@ -218,7 +218,7 @@ sequenceDiagram
 
 #### App Handlers (handlers/app-handlers.ts)
 
-애플리케이션 기본 정보 및 윈도우 모드 설정 관련 핸들러들입니다. 새로운 윈도우 모드 시스템을 통한 완전한 제어를 제공합니다.
+애플리케이션 기본 정보 및 윈도우 모드 설정 관련 핸들러들입니다. 새로운 윈도우 모드 시스템을 통한 완전한 제어를 제공하며, Vault별 앱 설정을 관리합니다.
 
 **Available Channels:**
 

@@ -382,7 +382,7 @@ const bounds = getSidebarBounds(display, 'right', 400)
 
 ### 6.2. Toggle Mode Manager (global/toggle-mode-manager.ts)
 
-새로운 윈도우 모드 시스템의 설정을 관리하는 유틸리티입니다. 세 가지 윈도우 모드와 세부 토글 설정을 제공합니다.
+새로운 윈도우 모드 시스템의 설정을 관리하는 유틸리티입니다. Vault별 앱 설정을 통해 윈도우 모드와 토글 설정을 관리합니다.
 
 ```typescript
 // 새로운 윈도우 모드 API
@@ -396,6 +396,10 @@ export async function getAppConfig(): Promise<AppConfig>
 export async function getCrossDesktopToggleEnabled(): Promise<boolean>
 export async function setCrossDesktopToggleEnabled(enabled: boolean): Promise<void>
 ```
+
+**설정 저장 위치**: 
+- Vault별 설정: `{vaultPath}/.not.e/app-config.json` (또는 `app-config.dev.json`)
+- 개발 환경에서는 프로덕션과 분리된 설정 파일 사용
 
 **새로운 타입 정의:**
 
