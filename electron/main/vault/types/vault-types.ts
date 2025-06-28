@@ -23,16 +23,24 @@ export interface ToggleSettings {
   sidebarWidth?: number // pixels, default 400
 }
 
-export interface AppConfig {
+// Vault selection config stored in userData
+export interface VaultSelectionConfig {
   currentVault?: string
   recentVaults: VaultConfig[]
   showVaultSelector: boolean
   lastUsedVault?: string
+}
+
+// App settings stored in vault/.not.e
+export interface AppSettings {
   windowMode: 'normal' | 'toggle'
   toggleSettings?: ToggleSettings
   // Legacy field for migration
   enableCrossDesktopToggle?: boolean
 }
+
+// Combined config interface for backward compatibility
+export interface AppConfig extends VaultSelectionConfig, AppSettings {}
 
 export interface VaultInitResult {
   success: boolean
@@ -50,10 +58,26 @@ export interface VaultValidationResult {
 }
 
 // Repository Interfaces
+export interface VaultSelectionConfigRepository {
+  load(): Promise<VaultSelectionConfig>
+  save(config: VaultSelectionConfig): Promise<void>
+  getPath(): string
+}
+
+export interface AppSettingsRepository {
+  load(vaultPath: string): Promise<AppSettings>
+  save(vaultPath: string, settings: AppSettings): Promise<void>
+  getPath(vaultPath: string): string
+  ensureConfigDirectory(vaultPath: string): Promise<void>
+}
+
+// Legacy interface for backward compatibility
 export interface AppConfigRepository {
   load(): Promise<AppConfig>
   save(config: AppConfig): Promise<void>
   getPath(): string
+  setCurrentVaultPath(vaultPath: string): void
+  migrateFromLegacyConfig(): Promise<void>
 }
 
 export interface VaultRepository {
