@@ -106,6 +106,12 @@ web_modules/
 .env.production.local
 .env.local
 
+# Development configuration
+.dev-config/
+
+# Development vault
+dev-vault/
+
 # parcel-bundler cache (https://parceljs.org/)
 
 .parcel-cache
