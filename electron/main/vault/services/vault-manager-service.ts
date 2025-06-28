@@ -4,38 +4,46 @@ import type {
   VaultInitializerService,
   VaultConfig,
   VaultInitResult,
-  AppConfig
+  VaultSelectionConfig
 } from '../types/vault-types'
+import { FileVaultSelectionConfigRepository } from '../repositories/vault-selection-config-repository'
+import { FileAppSettingsRepository } from '../repositories/app-settings-repository'
 
 export class DefaultVaultManagerService implements VaultManagerService {
-  private appConfig: AppConfig
+  private vaultSelectionConfig: VaultSelectionConfig
+  private vaultSelectionRepo: FileVaultSelectionConfigRepository
+  private appSettingsRepo: FileAppSettingsRepository
 
   constructor(
     private configRepository: AppConfigRepository,
     private initializerService: VaultInitializerService
   ) {
-    this.appConfig = {
+    this.vaultSelectionRepo = new FileVaultSelectionConfigRepository()
+    this.appSettingsRepo = new FileAppSettingsRepository()
+    this.vaultSelectionConfig = {
       recentVaults: [],
-      showVaultSelector: true,
-      windowMode: 'normal',
-      toggleSettings: {
-        toggleType: 'standard',
-        sidebarPosition: 'right',
-        sidebarWidth: 400
-      }
+      showVaultSelector: true
     }
   }
 
   async initialize(): Promise<void> {
-    this.appConfig = await this.configRepository.load()
+    // Try to migrate from legacy config first
+    await this.configRepository.migrateFromLegacyConfig()
+    
+    this.vaultSelectionConfig = await this.vaultSelectionRepo.load()
+    
+    // Update the legacy config repository with current vault path
+    if (this.vaultSelectionConfig.currentVault) {
+      this.configRepository.setCurrentVaultPath(this.vaultSelectionConfig.currentVault)
+    }
   }
 
   async getCurrentVault(): Promise<VaultConfig | null> {
-    if (!this.appConfig.currentVault) {
+    if (!this.vaultSelectionConfig.currentVault) {
       return null
     }
 
-    const vault = this.appConfig.recentVaults.find((v) => v.path === this.appConfig.currentVault)
+    const vault = this.vaultSelectionConfig.recentVaults.find((v) => v.path === this.vaultSelectionConfig.currentVault)
     return vault || null
   }
 
@@ -50,47 +58,54 @@ export class DefaultVaultManagerService implements VaultManagerService {
   }
 
   async getRecentVaults(): Promise<VaultConfig[]> {
-    return [...this.appConfig.recentVaults]
+    return [...this.vaultSelectionConfig.recentVaults]
   }
 
   async removeFromRecent(vaultPath: string): Promise<void> {
-    this.appConfig.recentVaults = this.appConfig.recentVaults.filter((v) => v.path !== vaultPath)
+    this.vaultSelectionConfig.recentVaults = this.vaultSelectionConfig.recentVaults.filter((v) => v.path !== vaultPath)
 
-    if (this.appConfig.currentVault === vaultPath) {
-      this.appConfig.currentVault = undefined
+    if (this.vaultSelectionConfig.currentVault === vaultPath) {
+      this.vaultSelectionConfig.currentVault = undefined
     }
 
-    await this.configRepository.save(this.appConfig)
+    await this.vaultSelectionRepo.save(this.vaultSelectionConfig)
   }
 
   shouldShowSelector(): boolean {
-    return this.appConfig.showVaultSelector || !this.appConfig.currentVault
+    return this.vaultSelectionConfig.showVaultSelector || !this.vaultSelectionConfig.currentVault
   }
 
   async setShowSelector(show: boolean): Promise<void> {
-    this.appConfig.showVaultSelector = show
-    await this.configRepository.save(this.appConfig)
+    this.vaultSelectionConfig.showVaultSelector = show
+    await this.vaultSelectionRepo.save(this.vaultSelectionConfig)
   }
 
   private async updateAppConfigWithVault(vault: VaultConfig): Promise<void> {
     // 최근 Vault 목록 업데이트
-    const existingIndex = this.appConfig.recentVaults.findIndex((v) => v.path === vault.path)
+    const existingIndex = this.vaultSelectionConfig.recentVaults.findIndex((v) => v.path === vault.path)
 
     if (existingIndex >= 0) {
       // 기존 Vault 업데이트
-      this.appConfig.recentVaults[existingIndex] = vault
+      this.vaultSelectionConfig.recentVaults[existingIndex] = vault
     } else {
       // 새 Vault 추가 (최대 10개까지 유지)
-      this.appConfig.recentVaults.unshift(vault)
-      if (this.appConfig.recentVaults.length > 10) {
-        this.appConfig.recentVaults = this.appConfig.recentVaults.slice(0, 10)
+      this.vaultSelectionConfig.recentVaults.unshift(vault)
+      if (this.vaultSelectionConfig.recentVaults.length > 10) {
+        this.vaultSelectionConfig.recentVaults = this.vaultSelectionConfig.recentVaults.slice(0, 10)
       }
     }
 
     // 현재 Vault 설정
-    this.appConfig.currentVault = vault.path
-    this.appConfig.lastUsedVault = vault.path
+    this.vaultSelectionConfig.currentVault = vault.path
+    this.vaultSelectionConfig.lastUsedVault = vault.path
 
-    await this.configRepository.save(this.appConfig)
+    // Save vault selection config
+    await this.vaultSelectionRepo.save(this.vaultSelectionConfig)
+    
+    // Update legacy config repository with new vault path
+    this.configRepository.setCurrentVaultPath(vault.path)
+    
+    // Ensure .not.e directory exists in the vault
+    await this.appSettingsRepo.ensureConfigDirectory(vault.path)
   }
 }
