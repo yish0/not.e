@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Commit Policy**: Always commit work in appropriate logical units after completing tasks, with clear commit messages that explain what was accomplished
 - **Documentation Updates**: After each work session, document newly learned insights or important considerations in this CLAUDE.md file
 - **Context Awareness**: Reference commit logs as context when needed to understand previous work and maintain consistency
+- **Commercial License Compliance**: When adding external libraries, always verify that their licenses allow commercial use (project is intended for potential commercial distribution)
 
 ## Repository Status
 
@@ -35,6 +36,10 @@ For convenience, use the Makefile commands:
 - `make format` - Format code with Prettier
 - `make package` - Package the Electron application
 - `make qa` - Run full quality assurance pipeline (lint + typecheck + test)
+- `make ci` - Run CI pipeline (install + qa + build)
+- `make clean` - Clean build artifacts
+- `make deps-check` - Check for outdated dependencies
+- `make deps-update` - Update dependencies
 - `make help` - Show all available commands
 
 #### Direct npm/bun Commands
@@ -55,6 +60,10 @@ For convenience, use the Makefile commands:
 - `bun run test:coverage` - Run tests with coverage report
 - `bun x jest electron/__tests__/unit/vault/` - Run specific module tests
 - `bun x jest electron/__tests__/unit/vault/vault-repository.test.ts` - Run single test file
+- `make test-shortcuts` - Run shortcut-specific tests
+- `make test-vault` - Run vault-specific tests
+- `make qa` - Run full quality assurance pipeline (lint + typecheck + test)
+- `make ci` - Run CI pipeline (install + qa + build)
 
 ### Architecture Overview
 
@@ -203,6 +212,8 @@ electron/
   - Comprehensive integration scenarios testing end-to-end workflows
 - **Test Execution**: Always run tests after making changes to ensure no regressions
 - **Critical Bug Detection**: Unit tests have caught production bugs (e.g., missing fs.constants import in VaultRepository)
+- **Jest Configuration**: Uses `jest.config.cjs` with ts-jest preset, 10-second timeout, and comprehensive Electron API mocking
+- **Mock Strategy**: Global setup file (`electron/__tests__/setup/global-setup.ts`) provides consistent mocks for app, BrowserWindow, globalShortcut, and other Electron APIs
 
 ### Core System Interactions
 
@@ -275,9 +286,10 @@ electron/
 
 - **ES Module Consistency**: Use ES2022 modules throughout the entire codebase for consistency between SvelteKit and Electron
 - **TypeScript Module Configuration**:
-  - `tsconfig.electron.json` with `"module": "ES2022"` ensures TypeScript compiles to ES module syntax
+  - `tsconfig.electron.json` currently uses `"module": "CommonJS"` but should be updated to `"module": "ES2022"` for consistency
   - `package.json` with `"type": "module"` tells Node.js to interpret .js files as ES modules
   - Both settings must align: TypeScript generates ES modules, Node.js executes them as ES modules
+- **Configuration Conflict**: Currently there's a mismatch between the recommended ES2022 module system and the actual CommonJS configuration in `tsconfig.electron.json` - this should be resolved for consistency
 - **No Explicit Extensions Required**: With ES2022 modules, directory imports work without explicit `.js` extensions (e.g., `import { foo } from './core'`)
 - **Workaround Elimination**: Properly configured ES modules eliminate the need for `dist/package.json` workarounds
 - **Module System Migration Strategy**:
