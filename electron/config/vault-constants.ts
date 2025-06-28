@@ -1,6 +1,6 @@
 /**
  * Centralized Application and Vault Directory and File Constants
- * 
+ *
  * This module provides all directory names and file names used in the application
  * including both global app settings and vault-specific configurations.
  */
@@ -65,7 +65,8 @@ export const VAULT_FILES = {
 /**
  * Type definitions for configuration
  */
-export type GlobalAppDirectoryName = typeof GLOBAL_APP_DIRECTORIES[keyof typeof GLOBAL_APP_DIRECTORIES]
-export type GlobalAppFileName = typeof GLOBAL_APP_FILES[keyof typeof GLOBAL_APP_FILES]
-export type VaultDirectoryName = typeof VAULT_DIRECTORIES[keyof typeof VAULT_DIRECTORIES]
-export type VaultFileName = typeof VAULT_FILES[keyof typeof VAULT_FILES]
+export type GlobalAppDirectoryName =
+  (typeof GLOBAL_APP_DIRECTORIES)[keyof typeof GLOBAL_APP_DIRECTORIES]
+export type GlobalAppFileName = (typeof GLOBAL_APP_FILES)[keyof typeof GLOBAL_APP_FILES]
+export type VaultDirectoryName = (typeof VAULT_DIRECTORIES)[keyof typeof VAULT_DIRECTORIES]
+export type VaultFileName = (typeof VAULT_FILES)[keyof typeof VAULT_FILES]

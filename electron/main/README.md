@@ -348,7 +348,7 @@ const projectRoot = join(__dirname, '../..')
 const devVaultSelectionConfig = join(projectRoot, '.dev-config', 'vault-selection.json')
 
 // Vault별 앱 설정 (.not.e 디렉토리)
-const vaultAppConfig = join(vaultPath, '.not.e', 'app-config.json')      // 프로덕션
+const vaultAppConfig = join(vaultPath, '.not.e', 'app-config.json') // 프로덕션
 const vaultAppConfigDev = join(vaultPath, '.not.e', 'app-config.dev.json') // 개발
 const vaultShortcuts = join(vaultPath, '.not.e', 'shortcuts.json')
 

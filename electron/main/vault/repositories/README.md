@@ -20,20 +20,20 @@ graph TB
             VSCD[VaultSelectionConfig<br/>{projectRoot}/.dev-config/vault-selection.json]
         end
     end
-    
+
     subgraph "Vault Directory"
         subgraph ".not.e (App Settings)"
             AS[AppSettings<br/>app-config.json]
             ASD[AppSettings Dev<br/>app-config.dev.json]
             SC[ShortcutConfig<br/>shortcuts.json]
         end
-        
+
         subgraph ".note (Vault Metadata)"
             VM[VaultMetadata<br/>vault.json]
             WS[WorkspaceConfig<br/>workspaces.json]
         end
     end
-    
+
     VSC --> |References| AS
     AS --> |Environment specific| ASD
 ```
@@ -44,11 +44,13 @@ graph TB
 
 Manages vault selection and recent vault history in environment-specific locations.
 
-**Storage Location**: 
+**Storage Location**:
+
 - **Production**: `{userData}/vault-selection.json`
 - **Development**: `{projectRoot}/.dev-config/vault-selection.json`
 
 **Responsibilities**:
+
 - Current vault selection
 - Recent vaults list (up to 10)
 - Vault selector visibility preference
@@ -67,11 +69,13 @@ interface VaultSelectionConfig {
 
 Manages vault-specific application settings within each vault's `.not.e` directory.
 
-**Storage Location**: 
+**Storage Location**:
+
 - Production: `{vaultPath}/.not.e/app-config.json`
 - Development: `{vaultPath}/.not.e/app-config.dev.json`
 
 **Responsibilities**:
+
 - Window mode configuration
 - Toggle settings (sidebar position, width, type)
 - Legacy setting migration
@@ -85,6 +89,7 @@ interface AppSettings {
 ```
 
 **Key Methods**:
+
 - `ensureConfigDirectory(vaultPath)` - Creates `.not.e` directory if needed
 - Environment-specific file selection based on `isDev` flag
 - Automatic migration of legacy settings
@@ -96,6 +101,7 @@ Provides backward compatibility by combining VaultSelectionConfig and AppSetting
 **Purpose**: Maintains compatibility with existing code while internally delegating to the new split repositories.
 
 **Implementation**:
+
 - Delegates vault selection operations to `VaultSelectionConfigRepository`
 - Delegates app settings operations to `AppSettingsRepository`
 - Provides migration from old userData-based configuration
@@ -107,6 +113,7 @@ Manages vault filesystem operations and metadata.
 **Storage Location**: `{vaultPath}/.note/`
 
 **Responsibilities**:
+
 - Vault structure creation and validation
 - Vault metadata management
 - Path validation and accessibility checks
@@ -140,14 +147,17 @@ await backupAndRemoveLegacy()
 The system uses different configuration locations and files for development and production:
 
 **Vault Selection Configuration**:
+
 - **Development**: `{projectRoot}/.dev-config/vault-selection.json`
 - **Production**: `{userData}/vault-selection.json`
 
 **App Settings (per vault)**:
+
 - **Development**: `{vaultPath}/.not.e/app-config.dev.json`
 - **Production**: `{vaultPath}/.not.e/app-config.json`
 
 This separation allows developers to:
+
 - Use different vault configurations during development
 - Maintain separate app settings per vault
 - Avoid conflicts with production configurations

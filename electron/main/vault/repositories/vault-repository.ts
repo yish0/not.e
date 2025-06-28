@@ -176,7 +176,12 @@ export class FileVaultRepository implements VaultRepository {
 
   private async createWelcomeNote(vaultPath: string, vaultName: string): Promise<void> {
     const welcomeNoteContent = createWelcomeNoteContent(vaultName)
-    const welcomeNotePath = join(vaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL, 'channel-ideas', 'welcome.md')
+    const welcomeNotePath = join(
+      vaultPath,
+      VAULT_DIRECTORIES.WORKSPACES.PERSONAL,
+      'channel-ideas',
+      'welcome.md'
+    )
     await fs.writeFile(welcomeNotePath, welcomeNoteContent, 'utf-8')
   }
 }

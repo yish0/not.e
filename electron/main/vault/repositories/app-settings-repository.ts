@@ -7,7 +7,7 @@ import { VAULT_DIRECTORIES } from '../../../config/vault-constants'
 
 /**
  * Vault-specific App Settings Repository
- * 
+ *
  * Manages vault-specific application settings stored in vault/.not.e/
  * These settings are specific to each vault and can override global settings.
  */
@@ -38,7 +38,7 @@ export class FileAppSettingsRepository implements AppSettingsRepository {
 
   async load(vaultPath: string): Promise<AppSettings> {
     const configPath = this.getConfigPath(vaultPath)
-    
+
     try {
       const data = await fs.readFile(configPath, 'utf-8')
       const rawSettings = JSON.parse(data) as AppSettings

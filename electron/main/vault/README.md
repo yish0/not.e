@@ -100,7 +100,8 @@ await appSettingsRepo.save('/path/to/vault', {
 })
 ```
 
-**저장 위치**: 
+**저장 위치**:
+
 - **개발 모드**: `{vaultPath}/.not.e/app-config.dev.json`
 - **프로덕션 모드**: `{vaultPath}/.not.e/app-config.json`
 
@@ -195,7 +196,16 @@ await managerService.setCurrentVault('/new/path')
 // 최근 Vault 관리
 const recentVaults = await managerService.getRecentVaults()
 await managerService.removeFromRecent('/old/path')
+
+// Vault 선택기 표시 여부 확인
+// 기존 vault가 있으면 false, showVaultSelector가 true이고 currentVault가 null일 때만 true
+const shouldShow = managerService.shouldShowSelector()
 ```
+
+**Vault 선택기 로직**:
+- `shouldShowSelector()` 메서드는 `showVaultSelector`가 `true`이고 `currentVault`가 `null`일 때만 `true`를 반환합니다
+- 이는 기존에 설정된 vault가 있으면 자동으로 사용하고, vault가 없는 경우에만 선택 다이얼로그를 표시합니다
+- 사용자가 명시적으로 vault를 변경하고 싶은 경우 IPC 핸들러를 통해 수동으로 선택 가능합니다
 
 ### 3. Factory Pattern
 
@@ -242,7 +252,7 @@ sequenceDiagram
     participant App as Application
     participant VM as VaultManager
     participant VMS as VaultManagerService
-    participant ACR as AppConfigRepository
+    participant VSCR as VaultSelectionConfigRepository
     participant VDS as VaultDialogService
     participant VIS as VaultInitializerService
     participant VR as VaultRepository
@@ -250,51 +260,62 @@ sequenceDiagram
 
     App->>VM: initialize()
     VM->>VMS: initialize()
-    VMS->>ACR: load()
-    ACR->>FS: Read app-config.json
-    FS-->>ACR: Config data or default
-    ACR-->>VMS: AppConfig
+    VMS->>VSCR: load()
+    VSCR->>FS: Read vault-selection.json
+    FS-->>VSCR: Config data or default
+    VSCR-->>VMS: VaultSelectionConfig
     VMS-->>VM: Initialized
 
-    App->>VM: shouldShowVaultSelector()
-    VM->>VMS: shouldShowSelector()
-    VMS-->>VM: boolean
-    VM-->>App: Should show selector
+    App->>VM: getCurrentVault()
+    VM->>VMS: getCurrentVault()
+    VMS-->>VM: VaultConfig or null
+    VM-->>App: Current vault status
 
-    alt Vault selector needed
-        App->>VM: showVaultSelectionDialog()
-        VM->>VDS: showSelectionDialog()
-        VDS->>FS: Open folder dialog
-        FS-->>VDS: Selected path
-        VDS-->>VM: Vault path
+    alt Current vault exists
+        Note over App,VM: Skip vault selection, use existing vault
+        App-->>App: Continue with existing vault
+    else No current vault or selector needed
+        App->>VM: shouldShowVaultSelector()
+        VM->>VMS: shouldShowSelector()
+        Note over VMS: Returns true only if showVaultSelector=true AND currentVault=null
+        VMS-->>VM: boolean
+        VM-->>App: Should show selector
 
-        VM->>VMS: setCurrentVault(path)
-        VMS->>VIS: initialize(path)
-        VIS->>VR: validatePath(path)
-        VR->>FS: Check permissions & existence
-        FS-->>VR: Validation result
-        VR-->>VIS: ValidationResult
+        alt Vault selector needed
+            App->>VM: showVaultSelectionDialog()
+            VM->>VDS: showSelectionDialog()
+            VDS->>FS: Open folder dialog
+            FS-->>VDS: Selected path
+            VDS-->>VM: Vault path
 
-        alt New vault
-            VIS->>VR: createStructure(path, name)
-            VR->>FS: Create directories & files
-            VR->>FS: Create welcome note
-            FS-->>VR: Success
-            VR-->>VIS: Structure created
-        else Existing vault
-            VIS->>VR: loadMetadata(path)
-            VR->>FS: Read vault.json
-            FS-->>VR: Metadata
-            VR-->>VIS: Existing metadata
+            VM->>VMS: setCurrentVault(path)
+            VMS->>VIS: initialize(path)
+            VIS->>VR: validatePath(path)
+            VR->>FS: Check permissions & existence
+            FS-->>VR: Validation result
+            VR-->>VIS: ValidationResult
+
+            alt New vault
+                VIS->>VR: createStructure(path, name)
+                VR->>FS: Create directories & files
+                VR->>FS: Create welcome note
+                FS-->>VR: Success
+                VR-->>VIS: Structure created
+            else Existing vault
+                VIS->>VR: loadMetadata(path)
+                VR->>FS: Read vault.json
+                FS-->>VR: Metadata
+                VR-->>VIS: Existing metadata
+            end
+
+            VIS-->>VMS: VaultInitResult
+            VMS->>VSCR: save(updatedConfig)
+            VSCR->>FS: Write vault-selection.json
+            FS-->>VSCR: Saved
+            VSCR-->>VMS: Success
+            VMS-->>VM: InitResult
+            VM-->>App: Vault ready
         end
-
-        VIS-->>VMS: VaultInitResult
-        VMS->>ACR: save(updatedConfig)
-        ACR->>FS: Write app-config.json
-        FS-->>ACR: Saved
-        ACR-->>VMS: Success
-        VMS-->>VM: InitResult
-        VM-->>App: Vault ready
     end
 ```
 
@@ -350,8 +371,14 @@ const vaultManager = getVaultManager()
 // 2. 초기화
 await vaultManager.initialize()
 
-// 3. Vault 선택 여부 확인
-if (vaultManager.shouldShowVaultSelector()) {
+// 3. 기존 Vault 확인 및 선택
+const currentVault = await vaultManager.getCurrentVault()
+
+if (currentVault) {
+  // 기존 Vault가 있으면 자동으로 사용 (다이얼로그 스킵)
+  console.log(`Using existing vault: ${currentVault.name} at ${currentVault.path}`)
+} else if (vaultManager.shouldShowVaultSelector()) {
+  // 기존 Vault가 없고 선택기 표시가 필요한 경우에만 다이얼로그 표시
   const result = await vaultManager.showVaultSelectionDialog()
 
   if (result.success) {
@@ -363,6 +390,8 @@ if (vaultManager.shouldShowVaultSelector()) {
   }
 }
 ```
+
+> **Vault 선택 동작 개선**: 앱 시작 시 기존에 설정된 vault가 있으면 자동으로 해당 vault를 사용하여 폴더 선택 단계를 스킵합니다. 이는 사용자 경험을 향상시키고 불필요한 다이얼로그를 방지합니다.
 
 > **개발 환경 설정**: 개발 모드에서는 `app-config.dev.json` 파일이 별도로 관리되어, 개발 중인 볼트 설정이 프로덕션 설정과 분리됩니다. 이를 통해 개발자는 프로덕션에 영향을 주지 않고 다양한 볼트 구성을 테스트할 수 있습니다.
 

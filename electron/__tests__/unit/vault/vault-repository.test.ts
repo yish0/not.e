@@ -135,10 +135,15 @@ describe('FileVaultRepository', () => {
       await repository.createStructure(testVaultPath, 'Test Vault')
 
       // 모든 디렉토리 생성 확인
-      expect(mockFs.mkdir).toHaveBeenCalledWith(VaultPathUtils.getMetadataDir(testVaultPath), { recursive: true })
-      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL), {
+      expect(mockFs.mkdir).toHaveBeenCalledWith(VaultPathUtils.getMetadataDir(testVaultPath), {
         recursive: true
       })
+      expect(mockFs.mkdir).toHaveBeenCalledWith(
+        join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL),
+        {
+          recursive: true
+        }
+      )
       expect(mockFs.mkdir).toHaveBeenCalledWith(
         join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL, 'channel-daily'),
         { recursive: true }
@@ -217,7 +222,9 @@ describe('FileVaultRepository', () => {
 
       await repository.saveMetadata(testVaultPath, mockVaultMetadata)
 
-      expect(mockFs.mkdir).toHaveBeenCalledWith(VaultPathUtils.getMetadataDir(testVaultPath), { recursive: true })
+      expect(mockFs.mkdir).toHaveBeenCalledWith(VaultPathUtils.getMetadataDir(testVaultPath), {
+        recursive: true
+      })
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         VaultPathUtils.getVaultMetadataPath(testVaultPath),
         JSON.stringify(mockVaultMetadata, null, 2),

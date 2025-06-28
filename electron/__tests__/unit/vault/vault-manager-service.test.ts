@@ -314,16 +314,16 @@ describe('DefaultVaultManagerService', () => {
   })
 
   describe('vault selector settings', () => {
-    test('should show selector when configured to show', async () => {
+    test('should show selector when configured to show but has current vault', async () => {
       mockAppConfig.showVaultSelector = true
       mockAppConfig.currentVault = '/test/vault1'
       await service.initialize()
 
-      expect(service.shouldShowSelector()).toBe(true)
+      expect(service.shouldShowSelector()).toBe(false)
     })
 
     test('should show selector when no current vault', async () => {
-      mockAppConfig.showVaultSelector = false
+      mockAppConfig.showVaultSelector = true
       mockAppConfig.currentVault = undefined
       await service.initialize()
 
@@ -333,6 +333,14 @@ describe('DefaultVaultManagerService', () => {
     test('should not show selector when configured to hide and has current vault', async () => {
       mockAppConfig.showVaultSelector = false
       mockAppConfig.currentVault = '/test/vault1'
+      await service.initialize()
+
+      expect(service.shouldShowSelector()).toBe(false)
+    })
+
+    test('should not show selector when configured to hide and no current vault', async () => {
+      mockAppConfig.showVaultSelector = false
+      mockAppConfig.currentVault = undefined
       await service.initialize()
 
       expect(service.shouldShowSelector()).toBe(false)

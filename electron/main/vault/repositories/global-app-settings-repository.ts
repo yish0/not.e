@@ -1,6 +1,6 @@
 /**
  * Global Application Settings Repository
- * 
+ *
  * Manages global application settings stored in ~/.not.e/
  * These settings apply across all vaults and persist globally.
  */
@@ -32,7 +32,7 @@ export class FileGlobalAppSettingsRepository implements GlobalAppSettingsReposit
 
   async load(): Promise<AppSettings> {
     const configPath = this.getPath()
-    
+
     try {
       const data = await fs.readFile(configPath, 'utf-8')
       const rawSettings = JSON.parse(data) as AppSettings

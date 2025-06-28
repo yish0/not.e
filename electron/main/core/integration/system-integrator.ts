@@ -25,7 +25,16 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
       // Vault 시스템 초기화
       await this.vaultManager.initialize()
 
-      // Vault 선택 확인
+      // 현재 설정된 Vault가 있는지 확인
+      const currentVault = await this.vaultManager.getCurrentVault()
+
+      if (currentVault) {
+        // 기존 Vault가 있으면 validation 후 사용
+        console.log(`Using existing vault: ${currentVault.name} at ${currentVault.path}`)
+        return { success: true }
+      }
+
+      // Vault가 없거나 선택기 표시가 필요한 경우에만 다이얼로그 표시
       const shouldShowSelector = this.vaultManager.shouldShowVaultSelector()
       if (shouldShowSelector) {
         const result = await this.vaultManager.showVaultSelectionDialog()

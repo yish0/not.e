@@ -300,10 +300,12 @@ make clean                # 빌드 파일 정리
 프로젝트는 이중 설정 구조를 사용합니다:
 
 **Vault 선택 설정** (전역):
+
 - 개발: `{프로젝트루트}/.dev-config/vault-selection.json`
 - 프로덕션: `{userData}/vault-selection.json`
 
 **앱 설정** (Vault별):
+
 - 개발: `{vault}/.not.e/app-config.dev.json`
 - 프로덕션: `{vault}/.not.e/app-config.json`
 
@@ -373,21 +375,25 @@ electron/main/
 ### 개발 팁
 
 **빠른 개발 워크플로우**:
+
 1. `make dev` 또는 `bun run dev`로 시작
 2. 코드 변경 시 자동 핫리로드
 3. Electron 프로세스는 `electronmon`으로 자동 재시작
 
 **디버깅**:
+
 - **메인 프로세스**: VS Code 디버거 또는 `console.log`
 - **렌더러 프로세스**: 브라우저 개발자 도구 (Cmd+Option+I)
 - **IPC 통신**: 네트워크 탭에서 확인 가능
 
 **테스트 작성**:
+
 - 각 모듈별 단위 테스트 작성
 - Mock 객체는 `__tests__/mocks/` 활용
 - 통합 테스트는 실제 파일 시스템 사용
 
 **커밋 메시지**:
+
 - `feat:` 새로운 기능
 - `fix:` 버그 수정
 - `docs:` 문서 변경
@@ -404,6 +410,7 @@ electron/main/
 4. **빌드 실패**: `make clean && make build`로 클린 빌드
 
 **성능 최적화**:
+
 - 개발 중에는 `bun run dev:electron-only` 사용
 - 타입체크는 IDE에서 실시간으로, 빌드 시에만 전체 검사
 - 테스트는 워치 모드로 변경된 부분만 실행

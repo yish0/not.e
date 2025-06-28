@@ -29,9 +29,9 @@ export class DefaultVaultManagerService implements VaultManagerService {
   async initialize(): Promise<void> {
     // Try to migrate from legacy config first
     await this.configRepository.migrateFromLegacyConfig()
-    
+
     this.vaultSelectionConfig = await this.vaultSelectionRepo.load()
-    
+
     // Update the legacy config repository with current vault path
     if (this.vaultSelectionConfig.currentVault) {
       this.configRepository.setCurrentVaultPath(this.vaultSelectionConfig.currentVault)
@@ -43,7 +43,9 @@ export class DefaultVaultManagerService implements VaultManagerService {
       return null
     }
 
-    const vault = this.vaultSelectionConfig.recentVaults.find((v) => v.path === this.vaultSelectionConfig.currentVault)
+    const vault = this.vaultSelectionConfig.recentVaults.find(
+      (v) => v.path === this.vaultSelectionConfig.currentVault
+    )
     return vault || null
   }
 
@@ -62,7 +64,9 @@ export class DefaultVaultManagerService implements VaultManagerService {
   }
 
   async removeFromRecent(vaultPath: string): Promise<void> {
-    this.vaultSelectionConfig.recentVaults = this.vaultSelectionConfig.recentVaults.filter((v) => v.path !== vaultPath)
+    this.vaultSelectionConfig.recentVaults = this.vaultSelectionConfig.recentVaults.filter(
+      (v) => v.path !== vaultPath
+    )
 
     if (this.vaultSelectionConfig.currentVault === vaultPath) {
       this.vaultSelectionConfig.currentVault = undefined
@@ -72,7 +76,8 @@ export class DefaultVaultManagerService implements VaultManagerService {
   }
 
   shouldShowSelector(): boolean {
-    return this.vaultSelectionConfig.showVaultSelector || !this.vaultSelectionConfig.currentVault
+    // Only show selector if explicitly requested AND no current vault is set
+    return this.vaultSelectionConfig.showVaultSelector && !this.vaultSelectionConfig.currentVault
   }
 
   async setShowSelector(show: boolean): Promise<void> {
@@ -82,7 +87,9 @@ export class DefaultVaultManagerService implements VaultManagerService {
 
   private async updateAppConfigWithVault(vault: VaultConfig): Promise<void> {
     // 최근 Vault 목록 업데이트
-    const existingIndex = this.vaultSelectionConfig.recentVaults.findIndex((v) => v.path === vault.path)
+    const existingIndex = this.vaultSelectionConfig.recentVaults.findIndex(
+      (v) => v.path === vault.path
+    )
 
     if (existingIndex >= 0) {
       // 기존 Vault 업데이트
@@ -101,10 +108,10 @@ export class DefaultVaultManagerService implements VaultManagerService {
 
     // Save vault selection config
     await this.vaultSelectionRepo.save(this.vaultSelectionConfig)
-    
+
     // Update legacy config repository with new vault path
     this.configRepository.setCurrentVaultPath(vault.path)
-    
+
     // Ensure app config directory exists in the vault
     await this.appSettingsRepo.ensureConfigDirectory(vault.path)
   }

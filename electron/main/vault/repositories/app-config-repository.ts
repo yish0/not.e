@@ -1,4 +1,9 @@
-import type { AppConfig, AppConfigRepository, VaultSelectionConfig, AppSettings } from '../types/vault-types'
+import type {
+  AppConfig,
+  AppConfigRepository,
+  VaultSelectionConfig,
+  AppSettings
+} from '../types/vault-types'
 import { FileVaultSelectionConfigRepository } from './vault-selection-config-repository'
 import { FileAppSettingsRepository } from './app-settings-repository'
 
@@ -24,7 +29,7 @@ export class FileAppConfigRepository implements AppConfigRepository {
 
   async load(): Promise<AppConfig> {
     const vaultSelectionConfig = await this.vaultSelectionRepo.load()
-    
+
     let appSettings: AppSettings
     if (this.currentVaultPath || vaultSelectionConfig.currentVault) {
       const vaultPath = this.currentVaultPath || vaultSelectionConfig.currentVault!
@@ -87,12 +92,10 @@ export class FileAppConfigRepository implements AppConfigRepository {
     const { isDev } = await import('../../../config')
 
     const legacyConfigFileName = isDev ? 'app-config.dev.json' : 'app-config.json'
-    
+
     // 개발 모드에서는 .dev-config 디렉토리에서도 확인
-    const legacyPaths = [
-      join(app.getPath('userData'), legacyConfigFileName)
-    ]
-    
+    const legacyPaths = [join(app.getPath('userData'), legacyConfigFileName)]
+
     if (isDev) {
       const projectRoot = join(__dirname, '../../../../..')
       const devConfigDir = join(projectRoot, '.dev-config')
@@ -150,7 +153,7 @@ export class FileAppConfigRepository implements AppConfigRepository {
         }
       }
     }
-    
+
     console.log('No legacy config found in any location, skipping migration')
   }
 }

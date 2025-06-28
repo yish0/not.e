@@ -1,13 +1,18 @@
 /**
  * Application and Vault Path Utility Classes and Functions
- * 
+ *
  * This module provides path utilities for both global app settings and vault system.
  */
 
 import { join } from 'path'
 import { app } from 'electron'
 import { isDev } from '../config'
-import { GLOBAL_APP_DIRECTORIES, GLOBAL_APP_FILES, VAULT_DIRECTORIES, VAULT_FILES } from './vault-constants'
+import {
+  GLOBAL_APP_DIRECTORIES,
+  GLOBAL_APP_FILES,
+  VAULT_DIRECTORIES,
+  VAULT_FILES
+} from './vault-constants'
 
 /**
  * Global application paths utility class
@@ -24,8 +29,8 @@ export class GlobalAppPaths {
    * Get global app configuration file path
    */
   static getGlobalAppConfigPath(): string {
-    const configFileName = isDev 
-      ? GLOBAL_APP_FILES.APP_CONFIG.DEVELOPMENT 
+    const configFileName = isDev
+      ? GLOBAL_APP_FILES.APP_CONFIG.DEVELOPMENT
       : GLOBAL_APP_FILES.APP_CONFIG.PRODUCTION
     return join(this.getGlobalAppDir(), configFileName)
   }
@@ -83,8 +88,8 @@ export class VaultPaths {
    * Get the vault-specific app configuration file path (environment-aware)
    */
   getVaultAppConfigPath(): string {
-    const configFileName = isDev 
-      ? VAULT_FILES.APP_CONFIG.DEVELOPMENT 
+    const configFileName = isDev
+      ? VAULT_FILES.APP_CONFIG.DEVELOPMENT
       : VAULT_FILES.APP_CONFIG.PRODUCTION
     return join(this.getAppConfigDir(), configFileName)
   }
@@ -154,8 +159,8 @@ export const VaultPathUtils = {
    * Get vault-specific app config file path for any vault (environment-aware)
    */
   getVaultAppConfigPath(vaultPath: string): string {
-    const configFileName = isDev 
-      ? VAULT_FILES.APP_CONFIG.DEVELOPMENT 
+    const configFileName = isDev
+      ? VAULT_FILES.APP_CONFIG.DEVELOPMENT
       : VAULT_FILES.APP_CONFIG.PRODUCTION
     return join(vaultPath, VAULT_DIRECTORIES.APP_CONFIG, configFileName)
   },

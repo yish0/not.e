@@ -397,7 +397,8 @@ export async function getCrossDesktopToggleEnabled(): Promise<boolean>
 export async function setCrossDesktopToggleEnabled(enabled: boolean): Promise<void>
 ```
 
-**설정 저장 위치**: 
+**설정 저장 위치**:
+
 - Vault별 설정: `{vaultPath}/.not.e/app-config.json` (또는 `app-config.dev.json`)
 - 개발 환경에서는 프로덕션과 분리된 설정 파일 사용
 

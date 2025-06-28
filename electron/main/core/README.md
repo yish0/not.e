@@ -93,6 +93,25 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
     try {
       const vaultManager = getVaultManager()
       await vaultManager.initialize()
+
+      // 기존 Vault 확인
+      const currentVault = await vaultManager.getCurrentVault()
+      
+      if (currentVault) {
+        // 기존 Vault가 있으면 자동으로 사용 (다이얼로그 스킵)
+        console.log(`Using existing vault: ${currentVault.name} at ${currentVault.path}`)
+        return { success: true }
+      }
+
+      // Vault가 없거나 선택기 표시가 필요한 경우에만 다이얼로그 표시
+      const shouldShowSelector = vaultManager.shouldShowVaultSelector()
+      if (shouldShowSelector) {
+        const result = await vaultManager.showVaultSelectionDialog()
+        if (!result.success) {
+          return { success: false, error: 'No vault selected by user' }
+        }
+      }
+
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
@@ -114,6 +133,7 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
 **주요 기능:**
 
 - Vault 시스템 초기화 및 에러 처리
+- 기존 Vault 자동 감지 및 다이얼로그 스킵 기능
 - 단축키 시스템 초기화 (실패 시 앱 계속 실행)
 - 윈도우-시스템 간 통합 설정
 - 초기화 결과 반환으로 체계적 에러 관리
