@@ -32,6 +32,8 @@ jest.mock('fs', () => ({
 import { promises as fs } from 'fs'
 import { FileVaultRepository } from '../../../main/vault/repositories/vault-repository'
 import { mockVaultMetadata, createTempPath } from '../../fixtures/vault-fixtures'
+import { VaultPathUtils } from '../../../config/vault-paths'
+import { VAULT_DIRECTORIES } from '../../../config/vault-constants'
 
 const mockFs = fs as jest.Mocked<typeof fs>
 
@@ -133,16 +135,16 @@ describe('FileVaultRepository', () => {
       await repository.createStructure(testVaultPath, 'Test Vault')
 
       // 모든 디렉토리 생성 확인
-      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, '.note'), { recursive: true })
-      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, 'workspace-personal'), {
+      expect(mockFs.mkdir).toHaveBeenCalledWith(VaultPathUtils.getMetadataDir(testVaultPath), { recursive: true })
+      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL), {
         recursive: true
       })
       expect(mockFs.mkdir).toHaveBeenCalledWith(
-        join(testVaultPath, 'workspace-personal', 'channel-daily'),
+        join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL, 'channel-daily'),
         { recursive: true }
       )
       expect(mockFs.mkdir).toHaveBeenCalledWith(
-        join(testVaultPath, 'workspace-personal', 'channel-ideas'),
+        join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL, 'channel-ideas'),
         { recursive: true }
       )
 
@@ -151,14 +153,14 @@ describe('FileVaultRepository', () => {
 
       // vault.json 생성 확인
       expect(mockFs.writeFile).toHaveBeenCalledWith(
-        join(testVaultPath, '.note', 'vault.json'),
+        VaultPathUtils.getVaultMetadataPath(testVaultPath),
         expect.stringContaining('"name": "Test Vault"'),
         'utf-8'
       )
 
       // welcome.md 생성 확인
       expect(mockFs.writeFile).toHaveBeenCalledWith(
-        join(testVaultPath, 'workspace-personal', 'channel-ideas', 'welcome.md'),
+        join(testVaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL, 'channel-ideas', 'welcome.md'),
         expect.stringContaining('# Welcome to not.e!'),
         'utf-8'
       )
@@ -183,7 +185,7 @@ describe('FileVaultRepository', () => {
 
       expect(result).toEqual(mockVaultMetadata)
       expect(mockFs.readFile).toHaveBeenCalledWith(
-        join(testVaultPath, '.note', 'vault.json'),
+        VaultPathUtils.getVaultMetadataPath(testVaultPath),
         'utf-8'
       )
     })
@@ -215,9 +217,9 @@ describe('FileVaultRepository', () => {
 
       await repository.saveMetadata(testVaultPath, mockVaultMetadata)
 
-      expect(mockFs.mkdir).toHaveBeenCalledWith(join(testVaultPath, '.note'), { recursive: true })
+      expect(mockFs.mkdir).toHaveBeenCalledWith(VaultPathUtils.getMetadataDir(testVaultPath), { recursive: true })
       expect(mockFs.writeFile).toHaveBeenCalledWith(
-        join(testVaultPath, '.note', 'vault.json'),
+        VaultPathUtils.getVaultMetadataPath(testVaultPath),
         JSON.stringify(mockVaultMetadata, null, 2),
         'utf-8'
       )

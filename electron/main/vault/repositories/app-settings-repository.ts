@@ -2,15 +2,22 @@ import { promises as fs } from 'fs'
 import { join } from 'path'
 import type { AppSettings, AppSettingsRepository } from '../types/vault-types'
 import { isDev } from '../../../config'
+import { VaultPathUtils } from '../../../config/vault-paths'
+import { VAULT_DIRECTORIES } from '../../../config/vault-constants'
 
+/**
+ * Vault-specific App Settings Repository
+ * 
+ * Manages vault-specific application settings stored in vault/.not.e/
+ * These settings are specific to each vault and can override global settings.
+ */
 export class FileAppSettingsRepository implements AppSettingsRepository {
   private getConfigPath(vaultPath: string): string {
-    const configFileName = isDev ? 'app-config.dev.json' : 'app-config.json'
-    return join(vaultPath, '.not.e', configFileName)
+    return VaultPathUtils.getVaultAppConfigPath(vaultPath)
   }
 
   private getConfigDirectory(vaultPath: string): string {
-    return join(vaultPath, '.not.e')
+    return VaultPathUtils.getAppConfigDir(vaultPath)
   }
 
   getPath(vaultPath: string): string {
@@ -22,9 +29,9 @@ export class FileAppSettingsRepository implements AppSettingsRepository {
     try {
       await fs.mkdir(configDir, { recursive: true })
     } catch (error) {
-      console.error('Failed to create .not.e directory:', error)
+      console.error(`Failed to create ${VAULT_DIRECTORIES.APP_CONFIG} directory:`, error)
       throw new Error(
-        `Failed to create .not.e directory: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to create ${VAULT_DIRECTORIES.APP_CONFIG} directory: ${error instanceof Error ? error.message : 'Unknown error'}`
       )
     }
   }

@@ -2,6 +2,8 @@ import { promises as fs, constants } from 'fs'
 import { join, resolve } from 'path'
 import type { VaultRepository, VaultValidationResult, VaultMetadata } from '../types/vault-types'
 import { createWelcomeNoteContent } from '../templates/welcome-note'
+import { VaultPathUtils } from '../../../config/vault-paths'
+import { VAULT_DIRECTORIES, VAULT_FILES } from '../../../config/vault-constants'
 
 export class FileVaultRepository implements VaultRepository {
   async validatePath(vaultPath: string): Promise<VaultValidationResult> {
@@ -65,7 +67,7 @@ export class FileVaultRepository implements VaultRepository {
 
   async loadMetadata(vaultPath: string): Promise<VaultMetadata | null> {
     try {
-      const metadataPath = join(vaultPath, '.note', 'vault.json')
+      const metadataPath = VaultPathUtils.getVaultMetadataPath(vaultPath)
       const content = await fs.readFile(metadataPath, 'utf-8')
       return JSON.parse(content) as VaultMetadata
     } catch {
@@ -75,10 +77,10 @@ export class FileVaultRepository implements VaultRepository {
 
   async saveMetadata(vaultPath: string, metadata: VaultMetadata): Promise<void> {
     try {
-      const configDir = join(vaultPath, '.note')
+      const configDir = VaultPathUtils.getMetadataDir(vaultPath)
       await fs.mkdir(configDir, { recursive: true })
 
-      const metadataPath = join(configDir, 'vault.json')
+      const metadataPath = join(configDir, VAULT_FILES.VAULT_METADATA)
       await fs.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf-8')
     } catch (error) {
       throw new Error(
@@ -100,7 +102,7 @@ export class FileVaultRepository implements VaultRepository {
   }
 
   private async createConfigStructure(vaultPath: string, vaultName: string): Promise<void> {
-    const configDir = join(vaultPath, '.note')
+    const configDir = VaultPathUtils.getMetadataDir(vaultPath)
     await fs.mkdir(configDir, { recursive: true })
 
     // vault.json 메타데이터 생성
@@ -120,7 +122,7 @@ export class FileVaultRepository implements VaultRepository {
         {
           id: 'default',
           name: 'Personal',
-          path: 'workspace-personal',
+          path: VAULT_DIRECTORIES.WORKSPACES.PERSONAL,
           createdAt: new Date().toISOString(),
           isDefault: true
         }
@@ -129,14 +131,14 @@ export class FileVaultRepository implements VaultRepository {
     }
 
     await fs.writeFile(
-      join(configDir, 'workspaces.json'),
+      join(configDir, VAULT_FILES.WORKSPACES_CONFIG),
       JSON.stringify(initialWorkspaces, null, 2),
       'utf-8'
     )
   }
 
   private async createWorkspaceStructure(vaultPath: string): Promise<void> {
-    const defaultWorkspacePath = join(vaultPath, 'workspace-personal')
+    const defaultWorkspacePath = join(vaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL)
     await fs.mkdir(defaultWorkspacePath, { recursive: true })
 
     // .workspace.json 생성
@@ -174,7 +176,7 @@ export class FileVaultRepository implements VaultRepository {
 
   private async createWelcomeNote(vaultPath: string, vaultName: string): Promise<void> {
     const welcomeNoteContent = createWelcomeNoteContent(vaultName)
-    const welcomeNotePath = join(vaultPath, 'workspace-personal', 'channel-ideas', 'welcome.md')
+    const welcomeNotePath = join(vaultPath, VAULT_DIRECTORIES.WORKSPACES.PERSONAL, 'channel-ideas', 'welcome.md')
     await fs.writeFile(welcomeNotePath, welcomeNoteContent, 'utf-8')
   }
 }
