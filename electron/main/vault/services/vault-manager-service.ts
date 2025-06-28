@@ -105,7 +105,7 @@ export class DefaultVaultManagerService implements VaultManagerService {
     // Update legacy config repository with new vault path
     this.configRepository.setCurrentVaultPath(vault.path)
     
-    // Ensure .not.e directory exists in the vault
+    // Ensure app config directory exists in the vault
     await this.appSettingsRepo.ensureConfigDirectory(vault.path)
   }
 }

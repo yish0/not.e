@@ -71,6 +71,13 @@ export interface AppSettingsRepository {
   ensureConfigDirectory(vaultPath: string): Promise<void>
 }
 
+export interface GlobalAppSettingsRepository {
+  load(): Promise<AppSettings>
+  save(settings: AppSettings): Promise<void>
+  getPath(): string
+  ensureConfigDirectory(): Promise<void>
+}
+
 // Legacy interface for backward compatibility
 export interface AppConfigRepository {
   load(): Promise<AppConfig>

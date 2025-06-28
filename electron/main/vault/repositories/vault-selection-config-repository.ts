@@ -1,51 +1,28 @@
 import { promises as fs } from 'fs'
-import { join } from 'path'
-import { app } from 'electron'
 import type { VaultSelectionConfig, VaultSelectionConfigRepository } from '../types/vault-types'
-import { isDev } from '../../../config'
+import { GlobalAppPaths } from '../../../config/vault-paths'
 
 export class FileVaultSelectionConfigRepository implements VaultSelectionConfigRepository {
-  private configPath: string
-
-  constructor() {
-    this.configPath = this.getConfigPath()
-  }
-
-  private getConfigPath(): string {
-    // 개발 모드에서는 프로젝트 루트의 .dev-config 디렉토리 사용
-    if (isDev) {
-      const { join: pathJoin } = require('path')
-      const projectRoot = pathJoin(__dirname, '../../../../..')
-      const devConfigDir = pathJoin(projectRoot, '.dev-config')
-      return pathJoin(devConfigDir, 'vault-selection.json')
-    }
-    
-    // 프로덕션에서는 기존 userData 디렉토리 사용
-    return join(app.getPath('userData'), 'vault-selection.json')
+  getPath(): string {
+    return GlobalAppPaths.getVaultSelectionPath()
   }
 
   private async ensureConfigDirectory(): Promise<void> {
-    if (isDev) {
-      const { dirname } = require('path')
-      const configDir = dirname(this.configPath)
-      try {
-        await fs.mkdir(configDir, { recursive: true })
-      } catch (error) {
-        console.error('Failed to create dev config directory:', error)
-        throw new Error(
-          `Failed to create dev config directory: ${error instanceof Error ? error.message : 'Unknown error'}`
-        )
-      }
+    const configDir = GlobalAppPaths.getGlobalAppDir()
+    try {
+      await fs.mkdir(configDir, { recursive: true })
+    } catch (error) {
+      console.error('Failed to create global app config directory:', error)
+      throw new Error(
+        `Failed to create global app config directory: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
-  getPath(): string {
-    return this.configPath
-  }
-
   async load(): Promise<VaultSelectionConfig> {
+    const configPath = this.getPath()
     try {
-      const data = await fs.readFile(this.configPath, 'utf-8')
+      const data = await fs.readFile(configPath, 'utf-8')
       const rawConfig = JSON.parse(data) as VaultSelectionConfig
       const config = { ...this.getDefaultConfig(), ...rawConfig }
 
@@ -61,8 +38,9 @@ export class FileVaultSelectionConfigRepository implements VaultSelectionConfigR
   async save(config: VaultSelectionConfig): Promise<void> {
     try {
       await this.ensureConfigDirectory()
+      const configPath = this.getPath()
       const data = JSON.stringify(config, null, 2)
-      await fs.writeFile(this.configPath, data, 'utf-8')
+      await fs.writeFile(configPath, data, 'utf-8')
     } catch (error) {
       console.error('Failed to save vault selection config:', error)
       throw new Error(
