@@ -1,58 +1,75 @@
-import { promises as fs } from 'fs'
-import { join } from 'path'
-import { app } from 'electron'
-import type { AppConfig, AppConfigRepository } from '../types/vault-types'
-import { isDev } from '../../../config'
+import type { AppConfig, AppConfigRepository, VaultSelectionConfig, AppSettings } from '../types/vault-types'
+import { FileVaultSelectionConfigRepository } from './vault-selection-config-repository'
+import { FileAppSettingsRepository } from './app-settings-repository'
 
 export class FileAppConfigRepository implements AppConfigRepository {
-  private configPath: string
+  private vaultSelectionRepo: FileVaultSelectionConfigRepository
+  private appSettingsRepo: FileAppSettingsRepository
+  private currentVaultPath?: string
 
-  constructor() {
-    const configFileName = isDev ? 'app-config.dev.json' : 'app-config.json'
-    this.configPath = join(app.getPath('userData'), configFileName)
+  constructor(vaultPath?: string) {
+    this.vaultSelectionRepo = new FileVaultSelectionConfigRepository()
+    this.appSettingsRepo = new FileAppSettingsRepository()
+    this.currentVaultPath = vaultPath
   }
 
   getPath(): string {
-    return this.configPath
+    // Return vault selection config path for legacy compatibility
+    return this.vaultSelectionRepo.getPath()
+  }
+
+  setCurrentVaultPath(vaultPath: string): void {
+    this.currentVaultPath = vaultPath
   }
 
   async load(): Promise<AppConfig> {
-    try {
-      const data = await fs.readFile(this.configPath, 'utf-8')
-      const rawConfig = JSON.parse(data) as AppConfig
-      const migratedConfig = this.migrateOldConfig(rawConfig)
-      const config = { ...this.getDefaultConfig(), ...migratedConfig }
-
-      // Save migrated config if changes were made
-      if (this.needsMigration(rawConfig)) {
-        await this.save(config)
-      }
-
-      return config
-    } catch (error) {
-      console.log('No existing app config found, using defaults')
-      const defaultConfig = this.getDefaultConfig()
-      await this.save(defaultConfig)
-      return defaultConfig
+    const vaultSelectionConfig = await this.vaultSelectionRepo.load()
+    
+    let appSettings: AppSettings
+    if (this.currentVaultPath || vaultSelectionConfig.currentVault) {
+      const vaultPath = this.currentVaultPath || vaultSelectionConfig.currentVault!
+      appSettings = await this.appSettingsRepo.load(vaultPath)
+    } else {
+      // No vault selected, use default settings
+      appSettings = this.getDefaultAppSettings()
     }
+
+    // Combine both configs for backward compatibility
+    const combinedConfig: AppConfig = {
+      ...vaultSelectionConfig,
+      ...appSettings
+    }
+
+    return combinedConfig
   }
 
   async save(config: AppConfig): Promise<void> {
-    try {
-      const data = JSON.stringify(config, null, 2)
-      await fs.writeFile(this.configPath, data, 'utf-8')
-    } catch (error) {
-      console.error('Failed to save app config:', error)
-      throw new Error(
-        `Failed to save app config: ${error instanceof Error ? error.message : 'Unknown error'}`
-      )
+    // Split config into vault selection and app settings
+    const vaultSelectionConfig: VaultSelectionConfig = {
+      currentVault: config.currentVault,
+      recentVaults: config.recentVaults,
+      showVaultSelector: config.showVaultSelector,
+      lastUsedVault: config.lastUsedVault
+    }
+
+    const appSettings: AppSettings = {
+      windowMode: config.windowMode,
+      toggleSettings: config.toggleSettings,
+      enableCrossDesktopToggle: config.enableCrossDesktopToggle
+    }
+
+    // Save vault selection config
+    await this.vaultSelectionRepo.save(vaultSelectionConfig)
+
+    // Save app settings if vault is available
+    const vaultPath = this.currentVaultPath || config.currentVault
+    if (vaultPath) {
+      await this.appSettingsRepo.save(vaultPath, appSettings)
     }
   }
 
-  private getDefaultConfig(): AppConfig {
+  private getDefaultAppSettings(): AppSettings {
     return {
-      recentVaults: [],
-      showVaultSelector: true,
       windowMode: 'normal',
       toggleSettings: {
         toggleType: 'standard',
@@ -62,40 +79,62 @@ export class FileAppConfigRepository implements AppConfigRepository {
     }
   }
 
-  private needsMigration(config: AppConfig): boolean {
-    return config.enableCrossDesktopToggle !== undefined || config.windowMode === undefined
-  }
+  // Legacy method for migration from old userData config
+  async migrateFromLegacyConfig(): Promise<void> {
+    const { app } = await import('electron')
+    const { join } = await import('path')
+    const { promises: fs } = await import('fs')
+    const { isDev } = await import('../../../config')
 
-  private migrateOldConfig(config: AppConfig): AppConfig {
-    const migratedConfig = { ...config }
+    const legacyConfigFileName = isDev ? 'app-config.dev.json' : 'app-config.json'
+    const legacyConfigPath = join(app.getPath('userData'), legacyConfigFileName)
 
-    // Migrate enableCrossDesktopToggle to new windowMode system
-    if (config.enableCrossDesktopToggle !== undefined) {
-      // If cross-desktop toggle was enabled, set to toggle mode with standard type
-      migratedConfig.windowMode = config.enableCrossDesktopToggle ? 'toggle' : 'normal'
-      migratedConfig.toggleSettings = {
-        toggleType: 'standard',
-        sidebarPosition: 'right',
-        sidebarWidth: 400
+    try {
+      // Check if legacy config exists
+      const legacyData = await fs.readFile(legacyConfigPath, 'utf-8')
+      const legacyConfig = JSON.parse(legacyData) as AppConfig
+
+      console.log('Found legacy config, migrating to new structure...')
+
+      // Split into vault selection and app settings
+      const vaultSelectionConfig = {
+        currentVault: legacyConfig.currentVault,
+        recentVaults: legacyConfig.recentVaults,
+        showVaultSelector: legacyConfig.showVaultSelector,
+        lastUsedVault: legacyConfig.lastUsedVault
       }
-      // Remove the old field
-      delete migratedConfig.enableCrossDesktopToggle
-    }
 
-    // Ensure windowMode is set
-    if (!migratedConfig.windowMode) {
-      migratedConfig.windowMode = 'normal'
-    }
+      const appSettings = {
+        windowMode: legacyConfig.windowMode || 'normal',
+        toggleSettings: legacyConfig.toggleSettings || {
+          toggleType: 'standard' as const,
+          sidebarPosition: 'right' as const,
+          sidebarWidth: 400
+        },
+        enableCrossDesktopToggle: legacyConfig.enableCrossDesktopToggle
+      }
 
-    // Ensure toggleSettings exist if in toggle mode
-    if (migratedConfig.windowMode === 'toggle' && !migratedConfig.toggleSettings) {
-      migratedConfig.toggleSettings = {
-        toggleType: 'standard',
-        sidebarPosition: 'right',
-        sidebarWidth: 400
+      // Save vault selection config
+      await this.vaultSelectionRepo.save(vaultSelectionConfig)
+
+      // Save app settings if current vault exists
+      if (legacyConfig.currentVault) {
+        await this.appSettingsRepo.save(legacyConfig.currentVault, appSettings)
+        console.log(`Migrated app settings to vault: ${legacyConfig.currentVault}`)
+      }
+
+      // Backup and remove legacy config
+      const backupPath = legacyConfigPath + '.backup'
+      await fs.rename(legacyConfigPath, backupPath)
+      console.log(`Legacy config backed up to: ${backupPath}`)
+      console.log('Migration completed successfully')
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        console.log('No legacy config found, skipping migration')
+      } else {
+        console.error('Failed to migrate legacy config:', error)
+        throw error
       }
     }
-
-    return migratedConfig
   }
 }
