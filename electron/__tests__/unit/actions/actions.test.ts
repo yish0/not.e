@@ -14,7 +14,7 @@ jest.mock('electron', () => ({
 }))
 
 // Mock toggle-mode-manager
-jest.mock('../../../main/actions/global/toggle-mode-manager', () => ({
+jest.mock('../../../main/core/window/toggle-mode-manager', () => ({
   getWindowMode: jest.fn().mockResolvedValue('toggle'),
   getToggleSettings: jest.fn().mockResolvedValue({
     toggleType: 'standard',

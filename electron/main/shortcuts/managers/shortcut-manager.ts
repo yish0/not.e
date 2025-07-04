@@ -318,4 +318,11 @@ export class ShortcutManager {
       this.unregisterAllGlobalShortcuts()
     })
   }
+
+  // 테스트용 reset 메서드
+  reset(): void {
+    this.isInitialized = false
+    this.unregisterAllGlobalShortcuts()
+    this.configManager.resetToDefault()
+  }
 }

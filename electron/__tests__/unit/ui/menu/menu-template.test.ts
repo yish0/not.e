@@ -1,7 +1,7 @@
-import { MenuTemplate } from '../../../../main/core/menu/menu-template'
+import { MenuTemplate } from '../../../../main/ui/menu/menu-template'
 import type { ShortcutAction } from '../../../../main/shortcuts/types/shortcut-types'
 import { ShortcutCategory } from '../../../../main/shortcuts/types/shortcut-types'
-import type { MenuConfiguration } from '../../../../main/core/menu/menu-types'
+import type { MenuConfiguration } from '../../../../main/ui/menu/menu-types'
 
 describe('MenuTemplate', () => {
   let menuTemplate: MenuTemplate
@@ -116,7 +116,7 @@ describe('MenuTemplate', () => {
       const editMenu = template.find(item => item.label === 'Edit')
       
       expect(editMenu).toBeDefined()
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({
           label: 'Find in Note',
           accelerator: 'CmdOrCtrl+F'
@@ -129,7 +129,7 @@ describe('MenuTemplate', () => {
       const viewMenu = template.find(item => item.label === 'View')
       
       expect(viewMenu).toBeDefined()
-      expect(viewMenu?.submenu).toContain(
+      expect(viewMenu?.submenu).toContainEqual(
         expect.objectContaining({
           label: 'Toggle Sidebar',
           accelerator: 'CmdOrCtrl+B'
@@ -142,7 +142,7 @@ describe('MenuTemplate', () => {
       const navigationMenu = template.find(item => item.label === 'Navigation')
       
       expect(navigationMenu).toBeDefined()
-      expect(navigationMenu?.submenu).toContain(
+      expect(navigationMenu?.submenu).toContainEqual(
         expect.objectContaining({
           label: 'Quick Open',
           accelerator: 'CmdOrCtrl+P'
@@ -226,22 +226,22 @@ describe('MenuTemplate', () => {
       const editMenu = template.find(item => item.label === 'Edit')
       
       expect(editMenu).toBeDefined()
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Undo', role: 'undo' })
       )
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Redo', role: 'redo' })
       )
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Cut', role: 'cut' })
       )
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Copy', role: 'copy' })
       )
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Paste', role: 'paste' })
       )
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Select All', role: 'selectAll' })
       )
     })
@@ -253,11 +253,11 @@ describe('MenuTemplate', () => {
       
       expect(editMenu).toBeDefined()
       // 기본 편집 항목들
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({ label: 'Undo', role: 'undo' })
       )
       // 사용자 정의 항목들
-      expect(editMenu?.submenu).toContain(
+      expect(editMenu?.submenu).toContainEqual(
         expect.objectContaining({
           label: 'Find in Note',
           accelerator: 'CmdOrCtrl+F'

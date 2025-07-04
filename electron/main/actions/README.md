@@ -195,8 +195,8 @@ export function createDevActions(): ShortcutAction[] {
 전역 단축키로 사용되는 액션들입니다. 새로운 윈도우 모드 시스템을 통해 사용자의 워크플로우에 맞는 유연한 윈도우 관리를 제공합니다.
 
 ```typescript
-import { findTargetWindow, centerWindowOnCurrentDisplay, showWindowAsSidebar } from './window-utils'
-import { getWindowMode, getToggleSettings } from './toggle-mode-manager'
+import { findTargetWindow, centerWindowOnCurrentDisplay, showWindowAsSidebar } from '../../core/window/window-utils'
+import { getWindowMode, getToggleSettings } from '../../core/window/toggle-mode-manager'
 
 export function createGlobalActions(): ShortcutAction[] {
   return [
@@ -306,7 +306,7 @@ export function createGlobalActions(): ShortcutAction[] {
 - 크로스 데스크탑 지원 포함
 - 집중적인 작업에 적합
 
-### 6.1. Window Utilities (global/window-utils.ts)
+### 6.1. Window Utilities (../../core/window/window-utils.ts)
 
 전역 액션에서 사용하는 윈도우 관리 유틸리티 함수들입니다. 새로운 사이드바 모드를 포함한 다양한 윈도우 배치 옵션을 제공합니다.
 
@@ -380,7 +380,7 @@ const bounds = getSidebarBounds(display, 'right', 400)
 - **표준 토글**: `centerWindowOnCurrentDisplay()` + 기본 `show()`/`hide()`
 - **크로스 데스크탑 토글**: `showWindow()` + macOS 워크스페이스 관리 로직
 
-### 6.2. Toggle Mode Manager (global/toggle-mode-manager.ts)
+### 6.2. Toggle Mode Manager (../../core/window/toggle-mode-manager.ts)
 
 새로운 윈도우 모드 시스템의 설정을 관리하는 유틸리티입니다. Vault별 앱 설정을 통해 윈도우 모드와 토글 설정을 관리합니다.
 
@@ -433,7 +433,7 @@ import {
   setWindowMode,
   getToggleSettings,
   setToggleSettings
-} from '../actions/global/toggle-mode-manager'
+} from '../../core/window/toggle-mode-manager'
 
 // 윈도우 모드 설정
 await setWindowMode('toggle')
@@ -775,7 +775,7 @@ window.electronAPI?.onShortcut?.('my-action', () => {
 전역 액션이나 윈도우 관리가 필요한 액션에서는 window-utils의 헬퍼 함수들을 활용하세요:
 
 ```typescript
-import { findTargetWindow, showWindow, centerWindowOnCurrentDisplay } from '../global/window-utils'
+import { findTargetWindow, showWindow, centerWindowOnCurrentDisplay } from '../../core/window/window-utils'
 
 {
   name: 'custom-window-action',

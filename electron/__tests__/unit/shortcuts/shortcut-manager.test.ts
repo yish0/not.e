@@ -130,6 +130,7 @@ describe('ShortcutManager', () => {
   })
 
   afterEach(() => {
+    shortcutManager.reset()
     jest.clearAllMocks()
     jest.resetAllMocks()
   })

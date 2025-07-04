@@ -3,9 +3,9 @@ import { getShortcutManager } from '../../shortcuts'
 import { getAllDefaultActions } from '../../actions/index'
 import { getVaultManager } from '../../vault'
 import { setupIPCHandlers } from '../../ipc'
-import { getMenuManager } from '../menu'
-import type { MenuConfiguration } from '../menu/menu-types'
-import { DEFAULT_MENU_CONFIGURATION } from '../menu/menu-types'
+import { getMenuManager } from '../../ui/menu'
+import type { MenuConfiguration } from '../../ui/menu/menu-types'
+import { DEFAULT_MENU_CONFIGURATION } from '../../ui/menu/menu-types'
 import type { ShortcutAction } from '../../shortcuts/types/shortcut-types'
 
 export interface SystemInitializationResult {

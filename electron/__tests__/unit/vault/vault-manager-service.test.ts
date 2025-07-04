@@ -4,14 +4,57 @@ import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globa
 jest.mock('electron', () => ({
   BrowserWindow: class MockBrowserWindow {},
   app: {
-    getPath: jest.fn(() => '/tmp/test-app-data')
+    getPath: jest.fn((name: string) => {
+      switch (name) {
+        case 'home':
+          return '/tmp/test-home'
+        case 'userData':
+          return '/tmp/test-app-data'
+        default:
+          return '/tmp/test-app-data'
+      }
+    })
   },
   dialog: {},
   ipcMain: {},
   globalShortcut: {}
 }))
 
+// GlobalAppPaths 모킹
+jest.mock('../../../config/vault-paths', () => ({
+  GlobalAppPaths: {
+    getGlobalAppDir: jest.fn(() => '/tmp/test-global-app'),
+    getGlobalAppConfigPath: jest.fn(() => '/tmp/test-global-app/app-config.json'),
+    getVaultSelectionPath: jest.fn(() => '/tmp/test-global-app/vault-selection.json'),
+    getGlobalShortcutsPath: jest.fn(() => '/tmp/test-global-app/shortcuts.json')
+  },
+  VaultPaths: jest.fn(),
+  VaultPathUtils: {
+    forVault: jest.fn(() => ({ getAppConfigDir: jest.fn(() => '/tmp/test-vault/.note') })),
+    getMetadataDir: jest.fn(() => '/tmp/test-vault/.note'),
+    getAppConfigDir: jest.fn(() => '/tmp/test-vault/.note'),
+    getVaultMetadataPath: jest.fn(() => '/tmp/test-vault/.note/vault-metadata.json'),
+    getVaultAppConfigPath: jest.fn(() => '/tmp/test-vault/.note/app-config.json'),
+    getAppConfigPath: jest.fn(() => '/tmp/test-vault/.note/app-config.json')
+  }
+}))
+
+// fs 모킹
+jest.mock('fs', () => ({
+  promises: {
+    readFile: jest.fn(),
+    writeFile: jest.fn(),
+    mkdir: jest.fn()
+  }
+}))
+
+// VaultSelectionConfigRepository 모킹
+jest.mock('../../../main/vault/repositories/vault-selection-config-repository')
+jest.mock('../../../main/vault/repositories/app-settings-repository')
+
 import { DefaultVaultManagerService } from '../../../main/vault/services/vault-manager-service'
+import { FileVaultSelectionConfigRepository } from '../../../main/vault/repositories/vault-selection-config-repository'
+import { FileAppSettingsRepository } from '../../../main/vault/repositories/app-settings-repository'
 import type {
   AppConfigRepository,
   VaultInitializerService,
@@ -20,11 +63,21 @@ import type {
   VaultInitResult
 } from '../../../main/vault/types/vault-types'
 
+// Mock 클래스들
+const MockFileVaultSelectionConfigRepository = FileVaultSelectionConfigRepository as jest.MockedClass<
+  typeof FileVaultSelectionConfigRepository
+>
+const MockFileAppSettingsRepository = FileAppSettingsRepository as jest.MockedClass<
+  typeof FileAppSettingsRepository
+>
+
 describe('DefaultVaultManagerService', () => {
   let service: DefaultVaultManagerService
   let mockConfigRepository: jest.Mocked<AppConfigRepository>
   let mockInitializerService: jest.Mocked<VaultInitializerService>
   let mockAppConfig: AppConfig
+  let mockVaultSelectionRepo: any
+  let mockAppSettingsRepo: any
 
   beforeEach(() => {
     // AppConfig mock 데이터
@@ -68,6 +121,27 @@ describe('DefaultVaultManagerService', () => {
       validate: jest.fn()
     }
 
+    // Mock the file repositories
+    mockVaultSelectionRepo = {
+      load: jest.fn(() => Promise.resolve({
+        recentVaults: mockAppConfig.recentVaults,
+        showVaultSelector: mockAppConfig.showVaultSelector,
+        currentVault: mockAppConfig.currentVault
+      })),
+      save: jest.fn(() => Promise.resolve()),
+      getPath: jest.fn(() => '/tmp/test-vault-selection.json')
+    }
+
+    mockAppSettingsRepo = {
+      load: jest.fn(() => Promise.resolve(mockAppConfig)),
+      save: jest.fn(() => Promise.resolve()),
+      getPath: jest.fn(() => '/tmp/test-app-settings.json'),
+      ensureConfigDirectory: jest.fn(() => Promise.resolve())
+    }
+
+    MockFileVaultSelectionConfigRepository.mockImplementation(() => mockVaultSelectionRepo as any)
+    MockFileAppSettingsRepository.mockImplementation(() => mockAppSettingsRepo as any)
+
     // 서비스 인스턴스 생성
     service = new DefaultVaultManagerService(mockConfigRepository, mockInitializerService)
   })
@@ -89,7 +163,7 @@ describe('DefaultVaultManagerService', () => {
     test('should load app config on initialize', async () => {
       await service.initialize()
 
-      expect(mockConfigRepository.load).toHaveBeenCalledTimes(1)
+      expect(mockConfigRepository.migrateFromLegacyConfig).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -147,10 +221,9 @@ describe('DefaultVaultManagerService', () => {
 
       expect(mockInitializerService.initialize).toHaveBeenCalledWith('/test/new-vault')
       expect(result).toEqual(mockInitResult)
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
-          currentVault: '/test/new-vault',
-          lastUsedVault: '/test/new-vault'
+          currentVault: '/test/new-vault'
         })
       )
     })
@@ -186,7 +259,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.setCurrentVault('/test/new-vault')
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           recentVaults: expect.arrayContaining([
             expect.objectContaining({ path: '/test/new-vault' })
@@ -211,7 +284,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.setCurrentVault('/test/vault1')
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           recentVaults: expect.arrayContaining([
             expect.objectContaining({
@@ -248,7 +321,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.setCurrentVault('/test/vault-new')
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           recentVaults: expect.arrayContaining([
             expect.objectContaining({ path: '/test/vault-new' })
@@ -256,7 +329,7 @@ describe('DefaultVaultManagerService', () => {
         })
       )
 
-      const savedConfig = mockConfigRepository.save.mock.calls[0][0] as AppConfig
+      const savedConfig = mockVaultSelectionRepo.save.mock.calls[0][0]
       expect(savedConfig.recentVaults).toHaveLength(10)
       expect(savedConfig.recentVaults[0]).toEqual(newVault)
     })
@@ -279,7 +352,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.removeFromRecent('/test/vault2')
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           recentVaults: expect.not.arrayContaining([
             expect.objectContaining({ path: '/test/vault2' })
@@ -293,7 +366,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.removeFromRecent('/test/vault1')
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           currentVault: undefined
         })
@@ -305,7 +378,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.removeFromRecent('/test/vault2')
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           currentVault: '/test/vault1'
         })
@@ -351,7 +424,7 @@ describe('DefaultVaultManagerService', () => {
 
       await service.setShowSelector(false)
 
-      expect(mockConfigRepository.save).toHaveBeenCalledWith(
+      expect(mockVaultSelectionRepo.save).toHaveBeenCalledWith(
         expect.objectContaining({
           showVaultSelector: false
         })

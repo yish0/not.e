@@ -20,7 +20,7 @@ import {
   showWindow,
   showWindowAsSidebar,
   getSidebarBounds
-} from '../../../../main/actions/global/window-utils'
+} from '../../../../main/core/window/window-utils'
 
 describe('Window Utils', () => {
   let mockWindow: jest.Mocked<BrowserWindow>

@@ -1,5 +1,5 @@
 import { Menu } from 'electron'
-import { MenuManager } from '../../../../main/core/menu/menu-manager'
+import { MenuManager } from '../../../../main/ui/menu/menu-manager'
 import type { ShortcutActionHandler } from '../../../../main/shortcuts/types/shortcut-types'
 import { ShortcutCategory } from '../../../../main/shortcuts/types/shortcut-types'
 

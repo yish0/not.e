@@ -218,7 +218,7 @@ console.log(DEFAULT_LOCAL_SHORTCUTS)
 ```typescript
 // 새로운 동적 단축키 시스템
 import { generateGlobalShortcuts } from './config/default-shortcuts'
-import { getWindowMode, getToggleSettings } from '../actions/global/toggle-mode-manager'
+import { getWindowMode, getToggleSettings } from '../core/window/toggle-mode-manager'
 
 // 현재 설정에 맞는 단축키 생성
 const windowMode = await getWindowMode()

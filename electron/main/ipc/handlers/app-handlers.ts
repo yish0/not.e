@@ -11,7 +11,7 @@ import {
   // Legacy functions for backward compatibility
   getCrossDesktopToggleEnabled,
   setCrossDesktopToggleEnabled
-} from '../../actions/global/toggle-mode-manager'
+} from '../../core/window/toggle-mode-manager'
 
 export function createAppHandlers(): IPCHandler[] {
   return [

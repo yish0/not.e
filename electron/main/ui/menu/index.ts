@@ -1,3 +1,4 @@
+import { MenuManager } from './menu-manager'
 export { MenuManager } from './menu-manager'
 export type { IMenuManager, MenuConfiguration } from './menu-types'
 export { DEFAULT_MENU_CONFIGURATION } from './menu-types'

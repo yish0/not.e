@@ -1,10 +1,10 @@
 import { DefaultSystemIntegrator } from '../../../../main/core/integration/system-integrator'
-import { getMenuManager } from '../../../../main/core/menu'
+import { getMenuManager } from '../../../../main/ui/menu'
 import type { ShortcutAction } from '../../../../main/shortcuts/types/shortcut-types'
 import { ShortcutCategory } from '../../../../main/shortcuts/types/shortcut-types'
 
 // Mock dependencies
-jest.mock('../../../../main/core/menu', () => ({
+jest.mock('../../../../main/ui/menu', () => ({
   getMenuManager: jest.fn()
 }))
 
@@ -194,6 +194,9 @@ describe('SystemIntegrator - Menu Integration', () => {
 
   describe('메뉴 동적 업데이트', () => {
     it('설정 변경 시 메뉴를 동적으로 업데이트해야 한다', async () => {
+      // 먼저 기본 액션들을 등록
+      systemIntegrator.registerDefaultActions()
+      
       const newConfig = { includeAppMenu: false, includeWindowMenu: false }
       
       await systemIntegrator.updateMenuConfiguration(newConfig)
@@ -224,6 +227,9 @@ describe('SystemIntegrator - Menu Integration', () => {
     })
 
     it('액션 제거 시 메뉴에서 항목을 제거해야 한다', async () => {
+      // 먼저 기본 액션들을 등록
+      systemIntegrator.registerDefaultActions()
+      
       const actionToRemove = 'save-note'
       
       await systemIntegrator.removeActionFromMenu(actionToRemove)
