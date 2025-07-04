@@ -63,6 +63,13 @@ export class DefaultAppLifecycleManager implements AppLifecycleManager {
       console.error('Shortcut system initialization failed:', shortcutResult.error)
       // 단축키 실패는 앱을 종료하지 않음
     }
+
+    // 메뉴 시스템 초기화
+    const menuResult = await this.systemIntegrator.initializeMenuSystem()
+    if (!menuResult.success) {
+      console.error('Menu system initialization failed:', menuResult.error)
+      // 메뉴 실패는 앱을 종료하지 않음
+    }
   }
 
   private setupAppEventListeners(): void {

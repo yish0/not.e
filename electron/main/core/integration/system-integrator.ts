@@ -3,6 +3,10 @@ import { getShortcutManager } from '../../shortcuts'
 import { getAllDefaultActions } from '../../actions/index'
 import { getVaultManager } from '../../vault'
 import { setupIPCHandlers } from '../../ipc'
+import { getMenuManager } from '../menu'
+import type { MenuConfiguration } from '../menu/menu-types'
+import { DEFAULT_MENU_CONFIGURATION } from '../menu/menu-types'
+import type { ShortcutAction } from '../../shortcuts/types/shortcut-types'
 
 export interface SystemInitializationResult {
   success: boolean
@@ -12,13 +16,21 @@ export interface SystemInitializationResult {
 export interface SystemIntegrator {
   initializeVaultSystem(): Promise<SystemInitializationResult>
   initializeShortcutSystem(): Promise<SystemInitializationResult>
+  initializeMenuSystem(): Promise<SystemInitializationResult>
   setupWindowIntegration(window: BrowserWindow): Promise<void>
   registerDefaultActions(): void
+  updateMenuWithActions(actions: ShortcutAction[]): Promise<void>
+  updateMenuConfiguration(config: MenuConfiguration): Promise<void>
+  addActionToMenu(action: ShortcutAction): Promise<void>
+  removeActionFromMenu(actionName: string): Promise<void>
+  cleanup(): void
 }
 
 export class DefaultSystemIntegrator implements SystemIntegrator {
   private shortcutManager = getShortcutManager()
   private vaultManager = getVaultManager()
+  private menuManager = getMenuManager()
+  private registeredActions: ShortcutAction[] = []
 
   async initializeVaultSystem(): Promise<SystemInitializationResult> {
     try {
@@ -84,8 +96,43 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
     setupIPCHandlers({ mainWindow: window })
   }
 
+  async initializeMenuSystem(): Promise<SystemInitializationResult> {
+    try {
+      // 등록된 액션이 없다면 기본 액션 사용
+      if (this.registeredActions.length === 0) {
+        const actions = getAllDefaultActions()
+        this.registeredActions = [...actions]
+      }
+      
+      // 기본 액션들과 함께 메뉴 초기화
+      this.menuManager.initializeWithActions(this.registeredActions, DEFAULT_MENU_CONFIGURATION)
+      
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown menu initialization error'
+      }
+    }
+  }
+
+  async setupWindowIntegration(window: BrowserWindow): Promise<void> {
+    // 메뉴가 설정되지 않았다면 초기화
+    if (!this.menuManager.isMenuSet()) {
+      await this.initializeMenuSystem()
+    }
+
+    // 윈도우별 로컬 단축키 등록
+    await this.shortcutManager.setupWindow(window)
+
+    // IPC 핸들러 설정
+    setupIPCHandlers({ mainWindow: window })
+  }
+
   registerDefaultActions(): void {
     const actions = getAllDefaultActions()
+    this.registeredActions = [...actions]
+    
     actions.forEach((action) => {
       this.shortcutManager.registerAction(
         action.name,
@@ -95,6 +142,45 @@ export class DefaultSystemIntegrator implements SystemIntegrator {
       )
     })
     console.log(`Registered ${actions.length} default actions`)
+  }
+
+  async updateMenuWithActions(actions: ShortcutAction[]): Promise<void> {
+    this.registeredActions = [...actions]
+    this.menuManager.updateMenu(actions, DEFAULT_MENU_CONFIGURATION)
+  }
+
+  async updateMenuConfiguration(config: MenuConfiguration): Promise<void> {
+    this.menuManager.updateMenu(this.registeredActions, config)
+  }
+
+  async addActionToMenu(action: ShortcutAction): Promise<void> {
+    // 액션 등록
+    this.shortcutManager.registerAction(
+      action.name,
+      action.handler,
+      action.description,
+      action.category
+    )
+    
+    // 등록된 액션 목록에 추가
+    this.registeredActions.push(action)
+    
+    // 메뉴 업데이트
+    this.menuManager.updateMenu(this.registeredActions, DEFAULT_MENU_CONFIGURATION)
+  }
+
+  async removeActionFromMenu(actionName: string): Promise<void> {
+    // 등록된 액션 목록에서 제거
+    this.registeredActions = this.registeredActions.filter(
+      action => action.name !== actionName
+    )
+    
+    // 메뉴 업데이트
+    this.menuManager.updateMenu(this.registeredActions, DEFAULT_MENU_CONFIGURATION)
+  }
+
+  cleanup(): void {
+    this.menuManager.cleanup()
   }
 }
 
